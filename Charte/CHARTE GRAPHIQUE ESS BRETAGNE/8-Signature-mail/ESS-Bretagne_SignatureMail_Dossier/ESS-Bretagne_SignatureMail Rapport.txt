@@ -1,0 +1,43 @@
+Rapport d'assemblage
+
+-----------------------------------------------------------------------------
+Document :
+Nom : ESS-Bretagne_SignatureMail.ai
+Mode : Couleurs RVB
+Profil colorimétrique : sRGB IEC61966-2.1
+Unité : millimètres
+Dimensions : 282,2222 mm x 67,9942 mm
+Afficher les images en mode Tracés : INACTIF
+Mettre en évidence les polices substituées : INACTIF
+Mettre en évidence les glyphes substitués : INACTIF
+Conserver le caractère modifiable du texte
+Simuler le papier couleur : INACTIF
+
+-----------------------------------------------------------------------------
+Objets en tons directs :
+
+-----------------------------------------------------------------------------
+Polices manquantes :SANS
+
+-----------------------------------------------------------------------------
+Polices protégées non assemblées :
+Poppins Regular (Polices Adobe)
+Poppins Bold (Polices Adobe)
+Poppins ExtraBold (Polices Adobe)
+
+-----------------------------------------------------------------------------
+Polices :
+Verdana (OTF)
+Verdana Bold (OTF)
+
+-----------------------------------------------------------------------------
+Polices incorporées :
+SANS
+
+-----------------------------------------------------------------------------
+Liens manquants :
+SANS
+
+-----------------------------------------------------------------------------
+Images liées :
+SANS

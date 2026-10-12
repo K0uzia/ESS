@@ -1,0 +1,85 @@
+%!Adobe-FontList 1.25
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/7-Papier-a-entete/Dossier ESS-Bretagne_PapierEntete/Document fonts/AdobeFnt25.lst
+FileLength:2097
+FileModTime:811074270
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Verdana-Bold
+FamilyName:Verdana
+StyleName:Bold
+MenuName:Verdana
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Verdana Bold
+WritingScript:Roman
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/7-Papier-a-entete/Dossier ESS-Bretagne_PapierEntete/Document fonts/Verdana Bold.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:NonVariableFont
+FileLength:153260
+FileModTime:808282315
+NameArray:0,Mac,4,Verdana Bold
+NameArray:0,Win,1,Verdana
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Verdana
+FamilyName:Verdana
+StyleName:Regular
+MenuName:Verdana
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Verdana
+WritingScript:Roman
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/7-Papier-a-entete/Dossier ESS-Bretagne_PapierEntete/Document fonts/Verdana.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:NonVariableFont
+FileLength:186188
+FileModTime:808282315
+NameArray:0,Mac,4,Verdana
+NameArray:0,Win,1,Verdana
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Viga-Regular
+FamilyName:Viga
+StyleName:Regular
+MenuName:Viga
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Viga-Regular
+WritingScript:Roman
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/7-Papier-a-entete/Dossier ESS-Bretagne_PapierEntete/Document fonts/Viga-Regular.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:NonVariableFont
+FileLength:25524
+FileModTime:344905200
+NameArray:0,Win,1,Viga
+%EndFont
+

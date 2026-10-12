@@ -113,7 +113,7 @@ Modules : identité et coordonnées, contenus, équipe, adhérents, offres d'emp
 
 - Inventaire du site actuel : `content/ancien-site/` (pages, `redirections.tsv`, `INVENTAIRE.md`).
 - Équipe, forces vives et CA : tout ce qui est publié est repris, y compris Morlaix (Eliane LE DUFF, Emilie CARIOU-MENES, Chloé MOULARD) et la liste du CA de 2021 (décision du 12 octobre 2026).
-- Qualiopi (Pôle ESS Pays de Brest seulement) : certificat n° 127412-2 (Certifopac), actions de formation, valide du 7 juin 2025 au 6 juin 2028, fichier `content/documents/certificat-qualiopi-127412-2.pdf` (copie de celui de `Charte/`). Ne pas reprendre le certificat de 2022. À renouveler avant le 6 juin 2028 (catégorie « Certificat » du module Documents).
+- Qualiopi (Pôle ESS Pays de Brest seulement) : certificat n° 127412-2 (Certifopac), actions de formation, valide du 7 juin 2025 au 6 juin 2028, fichier `Charte/Certificat Qualiopi - Mise à jour le 08.04.2025.pdf`. Ne pas reprendre le certificat de 2022. À renouveler avant le 6 juin 2028 (catégorie « Certificat » du module Documents).
 
 ## Équipe
 

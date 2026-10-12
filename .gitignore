@@ -12,8 +12,10 @@ vendor/
 node_modules/
 .phpunit.cache/
 
-# Sources de la charte (plusieurs Go : impression, AI/EPS, photos HD, archives). Gardées sur le poste et le partage
-# de l'équipe ; les déclinaisons web sont générées dans public/assets/ (bin/build-images.php, bin/build-fonts.mjs).
-Charte/
+# Charte : versionnée, sauf les fichiers au-delà de la limite GitHub de 100 Mo (copies PSD d'une photo présente en JPG
+# dans 5-Photos) et les archives, doublons des dossiers extraits.
+Charte/**/*.zip
+Charte/CHARTE GRAPHIQUE ESS BRETAGNE/11-Kakemono/Dossier ESS-Bretagne_Kakemono_800x2060mm_Photo/Links/AdobeStock_1708024907.psd
+Charte/CHARTE GRAPHIQUE ESS BRETAGNE/10-ReseauxSociaux/Dossier ESS-Bretagne_ReseauxSociaux/Links/AdobeStock_1708024907.psd
 __MACOSX/
 .DS_Store

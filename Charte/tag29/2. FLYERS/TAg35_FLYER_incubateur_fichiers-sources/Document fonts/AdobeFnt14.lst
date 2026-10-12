@@ -1,0 +1,66 @@
+%!Adobe-FontList 1.14
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:QuicksandBold-Regular
+FamilyName:Quicksand
+StyleName:Bold
+MenuName:Quicksand Bold
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Quicksand Bold Regular
+WritingScript:Roman
+OutlineFileName:\Quicksand_Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:37812
+FileModTime:1482144902
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:QuicksandBook-Regular
+FamilyName:Quicksand
+StyleName:Book
+MenuName:Quicksand Book
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Quicksand Book Regular
+WritingScript:Roman
+OutlineFileName:\Quicksand_Book.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:36656
+FileModTime:1482144901
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:QuicksandDash-Regular
+FamilyName:Quicksand
+StyleName:Dash
+MenuName:Quicksand Dash
+StyleBits:0
+WeightClass:200
+WidthClass:5
+AngleClass:0
+FullName:Quicksand Dash Regular
+WritingScript:Roman
+OutlineFileName:\Quicksand_Dash.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:60244
+FileModTime:1482144901
+%EndFont
+

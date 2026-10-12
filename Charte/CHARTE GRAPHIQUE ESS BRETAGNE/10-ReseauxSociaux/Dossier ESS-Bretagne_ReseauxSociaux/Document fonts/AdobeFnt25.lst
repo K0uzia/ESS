@@ -1,0 +1,35 @@
+%!Adobe-FontList 1.25
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/10-ReseauxSociaux/Dossier ESS-Bretagne_ReseauxSociaux/Document fonts/AdobeFnt25.lst
+FileLength:1096
+FileModTime:811083765
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Viga-Regular
+FamilyName:Viga
+StyleName:Regular
+MenuName:Viga
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Viga-Regular
+WritingScript:Roman
+OutlineFileName:/Users/manon/Library/CloudStorage/ZohoWorkDriveTrueSync-PortailHippocampe/C_Production/CRESS/5417_1473_CRESS_TDM_ESS_Bretagne/1_Conduite/3_Presentations_Client/CHARTE GRAPHIQUE ESS BRETAGNE/10-ReseauxSociaux/Dossier ESS-Bretagne_ReseauxSociaux/Document fonts/Viga-Regular.ttf
+DataFormat:sfntData
+hasSVG:no
+hasSBIX:no
+hasCOLR:no
+VariableFontType:NonVariableFont
+FileLength:25524
+FileModTime:344905200
+NameArray:0,Win,1,Viga
+%EndFont
+
