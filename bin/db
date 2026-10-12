@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DB="./data/database.sqlite"
+
+mkdir -p ./data
+case "${1:-}" in
+  init) DB_DSN="sqlite:$DB" php ./bin/migrate ;;
+  reset) rm -f "$DB" "$DB-wal" "$DB-shm"; DB_DSN="sqlite:$DB" php ./bin/migrate ;;
+  shell) sqlite3 "$DB" ;;
+  *) echo "Usage: bin/db {init|reset|shell}" >&2; exit 1;;
+esac

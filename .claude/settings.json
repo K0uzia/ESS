@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node .claude/skills/web-audit/scripts/check-dist.mjs *)",
+      "Bash(node .claude/skills/web-audit/scripts/check-repo.mjs)",
+      "Bash(bash .claude/skills/web-audit/scripts/check-headers.sh *)",
+      "Bash(npm run build)",
+      "Bash(npx astro build)"
+    ]
+  }
+}

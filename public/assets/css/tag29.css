@@ -1,0 +1,4 @@
+/* Identité TAg29, limitée à la page /tag29/ (logo et titres). */
+@font-face { font-family: "Quicksand"; src: url("/assets/fonts/quicksand-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+.page-tag29 main :is(h1, h2) { font-family: var(--font-tag29); font-weight: 700; }

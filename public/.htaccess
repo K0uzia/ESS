@@ -1,0 +1,66 @@
+# Production (Hostinger : Apache ou LiteSpeed). Racine web = ce dossier public/ ; app/, config/, data/ restent hors web.
+Options -Indexes -MultiViews +FollowSymLinks
+ServerSignature Off
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS et domaine canonique (sans www), uniquement sur l'hôte public.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP_HOST} ^(www\.)?ess29\.org$ [NC]
+    RewriteRule ^ https://ess29.org%{REQUEST_URI} [R=301,L,NE]
+    RewriteCond %{HTTP_HOST} ^www\.ess29\.org$ [NC]
+    RewriteRule ^ https://ess29.org%{REQUEST_URI} [R=301,L,NE]
+
+    # Fichiers cachés (.env, .git…), sauf /.well-known/ ; serveur de développement ; scripts dans les fichiers envoyés.
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule ^router\.php$ - [F,L]
+    RewriteRule ^media/.*\.(?:php\d?|phtml|phar|cgi|pl|py|sh)$ - [F,L,NC]
+
+    # Méthodes : GET/HEAD/OPTIONS partout ; POST seulement vers les formulaires réels et l'admin.
+    # LiteSpeed : tester THE_REQUEST (REQUEST_URI peut y être absolu).
+    RewriteCond %{REQUEST_METHOD} !^(GET|HEAD|OPTIONS)$ [NC]
+    RewriteCond %{THE_REQUEST} !^POST\s/+(contact/|newsletter/|newsletter/desinscription|admin/)[^\s]*\s [NC]
+    RewriteRule ^ - [F,L]
+
+    # Tout ce qui n'est pas un fichier réel passe par le contrôleur frontal (redirections 301 comprises).
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+# Types sensibles jamais servis.
+<FilesMatch "\.(?:env|ini|log|sh|md|bak|sql|sqlite|sqlite-journal|lock|ya?ml|map|tsv|key)$">
+    Require all denied
+</FilesMatch>
+
+# En-têtes des fichiers statiques. Les pages PHP envoient les leurs (public/index.php), avec la même politique.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(?:css|js|webp|png|jpe?g|svg|woff2|pdf|txt|ico)$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+        Header set Cross-Origin-Resource-Policy "same-site"
+        Header set Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; frame-ancestors 'none'"
+    </FilesMatch>
+    # HSTS seulement sur l'hôte public au certificat valide.
+    <If "%{HTTP_HOST} == 'ess29.org' && %{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+    Header unset X-Powered-By
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/markdown text/plain application/xml image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 hour"
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType font/woff2 "access plus 30 days"
+    ExpiresByType application/pdf "access plus 30 days"
+</IfModule>

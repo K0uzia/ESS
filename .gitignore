@@ -1,0 +1,19 @@
+# Secrets et données locales
+.env
+data/
+*.sqlite
+*.sqlite-journal
+
+# Fichiers envoyés depuis l'admin
+public/media/
+
+# Dépendances et outils
+vendor/
+node_modules/
+.phpunit.cache/
+
+# Sources de la charte (plusieurs Go : impression, AI/EPS, photos HD, archives). Gardées sur le poste et le partage
+# de l'équipe ; les déclinaisons web sont générées dans public/assets/ (bin/build-images.php, bin/build-fonts.mjs).
+Charte/
+__MACOSX/
+.DS_Store

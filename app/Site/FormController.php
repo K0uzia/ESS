@@ -1,0 +1,207 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Site;
+
+use App\Content\Page;
+use App\Core\Db;
+use App\Core\FormGuard;
+use App\Core\Mailer;
+use App\Core\View;
+
+final class FormController
+{
+    private const MESSAGE_MAX = 5000;
+
+    public static function contact(): void
+    {
+        $values = [
+            'nom' => trim((string) ($_POST['nom'] ?? '')),
+            'email' => trim((string) ($_POST['email'] ?? '')),
+            'pole' => (string) ($_POST['pole'] ?? ''),
+            'message' => trim((string) ($_POST['message'] ?? '')),
+        ];
+        $errors = [];
+        if ($values['nom'] === '' || text_length($values['nom']) > 120) {
+            $errors['nom'] = 'Indiquez votre nom (120 caractères au plus).';
+        }
+        if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
+        }
+        $pole = $values['pole'] === '' ? null : Db::run('SELECT * FROM poles WHERE slug = ?', [$values['pole']])->fetch();
+        if ($values['pole'] !== '' && !$pole) {
+            $errors['pole'] = 'Choisissez un pôle dans la liste.';
+        }
+        if (text_length($values['message']) < 10 || text_length($values['message']) > self::MESSAGE_MAX) {
+            $errors['message'] = 'Écrivez votre message (entre 10 et ' . self::MESSAGE_MAX . ' caractères).';
+        }
+        if ($errors === [] && FormGuard::rateLimited('contact', 5, 60)) {
+            $errors['form'] = 'Trop de messages envoyés depuis votre connexion. Réessayez dans une heure ou écrivez directement à ' . setting('email_contact') . '.';
+        }
+        if ($errors !== []) {
+            self::renderWithErrors('/', 'accueil', $errors, $values);
+            return;
+        }
+
+        if (FormGuard::passes()) {
+            $to = $pole['email'] ?? setting('email_contact');
+            Db::run(
+                'INSERT INTO contact_messages (pole_id, name, email, message) VALUES (?, ?, ?, ?)',
+                [$pole['id'] ?? null, $values['nom'], $values['email'], $values['message']]
+            );
+            $id = (int) Db::pdo()->lastInsertId();
+            $sent = Mailer::send(
+                $to,
+                'Message du site ess29.org : ' . $values['nom'],
+                "Nom : {$values['nom']}\nE-mail : {$values['email']}\nPôle : " . ($pole['name'] ?? 'Non précisé') . "\n\n{$values['message']}\n",
+                null,
+                $values['email']
+            );
+            Db::run('UPDATE contact_messages SET mail_sent = ? WHERE id = ?', [(int) $sent, $id]);
+            // Durée de conservation annoncée dans /confidentialite/ : 12 mois.
+            Db::run("DELETE FROM contact_messages WHERE created_at < datetime('now', '-12 months')");
+        }
+        redirect('/?envoye=1#contact');
+    }
+
+    public static function subscribe(): void
+    {
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $chosen = array_values(array_filter((array) ($_POST['poles'] ?? []), 'is_string'));
+        $errors = [];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
+        }
+        $poles = $chosen === [] ? [] : Db::run(
+            'SELECT * FROM poles WHERE slug IN (' . implode(',', array_fill(0, count($chosen), '?')) . ')',
+            $chosen
+        )->fetchAll();
+        if ($poles === []) {
+            $errors['poles'] = 'Choisissez au moins une lettre d\'information.';
+        }
+        if ($errors === [] && FormGuard::rateLimited('newsletter', 5, 60)) {
+            $errors['form'] = 'Trop de demandes depuis votre connexion. Réessayez dans une heure.';
+        }
+        $back = (string) ($_POST['retour'] ?? '/');
+        $back = isset(SiteController::PAGES[$back]) ? $back : '/';
+        if ($errors !== []) {
+            self::renderWithErrors($back, SiteController::PAGES[$back], $errors, ['email' => $email, 'poles' => $chosen]);
+            return;
+        }
+
+        if (FormGuard::passes()) {
+            $confirm = bin2hex(random_bytes(24));
+            $pending = [];
+            foreach ($poles as $p) {
+                $row = Db::run('SELECT status FROM newsletter_subscribers WHERE pole_id = ? AND email = ?', [$p['id'], $email])->fetch();
+                if ($row && $row['status'] === 'active') {
+                    continue;
+                }
+                if ($row) {
+                    Db::run(
+                        "UPDATE newsletter_subscribers SET status = 'pending', confirm_token = ?, consent_at = CURRENT_TIMESTAMP, unsubscribed_at = NULL WHERE pole_id = ? AND email = ?",
+                        [$confirm, $p['id'], $email]
+                    );
+                } else {
+                    Db::run(
+                        'INSERT INTO newsletter_subscribers (pole_id, email, token, confirm_token) VALUES (?, ?, ?, ?)',
+                        [$p['id'], $email, bin2hex(random_bytes(24)), $confirm]
+                    );
+                }
+                $pending[] = $p['name'];
+            }
+            if ($pending !== []) {
+                $link = rtrim(setting('site_url'), '/') . '/newsletter/confirmer?jeton=' . $confirm;
+                if (($_ENV['APP_ENV'] ?? '') === 'local') {
+                    $link = rtrim($_ENV['APP_URL'] ?? 'http://localhost:8080', '/') . '/newsletter/confirmer?jeton=' . $confirm;
+                }
+                Mailer::send(
+                    $email,
+                    'Confirmez votre inscription aux lettres d\'information ESS Finistère',
+                    "Bonjour,\n\nVous avez demandé à recevoir : " . implode(', ', $pending) . ".\n\n"
+                    . "Pour confirmer, ouvrez ce lien :\n$link\n\n"
+                    . "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message : aucune inscription ne sera faite.\n\n"
+                    . setting('raison_sociale') . "\n"
+                );
+            }
+        }
+        // Même réponse que l'adresse soit nouvelle, déjà inscrite ou issue d'un robot.
+        redirect('/newsletter/?statut=demande');
+    }
+
+    public static function confirm(): void
+    {
+        $token = (string) ($_GET['jeton'] ?? '');
+        $count = 0;
+        if (preg_match('/^[a-f0-9]{48}$/', $token)) {
+            $count = Db::run(
+                "UPDATE newsletter_subscribers SET status = 'active', confirmed_at = CURRENT_TIMESTAMP, confirm_token = NULL
+                 WHERE confirm_token = ? AND status = 'pending' AND consent_at >= datetime('now', '-7 days')",
+                [$token]
+            )->rowCount();
+        }
+        redirect('/newsletter/?statut=' . ($count > 0 ? 'confirme' : 'lien-invalide'));
+    }
+
+    /** GET affiche un bouton (les antivirus de messagerie suivent les liens) ; POST désinscrit, y compris en un clic (RFC 8058). */
+    public static function unsubscribe(): void
+    {
+        $token = (string) ($_GET['jeton'] ?? $_POST['jeton'] ?? '');
+        $sub = preg_match('/^[a-f0-9]{48}$/', $token)
+            ? Db::run('SELECT s.*, p.name AS pole FROM newsletter_subscribers s JOIN poles p ON p.id = s.pole_id WHERE s.token = ?', [$token])->fetch()
+            : false;
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            if ($sub) {
+                Db::run("UPDATE newsletter_subscribers SET status = 'unsubscribed', unsubscribed_at = CURRENT_TIMESTAMP WHERE id = ?", [$sub['id']]);
+            }
+            redirect('/newsletter/?statut=desinscrit');
+        }
+        self::newsletterPage($sub ? 'desinscription' : 'lien-invalide', $sub ?: null);
+    }
+
+    public static function newsletter(): void
+    {
+        self::newsletterPage((string) ($_GET['statut'] ?? ''), null);
+    }
+
+    /** @param array<string, mixed>|null $subscriber */
+    private static function newsletterPage(string $status, ?array $subscriber): void
+    {
+        $messages = [
+            'demande' => 'Merci. Si l\'adresse n\'était pas encore inscrite, un e-mail de confirmation vient de lui être envoyé. L\'inscription ne sera faite qu\'après avoir cliqué sur le lien qu\'il contient (valable 7 jours).',
+            'confirme' => 'Votre inscription est confirmée. Vous pouvez vous désinscrire à tout moment grâce au lien présent dans chaque lettre.',
+            'lien-invalide' => 'Ce lien n\'est plus valable. Il a peut-être expiré ou déjà été utilisé. Vous pouvez refaire une demande d\'inscription ci-dessous.',
+            'desinscrit' => 'Votre désinscription est enregistrée. Vous ne recevrez plus cette lettre.',
+        ];
+        header('X-Robots-Tag: noindex');
+        View::render('site/newsletter', [
+            'path' => '/newsletter/',
+            'pageKey' => 'newsletter',
+            'page' => ['meta' => [
+                'title' => 'Lettres d\'information',
+                'description' => '',
+                'h1' => 'Lettres d\'information des pôles',
+            ], 'sections' => []],
+            'breadcrumb' => [['/', 'Accueil']],
+            'status' => $status,
+            'message' => $messages[$status] ?? null,
+            'subscriber' => $subscriber,
+        ], 'site/layout');
+    }
+
+    /**
+     * @param array<string, string> $errors
+     * @param array<string, mixed> $values
+     */
+    private static function renderWithErrors(string $path, string $pageKey, array $errors, array $values): void
+    {
+        http_response_code(422);
+        $GLOBALS['form_state'] = ['errors' => $errors, 'values' => $values];
+        View::render('site/page', [
+            'path' => $path,
+            'pageKey' => $pageKey,
+            'page' => Page::load($pageKey) ?? ['meta' => ['h1' => ''], 'sections' => []],
+            'breadcrumb' => [],
+        ], 'site/layout');
+    }
+}

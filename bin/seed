@@ -1,0 +1,120 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+// Charge le contenu initial de content/seed/ dans la base. N'écrase jamais ce qui a été édité dans l'admin :
+// pages en INSERT OR IGNORE, tables de données seulement si elles sont vides.
+// Usage : bin/seed [--documents]   (--documents télécharge les PDF de l'ancien site dans public/media/documents/)
+require __DIR__ . '/../app/bootstrap.php';
+
+use App\Content\SeedPage;
+use App\Core\Db;
+
+$seed = ROOT . '/content/seed';
+$pdo = Db::pdo();
+$poles = $pdo->query('SELECT slug, id FROM poles')->fetchAll(PDO::FETCH_KEY_PAIR);
+$poleId = static function (string $slug) use ($poles): ?int {
+    $slug = trim($slug);
+    if ($slug === '' || $slug === 'tag29') {
+        return null;
+    }
+    return $poles[$slug] ?? throw new RuntimeException("Pôle inconnu : $slug");
+};
+
+/** @return list<array<string, string>> */
+function tsv(string $file): array
+{
+    if (!is_file($file)) {
+        return [];
+    }
+    $rows = array_values(array_filter(explode("\n", str_replace("\r\n", "\n", (string) file_get_contents($file))), 'strlen'));
+    $head = array_map('trim', explode("\t", (string) array_shift($rows)));
+    return array_map(static fn ($r) => array_combine($head, array_slice(array_pad(array_map('trim', explode("\t", $r)), count($head), ''), 0, count($head))), $rows);
+}
+
+function isEmpty(string $table): bool
+{
+    return (int) Db::pdo()->query("SELECT COUNT(*) FROM $table")->fetchColumn() === 0;
+}
+
+$nullable = static fn (string $v): ?string => $v === '' ? null : $v;
+
+$pdo->beginTransaction();
+
+$insert = $pdo->prepare('INSERT OR IGNORE INTO page_contents (page_key, section_key, field_key, content_type, value, position) VALUES (?, ?, ?, ?, ?, ?)');
+foreach (glob("$seed/pages/*.md") ?: [] as $file) {
+    $page = basename($file, '.md');
+    $data = SeedPage::parse($file);
+    foreach ($data['meta'] as $field => $value) {
+        $insert->execute([$page, '_meta', $field, 'text', $value, 0]);
+    }
+    foreach ($data['sections'] as $i => $s) {
+        $insert->execute([$page, $s['key'], 'title', 'text', $s['title'], $i + 1]);
+        $insert->execute([$page, $s['key'], 'variant', 'text', $s['variant'], $i + 1]);
+        $insert->execute([$page, $s['key'], 'image', 'text', $s['image'], $i + 1]);
+        $insert->execute([$page, $s['key'], 'body', 'markdown', $s['body'], $i + 1]);
+    }
+    echo "page $page : " . count($data['sections']) . " sections\n";
+}
+
+if (isEmpty('team_members')) {
+    foreach (tsv("$seed/equipe.tsv") as $i => $r) {
+        $team = $r['pole'] === 'tag29' ? 'tag29' : ($r['groupe'] === 'ca' ? 'ca' : 'salaries');
+        Db::run(
+            'INSERT INTO team_members (name, role, pole_id, team, structure, email, phone, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$r['nom'], $r['role'], $poleId($r['pole']), $team, $nullable($r['structure']), $nullable($r['email']), $nullable($r['telephone']), (int) ($r['ordre'] ?: $i)]
+        );
+    }
+    echo 'équipe : ' . $pdo->query('SELECT COUNT(*) FROM team_members')->fetchColumn() . "\n";
+}
+
+if (isEmpty('members')) {
+    foreach (tsv("$seed/adherents.tsv") as $i => $r) {
+        Db::run(
+            'INSERT INTO members (pole_id, name, status, url, position, is_published) VALUES (?, ?, ?, ?, ?, ?)',
+            [$poleId($r['pole']), $r['nom'], $nullable($r['statut']), $nullable($r['url']), $i, (int) $r['publie']]
+        );
+    }
+    echo 'adhérents : ' . $pdo->query('SELECT COUNT(*) FROM members')->fetchColumn() . "\n";
+}
+
+if (isEmpty('partners')) {
+    foreach (tsv("$seed/partenaires.tsv") as $i => $r) {
+        Db::run(
+            'INSERT INTO partners (kind, pole_id, name, url, logo_path, position) VALUES (?, ?, ?, ?, ?, ?)',
+            [$r['type'] === 'reseau' ? 'reseau' : 'partenaire', $poleId($r['pole']), $r['nom'], $nullable($r['url']), $nullable($r['logo'] ?? ''), $i]
+        );
+    }
+    echo 'partenaires : ' . $pdo->query('SELECT COUNT(*) FROM partners')->fetchColumn() . "\n";
+}
+
+$pdo->commit();
+
+if (in_array('--documents', $argv, true) && isEmpty('documents')) {
+    $dir = ROOT . '/public/media/documents';
+    is_dir($dir) || mkdir($dir, 0775, true);
+    foreach (tsv("$seed/documents.tsv") as $i => $r) {
+        $name = basename((string) parse_url($r['url_source'], PHP_URL_PATH));
+        $path = "$dir/$name";
+        if (!str_starts_with($r['url_source'], 'http')) {
+            // Fichier fourni localement (ex. Charte/…) : copié tel quel.
+            $name = preg_replace('/[^A-Za-z0-9._-]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $name)) ?: 'document.pdf';
+            $path = "$dir/$name";
+            is_file($path) || copy(ROOT . '/' . $r['url_source'], $path);
+        }
+        if (!is_file($path)) {
+            $data = @file_get_contents($r['url_source']);
+            if ($data === false || !str_starts_with($data, '%PDF')) {
+                fwrite(STDERR, "échec : {$r['url_source']}\n");
+                continue;
+            }
+            file_put_contents($path, $data);
+            sleep(1);
+        }
+        Db::run(
+            'INSERT INTO documents (pole_id, category, title, description, year, file_path, source_url, mime, size, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$poleId($r['pole']), $r['categorie'], $r['titre'], ($r['description'] ?? '') ?: null, $r['annee'] === '' ? null : (int) $r['annee'], "/media/documents/$name", $r['url_source'], 'application/pdf', filesize($path), $i]
+        );
+    }
+    echo 'documents : ' . $pdo->query('SELECT COUNT(*) FROM documents')->fetchColumn() . "\n";
+}

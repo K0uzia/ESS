@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+// Envoie un lot de newsletters en attente. À lancer par cron, par exemple toutes les 10 minutes :
+// */10 * * * * cd /chemin/du/site && php bin/newsletter-send >> data/newsletter.log 2>&1
+require __DIR__ . '/../app/bootstrap.php';
+
+[$sent, $failed, $left] = App\Newsletter\Sender::sendBatch();
+printf("%s envoyés=%d échecs=%d en_attente=%d (quota 24 h : %d/%d)\n", date('c'), $sent, $failed, $left, App\Newsletter\Sender::sentLast24h(), App\Newsletter\Sender::dailyLimit());

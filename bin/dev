@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+PORT="${PORT:-8080}"
+PHP_OPTS="-d display_errors=1 -d error_reporting=32767 -d zend.assertions=1 -d assert.exception=1 -d upload_max_filesize=64M -d post_max_size=64M -d memory_limit=256M"
+echo "→ http://localhost:$PORT"
+php $PHP_OPTS -S "localhost:${PORT}" -t public public/router.php
