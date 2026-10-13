@@ -1,52 +1,91 @@
-nom	pole	statut	url	publie
-ACTES en Cornouaille	pays-de-cornouaille	Association		1
-Ateliers Fouesnantais	pays-de-cornouaille	Association		1
-Biocoop Graine de Bio	pays-de-cornouaille	Coopérative		1
-Biocoop Maison Biologique Douarnenez-Audierne	pays-de-cornouaille	Coopérative		1
-Biocoop Les 7 Epis	pays-de-cornouaille	Coopérative		1
-Cigales de Bretagne	pays-de-cornouaille	Association		1
-Crédit Coopératif	pays-de-cornouaille	Coopérative		1
-Espace Associatif Quimper	pays-de-cornouaille	Association		1
-Ferme de Penkerlen	pays-de-cornouaille	GIE		1
-Fondation Massé-Trévidy	pays-de-cornouaille	Fondation		1
-GEAI29	pays-de-cornouaille	Association		1
-Graines de Liberté – Hadoù Ar Frankiz	pays-de-cornouaille	SCIC		1
-Habitat et Humanisme	pays-de-cornouaille	Association		1
-Harmonie Mutuelle	pays-de-cornouaille	Mutuelle santé		1
-IDES	pays-de-cornouaille	Association		1
-Kan Ar Mor	pays-de-cornouaille	Association		1
-Les Jardins de Kerbellec	pays-de-cornouaille	Association		1
-Les Maraîchers de la Coudraie	pays-de-cornouaille	Association		1
-MAIF	pays-de-cornouaille	Mutuelle assurance		1
-MFR (fédération des MFR 29)	pays-de-cornouaille	Association		1
-MGEN	pays-de-cornouaille	Mutuelle santé		1
-Mission Locale Pays de Cornouaille	pays-de-cornouaille	Association		1
-ND de Kerbertrand-Lycée	pays-de-cornouaille	Association		1
-Technichanvre	pays-de-cornouaille	Coopérative		1
-Treuzkemm	pays-de-cornouaille	Association		1
-Wakan Douar	pays-de-cornouaille	Association		1
-Annie GOUZIEN	pays-de-cornouaille	Personne qualifiée		1
-Martine LE BEC	pays-de-cornouaille	Personne qualifiée		1
-Daniel CARDUNER	pays-de-cornouaille	Personne qualifiée		1
-Sans Transition	pays-de-morlaix		http://www.sans-transition-magazine.info	0
-Buzuk	pays-de-morlaix		https://www.buzuk.bzh	0
-Les Genêts d'Or	pays-de-morlaix		https://www.lesgenetsdor.org	0
-Icoopa	pays-de-morlaix		https://www.icoopa.bzh	0
-Le Lok'All	pays-de-morlaix		https://www.lelokall.com	0
-La Maison du Bâtiment	pays-de-morlaix		https://www.la-maison-du-batiment.com	0
-Fondation Massé-Trévidy	pays-de-morlaix		http://www.masse-trevidy.org	0
-Mutualité française de Bretagne	pays-de-morlaix		https://bretagne.mutualite.fr	0
-Les Temps Bouilles	pays-de-morlaix		https://www.facebook.com/LesTempsBouilles	0
-URCPIE	pays-de-morlaix		http://plateforme.cpie.fr/spip.php?article87	0
-ULAMIR CPIE	pays-de-morlaix		http://www.ulamir.com	0
-RESAM	pays-de-morlaix		https://www.resam.net	0
-Sevel Services	pays-de-morlaix		https://www.sevel-services.com	0
-Luska	pays-de-morlaix		https://www.luska.org/	0
-mpPSY	pays-de-morlaix		https://psychologue-mpsy29.wixsite.com/website	0
-Les Jeannettes	pays-de-morlaix		https://www.facebook.com/lepiceriedesjeannettes/	0
-Le Repair	pays-de-morlaix		https://www.facebook.com/lerepairrecyclerie/	0
-Le Mélar Dit	pays-de-morlaix		https://www.lemelardit.com	0
-Fondation Ildys	pays-de-morlaix		https://www.ildys.org	0
-Cigales de Bretagne	pays-de-morlaix		http://www.cigales-bretagne.org	0
-CAE 29	pays-de-morlaix		https://www.cae29.coop	0
-Cellaouate	pays-de-morlaix		http://www.cellaouate.com	0
+nom	pole	statut	url	publie	adresse	latitude	longitude
+909 - Batir Durable	pays-de-brest	Entreprise		1	29200 Brest	48.408358	-4.487114
+AMBO - Association de Médiateurs Bretagne Ouest	pays-de-brest	Association		1	29200 Brest	0	0
+Association des Cigales de Bretagne	pays-de-brest	Association		1	15 Rue Martenot, 35706 Rennes	48.11235	-1.671928
+Astrolabe Expéditions	pays-de-brest	Association		1	115 Rue Claude Chappe, 29280 Plouzané	48.361314	-4.572191
+BAPAV	pays-de-brest	Association		1	19 Rue Bruat, 29200 Brest	48.397345	-4.48151
+Ell'A Brest	pays-de-brest	Association		1	6 Rue de Pen Ar Créac'h, 29810 Lampaul-Plouarzel	48.441475	-4.76827
+Familles Rurales	pays-de-brest	Association		1	15 Rue Gaston Planté, 29850 Gouesnou	48.430349	-4.460426
+Fédé B	pays-de-brest	Association		1	6 Avenue Victor le Gorgeu, 29200 Brest	48.399257	-4.4979
+France Active Bretagne	pays-de-brest	Association		1	1 Rue Louis Pidoux, 29200 Brest	48.396559	-4.466246
+GEAI29	pays-de-brest	Association		1	1 Allée Monseigneur Jean-René Calloc'h, 29000 Quimper	47.982849	-4.078903
+Graine d'auto-détermination	pays-de-brest	Association		1	29460 Daoulas	48.361561	-4.259431
+L'ACACIA	pays-de-brest	Coopérative		1	Route de la ZA de Bel Air, 29870 Landéda	48.583028	-4.557949
+La réserve des matériaux	pays-de-brest	Association		1	251 Chemin de Goarem ar Zant, 29200 Brest	48.43303	-4.478148
+Le Lieu-Dit	pays-de-brest	Association		1	1 Rue Louis Pidoux, 29200 Brest	48.396559	-4.466246
+Le Triporteur	pays-de-brest	Association		1	Rue des Glénan, 29800 Plouédern	48.478309	-4.279345
+Les Insolites	pays-de-brest	Association		1	25 Rue de Pontaniou, 29200 Brest	48.389606	-4.499143
+Office des retraités de Brest	pays-de-brest	Association		1	8 Rue des 11 Martyrs, 29200 Brest	48.390932	-4.483868
+Pim pam poum	pays-de-brest	Association		1	51 Rue Traverse, 29200 Brest	48.386801	-4.492313
+Skravik	pays-de-brest	Coopérative		1	1 Rue Louis Pidoux, 29200 Brest	48.396449	-4.467095
+Ultra Association	pays-de-brest	Association		1	86 Boulevard Léopold Maissin, 29480 Le Relecq-Kerhuon	48.397184	-4.422372
+Un Grain de sel	pays-de-brest	Entreprise		1	140 Rue Anatole Le Braz, 29480 Le Relecq-Kerhuon	48.405963	-4.411598
+West HH	pays-de-brest	Association		1	8 Rue Perdriel Vaissière, 29200 Brest	48.416807	-4.488448
+Askoria	pays-de-morlaix	Association	https://askoria.eu/	1	87 Route de Callac, 29600 Morlaix	48.57111	-3.81263
+Astennadur	pays-de-morlaix	Association		1	29410 Pleyber-Christ	48.50766	-3.87823
+Auberge de jeunesse - Morlaix	pays-de-morlaix	Association	https://www.aj-morlaix.org/	1	Voie d'Accès au Port, 29600 Morlaix	48.57971	-3.8334
+Biocoop Coccinelle	pays-de-morlaix	Coopérative	https://www.finisterra.fr/bio-biocoop-coccinelle-morlaix.php	1	Rue Didier Daurat, 29600 Saint-Martin-des-Champs	48.56684	-3.85499
+Bretagne vivante	pays-de-morlaix	Association	https://www.bretagne-vivante.org/Agir-ensemble/Bretagne-Vivante-pres-de-chez-vous/Bretagne-Vivante-Pays-de-Morlaix	1	Rue de Gouesnou, 29200 Brest	48.40277	-4.46706
+Cellaouate	pays-de-morlaix		https://www.cellaouate.com/	1	Rue Louis Armand, 29600 Saint-Martin-des-Champs	48.56161	-3.85554
+Chrysalide	pays-de-morlaix	Coopérative	https://www.cae29.coop/	1	29000 Quimper	47.9982	-4.0972
+Cigales de Bretagne	pays-de-morlaix	Association	https://www.cigales-bretagne.org/	1	Rue Martenot, 35000 Rennes	48.11331	-1.6742
+Crédit coopératif	pays-de-morlaix	Coopérative	https://www.credit-cooperatif.coop/	1	Rue de Falkirk, 29000 Quimper	47.995348	-4.108243
+Don Bosco	pays-de-morlaix	Association	https://www.donbosco.asso.fr/	1	Impasse Mer et Soleil, 29250 Santec	48.70163	-4.02888
+Eco-Bretons	pays-de-morlaix	Association	https://www.eco-bretons.info/	1	29600 Morlaix	48.5971	-3.8215
+Essences bois	pays-de-morlaix		https://essencesbois.fr/	1	Rue Parc au Duc, 29600 Morlaix	48.57453	-3.82149
+Finisterra Biocoop	pays-de-morlaix	Coopérative	https://www.finisterra.fr/	1	Rue Daumier, 29200 Brest	48.41268	-4.46963
+Fondation Ildys	pays-de-morlaix	Fondation	https://www.ildys.org/	1	Route de Perharidy, 29680 Roscoff	48.71698	-4.008266
+Fondation Massé-Trévidy	pays-de-morlaix	Fondation	https://www.fmt.bzh	1	Route de Paris, 29600 Morlaix	48.57864	-3.79682
+GEAI29	pays-de-morlaix	Association	http://www.geai.bzh/	1	53 Impasse de l'Odet, 29000 Quimper	47.99543	-4.089019
+Goupil	pays-de-morlaix	Association	https://www.goupil-ere.org/	1	Rue Eugène Pottier, 29600 Morlaix	48.58922	-3.81711
+Kastell bio	pays-de-morlaix	Coopérative	https://www.finisterra.fr/kastell-bio.php	1	Avenue des Carmes, 29250 Saint-Pol-de-Léon	48.68204	-3.9951
+La Clef des champs	pays-de-morlaix	Coopérative	http://landivisiau.laclefdeschamps.coop/index.php	1	31 Rue de la Tour d'Auvergne, 29400 Landivisiau	48.50877	-4.07243
+La Maison du Bâtiment	pays-de-morlaix	Coopérative	https://www.la-maison-du-batiment.com/	1	Rue du Grand Launay, 29600 Saint-Martin-des-Champs	48.57212	-3.85723
+Le Buzuk	pays-de-morlaix	Association	https://www.buzuk.bzh/	1	29600 Morlaix	48.5971	-3.8215
+Le Lok'All	pays-de-morlaix	Coopérative	https://www.lelokall.com	1	Rue de l'Aérodrome, 29600 Morlaix	48.60508	-3.83416
+Le Repair	pays-de-morlaix	Association	https://lerepair.org/	1	Rue François Coat, 29410 Pleyber-Christ	48.50768	-3.8822
+Les chiffonniers de la joie	pays-de-morlaix	Association	https://leschiffonniersmorlaix.fr/	1	Route de Callac, 29600 Morlaix	48.570459	-3.811842
+Les Genêts d'Or	pays-de-morlaix	Association	https://www.lesgenetsdor.org/	1	Rue Gustave Eiffel, 29400 Landivisiau	48.52089	-4.07751
+Les moyens du bord	pays-de-morlaix	Association	https://lesmoyensdubord.fr/	1	29600 Morlaix	48.58313	-3.834137
+Les temps bouilles	pays-de-morlaix	Association	https://www.facebook.com/LesTempsBouilles/	1	10 Rue de la Tannerie, 29600 Plourin-lès-Morlaix	48.57291	-3.82075
+Ligue pour la protection des oiseaux	pays-de-morlaix	Association	https://www.lpo.fr/lpo-locales/lpo-bretagne	1	29600 Morlaix	48.5971	-3.8215
+Luska	pays-de-morlaix	Association	https://www.luska.org/	1	29600 Morlaix	48.5971	-3.8215
+MGEN du Finistère	pays-de-morlaix	Mutuelle	https://proximite.mgen.fr/37-section-mgen-du-finistere	1	Boulevard Louis Le Guennec, 29000 Quimper	47.98094	-4.10177
+Mutualité française de Bretagne	pays-de-morlaix	Mutuelle	https://bretagne.mutualite.fr/	1	20 Square Louis et Maurice de Broglie, 35011 Rennes	48.09972	-1.7128
+PIB	pays-de-morlaix		https://www.pib-isolation.fr/	1	Rue Georges Brassens, 29600 Morlaix	48.5868	-3.82305
+PROJETS ECHANGES & DEVELOPPEMENTS	pays-de-morlaix	Association	http://projets-echanges-developpement.net/site/	1	Rue de l'Abbesse, 29630 Plougasnou	48.7024	-3.82437
+RESAM	pays-de-morlaix	Association	https://www.resam.net/	1	Place du Dossen, 29600 Morlaix	48.57615	-3.82507
+Sato Intérim	pays-de-morlaix	Association	https://www.groupe-sato.bzh/nos-societes/sato-interim.html	1	29600 Saint-Martin-des-Champs	48.574994	-3.84394
+Sevel Services	pays-de-morlaix	Association	https://www.sevel-services.com	1	Rue Louis Armand, 29600 Saint-Martin-des-Champs	48.56315	-3.85731
+Stratagème XYZ	pays-de-morlaix	Entreprise de l'ESS	https://stratageme.xyz/	1	Rue Basse, 29600 Morlaix	48.575454	-3.825028
+ULAMIR CPIE Pays de Morlaix-Trégor	pays-de-morlaix	Association	http://www.ulamir.com	1	Rue du 19 Mars 1962, 29620 Lanmeur	48.64338	-3.71579
+URCPIE de Bretagne	pays-de-morlaix	Association	https://urcpiebretagne.org/	1	Rue du 19 Mars 1962, 29620 Lanmeur	48.64432	-3.71685
+ACTES en Cornouaille	pays-de-cornouaille	Association		1			
+Ateliers Fouesnantais	pays-de-cornouaille	Association		1			
+Biocoop Graine de Bio	pays-de-cornouaille	Coopérative		1			
+Biocoop Maison Biologique Douarnenez-Audierne	pays-de-cornouaille	Coopérative		1			
+Biocoop Les 7 Epis	pays-de-cornouaille	Coopérative		1			
+Cigales de Bretagne	pays-de-cornouaille	Association		1			
+Crédit Coopératif	pays-de-cornouaille	Coopérative		1			
+Espace Associatif Quimper	pays-de-cornouaille	Association		1			
+Ferme de Penkerlen	pays-de-cornouaille	GIE		1			
+Fondation Massé-Trévidy	pays-de-cornouaille	Fondation		1			
+GEAI29	pays-de-cornouaille	Association		1			
+Graines de Liberté – Hadoù Ar Frankiz	pays-de-cornouaille	SCIC		1			
+Habitat et Humanisme	pays-de-cornouaille	Association		1			
+Harmonie Mutuelle	pays-de-cornouaille	Mutuelle santé		1			
+IDES	pays-de-cornouaille	Association		1			
+Kan Ar Mor	pays-de-cornouaille	Association		1			
+Les Jardins de Kerbellec	pays-de-cornouaille	Association		1			
+Les Maraîchers de la Coudraie	pays-de-cornouaille	Association		1			
+MAIF	pays-de-cornouaille	Mutuelle assurance		1			
+MFR (fédération des MFR 29)	pays-de-cornouaille	Association		1			
+MGEN	pays-de-cornouaille	Mutuelle santé		1			
+Mission Locale Pays de Cornouaille	pays-de-cornouaille	Association		1			
+ND de Kerbertrand-Lycée	pays-de-cornouaille	Association		1			
+Technichanvre	pays-de-cornouaille	Coopérative		1			
+Treuzkemm	pays-de-cornouaille	Association		1			
+Wakan Douar	pays-de-cornouaille	Association		1			
+Annie GOUZIEN	pays-de-cornouaille	Personne qualifiée		1			
+Martine LE BEC	pays-de-cornouaille	Personne qualifiée		1			
+Daniel CARDUNER	pays-de-cornouaille	Personne qualifiée		1			

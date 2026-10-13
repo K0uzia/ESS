@@ -40,20 +40,20 @@ Statuts, rapports d'activité, plaquette et bulletins d'adhésion du pôle :
 
 @documents:pays-de-morlaix
 
-## L'équipe {#equipe}
+## L'équipe {#equipe .aside}
 
 L'équipe se tient à votre disposition pour toute question sur les projets du pôle ou pour une idée de sensibilisation à l'ESS sur le Pays de Morlaix. Si vous portez un projet lié à l'ESS sur le territoire, vous pouvez aussi la rencontrer sur rendez-vous.
 
-@equipe:pays-de-morlaix
+→ [Voir l'équipe du pôle](/equipe/#equipe-pays-de-morlaix)
 
 
-## Le pôle est soutenu par {#soutiens}
+## Le pôle est soutenu par {#soutiens .aside}
 
 - La Région Bretagne
 - Morlaix Communauté
 - La Communauté de communes Pays de Landivisiau
 
-## Suivre le pôle {#reseaux-sociaux}
+## Suivre le pôle {#reseaux-sociaux .aside}
 
 - [LinkedIn du Pôle ESS Pays de Morlaix](https://www.linkedin.com/company/p-le-ess-du-pays-de-morlaix/)
 - [Facebook du Pôle ESS Pays de Morlaix](https://www.facebook.com/PoleESSPaysdemorlaix)

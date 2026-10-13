@@ -17,9 +17,11 @@ final class Resources
                 'table' => 'team_members',
                 'label' => 'Équipe',
                 'singular' => 'personne',
-                'intro' => 'Une fiche par personne. La page Équipe et les onglets des pôles sont construits à partir de ces fiches.',
+                'intro' => 'Les personnes affichées sur la page L\'équipe, rangées par pôle puis par groupe.',
                 'order' => 'COALESCE(pole_id, 99), CASE team WHEN \'salaries\' THEN 0 WHEN \'ca\' THEN 1 ELSE 2 END, position, name',
                 'columns' => ['name' => 'Nom', 'role' => 'Rôle', 'pole_id' => 'Pôle', 'team' => 'Groupe', 'is_published' => 'En ligne'],
+                // Liste rangée par onglet de pôle (TAg29 à part), puis par groupe : on ajoute directement au bon endroit.
+                'tabs' => ['extra' => 'TAg29', 'group' => 'team', 'groups' => ['salaries', 'ca'], 'extra_groups' => ['tag29'], 'detail' => 'role'],
                 'fields' => [
                     'name' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
                     'role' => ['label' => 'Rôle', 'type' => 'text', 'required' => true],
@@ -36,9 +38,10 @@ final class Resources
                 'table' => 'members',
                 'label' => 'Adhérents',
                 'singular' => 'adhérent',
-                'intro' => 'Liste des adhérents affichée sur la page Les pôles. Elle alimente aussi la carte GoGoCarto par l\'export /les-poles/adherents.json.',
+                'intro' => 'Les adhérents affichés dans la liste et sur la carte de la page Les pôles, rangés par pôle.',
                 'order' => 'pole_id, name COLLATE NOCASE',
                 'columns' => ['name' => 'Nom', 'pole_id' => 'Pôle', 'status' => 'Statut', 'is_published' => 'En ligne'],
+                'tabs' => ['detail' => 'status'],
                 'fields' => [
                     'name' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
                     'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'required' => true],
@@ -100,7 +103,7 @@ final class Resources
                     'kind' => ['label' => 'Type', 'type' => 'select', 'options' => ['partenaire' => 'Partenaire', 'reseau' => 'Réseau']],
                     'pole_id' => ['label' => 'Pôle concerné', 'type' => 'pole', 'empty' => 'Tous'],
                     'url' => ['label' => 'Site web', 'type' => 'url'],
-                    'logo_path' => ['label' => 'Logo (PNG, JPG ou WebP)', 'type' => 'image', 'height' => 160],
+                    'logo_path' => ['label' => 'Logo', 'type' => 'image', 'height' => 160],
                     'position' => ['label' => 'Ordre d\'affichage', 'type' => 'number', 'default' => 0],
                     'is_published' => ['label' => 'Afficher sur le site', 'type' => 'checkbox', 'default' => 1],
                 ],

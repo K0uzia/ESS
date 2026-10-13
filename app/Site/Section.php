@@ -8,7 +8,33 @@ use App\Core\Markdown;
 /** Rendu du corps d'une section : composant, grille de cartes ou texte. */
 final class Section
 {
-    private const PHOTOS = ['accueil', 'reseau', 'equipe', 'decouvrir', 'agir', 'former', 'contact', 'adherer', 'atelier', 'collectif'];
+    private const CHARTE = 'Charte/CHARTE GRAPHIQUE ESS BRETAGNE/5-Photos/';
+    private const LIBRES = 'content/photos-libres/';
+
+    /**
+     * Photos du site, source unique pour bin/build-images.php et le rendu. Chaque photo n'a qu'un emploi sur le site.
+     * nom => [fichier source depuis la racine, ratio largeur/hauteur, recadrage vertical (0 haut, 1 bas), largeurs générées]
+     */
+    public const PHOTOS = [
+        'accueil' => [self::CHARTE . 'AdobeStock_1879193392.jpeg', 16 / 9, 0.5, [960, 1920]],
+        'reseau' => [self::CHARTE . 'AdobeStock_1342779117.jpeg', 16 / 9, 0.35, [800, 1600]],
+        'equipe' => [self::CHARTE . 'AdobeStock_519172833.jpeg', 16 / 9, 0.3, [800, 1600]],
+        'decouvrir' => [self::CHARTE . 'AdobeStock_659243949.jpeg', 16 / 9, 0.3, [800, 1600]],
+        'agir' => [self::CHARTE . 'AdobeStock_600680452.jpeg', 16 / 9, 0.3, [800, 1600]],
+        'former' => [self::CHARTE . 'AdobeStock_2063079841.jpeg', 16 / 9, 0.4, [800, 1600]],
+        'contact' => [self::CHARTE . 'AdobeStock_339694831.jpeg', 16 / 9, 0.35, [800, 1600]],
+        'adherer' => [self::CHARTE . 'AdobeStock_1367700974.jpeg', 4 / 5, 0.55, [600, 900]],
+        'atelier' => [self::CHARTE . 'AdobeStock_209847380.jpeg', 4 / 5, 0.4, [600, 900]],
+        'collectif' => [self::CHARTE . 'AdobeStock_1708024907.jpeg', 4 / 5, 0.6, [600, 900]],
+        // Photos libres de droits (CC0), sources dans content/photos-libres/SOURCES.tsv.
+        'lettre' => [self::LIBRES . 'lettre.jpg', 3 / 2, 0.5, [600, 960]],
+        'circuits-courts' => [self::LIBRES . 'circuits-courts.jpg', 3 / 2, 0.5, [600, 960]],
+        'sensibilisation' => [self::LIBRES . 'sensibilisation.jpg', 3 / 2, 0.5, [600, 954]],
+        'emploi' => [self::LIBRES . 'emploi.jpg', 3 / 2, 0.5, [600, 810]],
+        'formation' => [self::LIBRES . 'formation.jpg', 3 / 2, 0.5, [600, 960]],
+        'tag29' => [self::LIBRES . 'tag29.jpg', 3 / 2, 0.5, [600, 960]],
+        'tag29-presentation' => [self::LIBRES . 'tag29-presentation.jpg', 3 / 2, 0.5, [600, 960]],
+    ];
 
     /** @param array{key: string, title: string, variant: string, image: string, body: string} $s */
     public static function body(array $s, int $h = 3): string
@@ -40,6 +66,22 @@ final class Section
         return $hasText || trim($html) !== '' ? $html : '';
     }
 
+    /**
+     * Section texte + photo : le texte avant la première sous-partie « ### » reste à côté de la photo,
+     * les sous-parties (deux ou plus) passent dessous en cartes, pour que la photo n'ait jamais une colonne de texte plus haute qu'elle.
+     * @param array{key: string, title: string, variant: string, image: string, body: string} $s
+     * @return array{0: string, 1: string} [à côté de la photo, sous la ligne]
+     */
+    public static function splitParts(array $s, int $h = 3): array
+    {
+        $parts = preg_split('/^(?=### )/m', trim($s['body']), 2) ?: [];
+        // Une seule sous-partie reste à côté de la photo : une carte seule sous la ligne serait isolée.
+        if (count($parts) < 2 || trim($parts[0]) === '' || preg_match_all('/^### /m', $parts[1]) < 2) {
+            return [self::body($s, $h), ''];
+        }
+        return [self::body(['body' => $parts[0], 'variant' => ''] + $s, $h), self::subsections($parts[1], $h, 'blocs')];
+    }
+
     /** Photo de section (fichiers générés par bin/build-images.php), ou chaîne vide. */
     public static function photo(string $name, string $sizes = '(min-width: 60rem) 40vw, 100vw'): string
     {
@@ -53,12 +95,20 @@ final class Section
             $srcset = implode(', ', array_map(fn ($w, $p) => e($p) . " {$w}w", array_keys($variants), $variants));
             return '<img class="photo" src="' . e((string) reset($variants)) . '" srcset="' . $srcset . '" sizes="' . $sizes . '" width="' . (int) $media['width'] . '" height="' . (int) $media['height'] . '" alt="" loading="lazy" decoding="async">';
         }
-        if (!in_array($name, self::PHOTOS, true)) {
+        $img = self::photoAttributes($name, $sizes);
+        return $img === '' ? '' : '<img class="photo" ' . $img . ' alt="" loading="lazy" decoding="async">';
+    }
+
+    /** Attributs src, srcset, sizes, width et height d'une photo de self::PHOTOS, ou chaîne vide. */
+    public static function photoAttributes(string $name, string $sizes): string
+    {
+        if (!isset(self::PHOTOS[$name])) {
             return '';
         }
-        $portrait = in_array($name, ['adherer', 'atelier', 'collectif'], true);
-        [$small, $large, $w, $h] = $portrait ? [600, 900, 900, 1125] : [800, 1600, 1600, 900];
-        return '<img class="photo" src="/assets/img/photos/' . $name . '-' . $small . '.webp" srcset="/assets/img/photos/' . $name . '-' . $small . '.webp ' . $small . 'w, /assets/img/photos/' . $name . '-' . $large . '.webp ' . $large . 'w" sizes="' . $sizes . '" width="' . $w . '" height="' . $h . '" alt="" loading="lazy" decoding="async">';
+        [, $ratio, , $widths] = self::PHOTOS[$name];
+        $srcset = implode(', ', array_map(static fn (int $w): string => "/assets/img/photos/$name-$w.webp {$w}w", $widths));
+        $large = max($widths);
+        return 'src="/assets/img/photos/' . $name . '-' . min($widths) . '.webp" srcset="' . $srcset . '" sizes="' . $sizes . '" width="' . $large . '" height="' . (int) round($large / $ratio) . '"';
     }
 
     /**
@@ -85,19 +135,22 @@ final class Section
             $content = str_replace("\n#### ", "\n### ", "\n" . trim($content));
             $inner = Markdown::toHtml($content, $h - 2);
             // Contenu long : le premier paragraphe reste visible, la suite se déplie (details natif, sans JavaScript).
-            if ($kind === 'blocs' && text_length($content) > 650) {
-                $chunks = preg_split('/\n\s*\n/', trim($content), 2) ?: [];
-                if (count($chunks) === 2) {
-                    $inner = Markdown::toHtml($chunks[0], $h - 2)
-                        . '<details class="more"><summary>Lire la suite<span class="visually-hidden"> : ' . e(trim($title)) . '</span></summary>'
-                        . Markdown::toHtml($chunks[1], $h - 2) . '</details>';
-                }
+            // Cartes de hauteur comparable : le premier bloc reste visible, coupé à hauteur fixe en CSS,
+            // la suite se lit dans « Lire la suite ». Une carte avec un tableau (tarifs) reste entière.
+            if ($kind === 'blocs' && text_length($content) > 320 && !str_contains($content, '|---')) {
+                $blocks = preg_split('/\n\s*\n/', trim($content)) ?: [];
+                $teaser = (string) array_shift($blocks);
+                $rest = implode("\n\n", $blocks);
+                $inner = ($teaser !== '' ? '<div class="bloc__teaser">' . Markdown::toHtml($teaser, $h - 2) . '</div>' : '')
+                    . '<details class="more"><summary>Lire la suite<span class="visually-hidden"> : ' . e(trim($title)) . '</span></summary>'
+                    . ($rest !== '' ? Markdown::toHtml($rest, $h - 2) : '') . '</details>';
             }
             $items .= $kind === 'frise'
                 ? '<li class="frise__item"><span class="frise__dot" aria-hidden="true"></span><h' . $h . ' class="frise__title">' . Markdown::inline(trim($title)) . '</h' . $h . '><div class="prose">' . $inner . '</div></li>'
                 : '<li class="bloc">' . $icon . '<h' . $h . ' class="bloc__title">' . Markdown::inline(trim($title)) . '</h' . $h . '><div class="prose">' . $inner . '</div></li>';
         }
-        $introHtml = $intro === '' ? '' : '<div class="section__intro">' . Markdown::toHtml($intro, $h - 3) . '</div>';
+        // L'introduction peut contenir un bloc dynamique (« @composant » seul sur sa ligne).
+        $introHtml = $intro === '' ? '' : '<div class="section__intro">' . self::body(['key' => '', 'title' => '', 'variant' => '', 'image' => '', 'body' => $intro], $h) . '</div>';
         return $introHtml . ($kind === 'frise' ? '<ol class="frise" role="list">' . $items . '</ol>' : '<ul class="blocs" role="list">' . $items . '</ul>');
     }
 

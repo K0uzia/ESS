@@ -11,7 +11,7 @@ $filterable = count($groups) > 1;
   <ul class="filter__list" role="list" aria-labelledby="filtre-equipe">
     <li><a class="filter__option" href="#equipe-tout" data-filter-value="tout">Tous les pôles</a></li>
     <?php foreach ($groups as $g): ?>
-    <li><a class="filter__option" href="#equipe-<?= e($g['slug']) ?>" data-filter-value="<?= e($g['slug']) ?>"><?= e($g['label']) ?></a></li>
+    <li><a class="filter__option pole--<?= e($g['slug']) ?>" href="#equipe-<?= e($g['slug']) ?>" data-filter-value="<?= e($g['slug']) ?>"><span class="filter__dot" aria-hidden="true"></span><?= e($g['label']) ?></a></li>
     <?php endforeach ?>
   </ul>
   <p class="visually-hidden" role="status" data-filter-status></p>
@@ -19,16 +19,16 @@ $filterable = count($groups) > 1;
 <?php endif ?>
 <div id="equipe-tout">
 <?php foreach ($groups as $g): ?>
-<div class="team-group" id="equipe-<?= e($g['slug']) ?>" data-filter-group="<?= e($g['slug']) ?>">
+<div class="team-group pole--<?= e($g['slug']) ?>" id="equipe-<?= e($g['slug']) ?>" data-filter-group="<?= e($g['slug']) ?>">
   <?php if ($filterable): ?>
   <div class="team-group__pole">
-    <?php if ($logo = App\Site\Components::poleLogo($g['slug'])): ?><img src="<?= e($logo) ?>" alt="" width="204" height="125" loading="lazy" decoding="async"><?php endif ?>
+    <?php if ($logo = App\Site\Components::poleLogo($g['slug'])): ?><img src="<?= e($logo) ?>" alt="" width="217" height="125" loading="lazy" decoding="async"><?php endif ?>
     <h<?= $h ?> class="team-group__name"><?= e($g['label']) ?></h<?= $h ?>>
   </div>
   <?php endif ?>
   <?php foreach (array_reduce($g['members'], function ($c, $m) { $c[$m['team']][] = $m; return $c; }, []) as $team => $people): ?>
   <h<?= $h + ($filterable ? 1 : 0) ?> class="team-group__title"><?= e($labels[$team]) ?></h<?= $h + ($filterable ? 1 : 0) ?>>
-  <ul class="people" role="list">
+  <ul class="people<?= $team === 'ca' ? ' people--compact' : '' ?>" role="list">
     <?php foreach ($people as $m): ?>
     <li class="person">
       <p class="person__name"><?= e($m['name']) ?></p>

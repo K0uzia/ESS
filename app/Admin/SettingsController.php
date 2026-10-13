@@ -12,14 +12,11 @@ use App\Core\View;
 /** Identité du groupement : source unique pour le pied de page, les mentions légales et le JSON-LD. */
 final class SettingsController
 {
+    // Promesse, baseline, nom court et adresse du site sont fixés par la charte et la mise en ligne : pas modifiables ici.
     public const FIELDS = [
         'raison_sociale' => ['label' => 'Raison sociale', 'type' => 'text', 'required' => true],
-        'nom_court' => ['label' => 'Nom court (titres des pages)', 'type' => 'text', 'required' => true],
         'siret' => ['label' => 'SIRET', 'type' => 'text', 'required' => true],
         'email_contact' => ['label' => 'E-mail de contact générique', 'type' => 'email', 'required' => true],
-        'site_url' => ['label' => 'Adresse du site (sans / final)', 'type' => 'url', 'required' => true],
-        'promesse' => ['label' => 'Promesse (police Viga)', 'type' => 'text', 'required' => true],
-        'baseline' => ['label' => 'Baseline', 'type' => 'text', 'required' => true],
         'directeur_publication' => ['label' => 'Directeur ou directrice de la publication', 'type' => 'text', 'required' => true],
         'hebergeur' => ['label' => 'Hébergeur (nom, adresse, téléphone ; une ligne chacun)', 'type' => 'textarea', 'required' => true],
         'gogocarto_url' => ['label' => 'Adresse de la carte GoGoCarto des adhérents', 'type' => 'url', 'hint' => 'Exemple : https://votre-carte.gogocarto.fr. Laisser vide pour masquer la carte.'],
@@ -51,7 +48,6 @@ final class SettingsController
         if ($values['gogocarto_url'] !== '' && !preg_match('#^https://[a-z0-9-]+\.gogocarto\.fr(/[^\s]*)?$#', $values['gogocarto_url'])) {
             $errors['gogocarto_url'] = 'Seule une carte hébergée sur gogocarto.fr est acceptée.';
         }
-        $values['site_url'] = rtrim($values['site_url'], '/');
         if ($errors !== []) {
             http_response_code(422);
             self::render($values, $errors);

@@ -2,14 +2,13 @@
 <?php
 declare(strict_types=1);
 
-// Déclinaisons web des visuels : Charte/ (PNG RVB, photos 5-Photos) et content/logos/ (logos partenaires publiés).
+// Déclinaisons web des visuels : Charte/ (PNG RVB, photos 5-Photos), content/photos-libres/ et content/logos/ (logos partenaires publiés).
 // Redimension, recadrage centré optionnel (photos seulement), WebP. Les logos ne sont jamais recadrés.
 ini_set('memory_limit', '2G');
 
 $root = dirname(__DIR__);
 $charte = "$root/Charte/CHARTE GRAPHIQUE ESS BRETAGNE";
 $logo = "$charte/1-Logotype/1-Logotype final/ESS-Finistere/Web-RVB/PNG";
-$photos = "$charte/5-Photos";
 $pictos = "$charte/4-Pictogrammes/Web-RVB/PNG";
 $ingredients = "$charte/3-Ingredients-graphiques";
 $out = "$root/public/assets/img";
@@ -89,6 +88,7 @@ $brand = [
     ["$logo/ESS-Finistere_CartoucheGlaz.png", 'logo-ess-finistere-cartouche-glaz', 512],
     ["$root/Charte/logoPoleESS/PaysdeMorlaix/Logo-Simple/Logo-PoleESS-PaysdeMorlaix.png", 'logo-pole-pays-de-morlaix', 204],
     ["$root/Charte/logoPoleESS/PoleEssBrest/PaysdeBrest/Logo-Simple/Logo-PoleESS-PaysdeBrest.png", 'logo-pole-pays-de-brest', 217],
+    ["$root/Charte/logoPoleESS/PoleEssCornouaille/Logo-Simple/Logo-PoleESS-PaysdeCornouaille.png", 'logo-pole-pays-de-cornouaille', 217],
     ["$root/Charte/tag29/3. LOGOS TAG/29/bureautique/tag29-rvb-noir.png", 'logo-tag29-noir', 240],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Couleur.png", 'deux-points-or', 240],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Blanc.png", 'deux-points-blanc', 240],
@@ -105,21 +105,10 @@ foreach (glob("$pictos/*.png") ?: [] as $file) {
     save(resize(load($file), 192), "$out/pictos/$name.webp", 90);
 }
 
-// Photos : [fichier, nom, ratio, focusY, largeurs].
-$jobs = [
-    ['AdobeStock_1879193392.jpeg', 'accueil', 16 / 9, 0.5, [1920, 960]],
-    ['AdobeStock_1342779117.jpeg', 'reseau', 16 / 9, 0.35, [1600, 800]],
-    ['AdobeStock_519172833.jpeg', 'equipe', 16 / 9, 0.3, [1600, 800]],
-    ['AdobeStock_659243949.jpeg', 'decouvrir', 16 / 9, 0.3, [1600, 800]],
-    ['AdobeStock_600680452.jpeg', 'agir', 16 / 9, 0.3, [1600, 800]],
-    ['AdobeStock_2063079841.jpeg', 'former', 16 / 9, 0.4, [1600, 800]],
-    ['AdobeStock_339694831.jpeg', 'contact', 16 / 9, 0.35, [1600, 800]],
-    ['AdobeStock_1367700974.jpeg', 'adherer', 4 / 5, 0.55, [900, 600]],
-    ['AdobeStock_209847380.jpeg', 'atelier', 4 / 5, 0.4, [900, 600]],
-    ['AdobeStock_1708024907.jpeg', 'collectif', 4 / 5, 0.6, [900, 600]],
-];
-foreach ($jobs as [$file, $name, $ratio, $focus, $widths]) {
-    $src = load("$photos/$file");
+// Photos : liste unique dans App\Site\Section::PHOTOS.
+require_once "$root/app/Site/Section.php";
+foreach (\App\Site\Section::PHOTOS as $name => [$file, $ratio, $focus, $widths]) {
+    $src = load("$root/$file");
     foreach ($widths as $w) {
         save(resize($src, $w, $ratio, $focus), "$out/photos/$name-$w.webp", $w > 1000 ? 60 : 66);
     }
@@ -135,11 +124,20 @@ foreach (glob("$root/content/logos/*.{png,jpg}", GLOB_BRACE) ?: [] as $file) {
     save(resize($img, max(1, $targetW)), "$out/logos/" . pathinfo($file, PATHINFO_FILENAME) . '.webp', 88);
 }
 
+// Logos de la page TAg29 (projets propulsés, financeurs), même traitement que les logos partenaires.
+defined('ROOT') || define('ROOT', $root);
+require_once "$root/app/Site/Components.php";
+foreach (\App\Site\Components::tag29Logos() as $tagLogo) {
+    $img = trim_margins(load("$root/{$tagLogo['source']}"));
+    save(resize($img, max(1, (int) round(imagesx($img) * min(1, 160 / imagesy($img))))), "$root/public{$tagLogo['path']}", 88);
+}
+
 // Logos des e-mails en PNG (les messageries ne lisent pas toutes le WebP), 128 px de haut pour un affichage à 64 px.
 foreach ([
     ["$logo/ESS-Finistere_Couleur.png", 'logo-ess-finistere'],
     ["$root/Charte/logoPoleESS/PaysdeMorlaix/Logo-Simple/Logo-PoleESS-PaysdeMorlaix.png", 'logo-pole-pays-de-morlaix'],
     ["$root/Charte/logoPoleESS/PoleEssBrest/PaysdeBrest/Logo-Simple/Logo-PoleESS-PaysdeBrest.png", 'logo-pole-pays-de-brest'],
+    ["$root/Charte/logoPoleESS/PoleEssCornouaille/Logo-Simple/Logo-PoleESS-PaysdeCornouaille.png", 'logo-pole-pays-de-cornouaille'],
 ] as [$src, $name]) {
     $img = load($src);
     $png = resize($img, (int) round(imagesx($img) * min(1, 128 / imagesy($img))));
@@ -147,6 +145,12 @@ foreach ([
     imagepng($png, "$out/email/$name.png", 9);
     echo "email/$name.png\n";
 }
+
+// Fond de la carte des adhérents : contour du Finistère, sans couleur (stylé par la page via <use>).
+require_once "$root/app/Site/MembersMap.php";
+$map = \App\Site\MembersMap::class;
+file_put_contents("$out/finistere.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $map::WIDTH . ' ' . $map::height() . '"><path id="contour" d="' . $map::outline("$root/content/geo/finistere.geojson") . '"/></svg>');
+printf("%-55s %6.1f Ko\n", 'img/finistere.svg', filesize("$out/finistere.svg") / 1024);
 
 // Favicon et image de partage (1200×630) : cartouche Glaz posé tel quel, sans recomposition, sur fond blanc.
 $cartouche = load("$logo/ESS-Finistere_CartoucheGlaz.png");

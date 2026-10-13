@@ -19,7 +19,7 @@ final class ResourceController
         $poleFilter = self::editorPole($res, $user) ?? ((int) ($_GET['pole'] ?? 0) ?: null);
         $where = $poleFilter !== null && isset($res['fields']['pole_id']) ? 'WHERE pole_id = ?' : '';
         $rows = Db::run("SELECT * FROM {$res['table']} $where ORDER BY {$res['order']}", $where ? [$poleFilter] : [])->fetchAll();
-        View::render('admin/resource/index', [
+        View::render(isset($res['tabs']) ? 'admin/resource/tabs' : 'admin/resource/index', [
             'title' => $res['label'],
             'key' => $key,
             'res' => $res,
@@ -37,6 +37,13 @@ final class ResourceController
             self::notFound();
         }
         $defaults = array_map(fn ($f) => $f['default'] ?? '', $res['fields']);
+        // « Ajouter » depuis un groupe de la liste : pôle et groupe déjà choisis.
+        foreach ($res['fields'] as $name => $f) {
+            $wanted = $_GET[$name] ?? null;
+            if (is_string($wanted) && $wanted !== '' && ($f['type'] === 'pole' || ($f['type'] === 'select' && isset($f['options'][$wanted])))) {
+                $defaults[$name] = $f['type'] === 'pole' ? (int) $wanted : $wanted;
+            }
+        }
         self::form($key, $res, null, $defaults, []);
     }
 
@@ -97,7 +104,9 @@ final class ResourceController
         $row = self::find($res, $user, (int) $id);
         Db::run("DELETE FROM {$res['table']} WHERE id = ?", [$row['id']]);
         foreach ($res['fields'] as $name => $f) {
-            if (in_array($f['type'], ['pdf', 'image'], true) && str_starts_with((string) ($row[$name] ?? ''), '/media/')) {
+            // Un fichier encore utilisé par une autre fiche (logo choisi dans la médiathèque) est gardé.
+            if (in_array($f['type'], ['pdf', 'image'], true) && str_starts_with((string) ($row[$name] ?? ''), '/media/')
+                && !Db::run("SELECT 1 FROM {$res['table']} WHERE $name = ?", [$row[$name]])->fetchColumn()) {
                 @unlink(ROOT . '/public' . $row[$name]);
             }
         }
@@ -136,6 +145,14 @@ final class ResourceController
                 } else {
                     $value = $up['path'];
                     $extra = ['size' => $up['size'], 'mime' => 'application/pdf'];
+                }
+            }
+            if ($f['type'] === 'image' && is_string($_POST[$name . '_pick'] ?? null) && $_POST[$name . '_pick'] !== '') {
+                $pick = $_POST[$name . '_pick'];
+                foreach (MediaController::library() as $item) {
+                    if ($item['kind'] === 'logo' && $item['src'] === $pick) {
+                        $value = $pick;
+                    }
                 }
             }
             if ($f['type'] === 'image' && Upload::hasFile($name)) {

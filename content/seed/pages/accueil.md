@@ -3,6 +3,7 @@ title: Pôles ESS du Finistère : économie sociale et solidaire
 description: Les trois Pôles ESS du Finistère accompagnent porteurs de projet, acteurs de l'ESS, collectivités et curieux : entrepreneuriat, emploi, projets collectifs.
 h1: Groupement Territorial ESS Finistère - Penn Ar Bed
 intro: Un projet pour le territoire ? L'envie d'entreprendre ? Besoin d'un réseau ? Les Pôles ESS sont au service de vos projets.
+actions: Trouver mon pôle | /les-poles/#pays ; Écrire à un pôle | #contact
 ---
 
 ## Vous êtes… {#profils .cartes}
@@ -37,6 +38,10 @@ Porteurs de projets, entrepreneurs, collectivités : le pôle ESS de votre terri
 
 [Contactez-nous](/#contact) pour plus d'informations.
 
+## Certification Qualiopi {#qualiopi}
+
+@qualiopi
+
 ## Les trois pôles {#poles .fond}
 
 @poles
@@ -47,13 +52,9 @@ Une question sur l'économie sociale et solidaire, un projet, une adhésion ? É
 
 @contact
 
-## Les newsletters des pôles {#newsletter .split .inverse image=collectif}
+## Les newsletters des pôles {#newsletter .split .inverse image=lettre}
 
 @newsletter
-
-## Certification Qualiopi {#qualiopi}
-
-@qualiopi
 
 ## Nos partenaires {#partenaires}
 

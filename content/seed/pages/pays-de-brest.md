@@ -32,19 +32,19 @@ Quelques documents relatifs à la gestion de l'association pour mieux connaître
 
 @documents:pays-de-brest
 
-## L'équipe {#equipe}
+## L'équipe {#equipe .aside}
 
 L'équipe se tient à votre disposition pour toute question sur les projets du pôle, une idée de sensibilisation à l'ESS sur le Pays de Brest, un besoin d'accompagnement ou une demande de formation. Si vous portez un projet lié à l'ESS sur le territoire, vous pouvez aussi la rencontrer sur rendez-vous.
 
-@equipe:pays-de-brest
+→ [Voir l'équipe du pôle](/equipe/#equipe-pays-de-brest)
 
 
-## Partenaires techniques et financiers {#soutiens}
+## Partenaires techniques et financiers {#soutiens .aside}
 
 - Conseil régional de Bretagne
 - Brest métropole
 
-## Suivre le pôle {#reseaux-sociaux}
+## Suivre le pôle {#reseaux-sociaux .aside}
 
 - [LinkedIn du Pôle ESS Pays de Brest](https://www.linkedin.com/company/adess-pays-de-brest)
 - [Facebook du Pôle ESS Pays de Brest](https://www.facebook.com/adess.paysdebrest/)

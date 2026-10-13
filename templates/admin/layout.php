@@ -1,4 +1,5 @@
 <?php
+use App\Admin\Ui;
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Session;
@@ -7,31 +8,33 @@ $user = Auth::user();
 $flashes = Session::takeFlashes();
 $current = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isAdmin = $user !== null && $user['role'] === 'admin';
+// Groupe => [chemin => [libellé, icône]] ; les modules réservés aux administrateurs sont retirés pour un éditeur.
 $nav = [
-    'Contenus' => [
-        '/admin/' => 'Tableau de bord',
-        '/admin/pages' => 'Pages',
-        '/admin/medias' => 'Médiathèque',
-        '/admin/documents' => 'Documents',
+    '' => ['/admin/' => ['Tableau de bord', 'home']],
+    'Site' => [
+        '/admin/pages' => ['Pages', 'page'],
+        '/admin/medias' => ['Médiathèque', 'image'],
+        '/admin/documents' => ['Documents', 'folder'],
     ],
     'Réseau' => [
-        '/admin/equipe' => 'Équipe',
-        '/admin/adherents' => 'Adhérents',
-        '/admin/offres' => 'Offres d\'emploi',
+        '/admin/equipe' => ['Équipe', 'users'],
+        '/admin/adherents' => ['Adhérents', 'pin'],
+        '/admin/offres' => ['Offres d\'emploi', 'briefcase'],
     ],
     'Communication' => [
-        '/admin/newsletters' => 'Newsletters',
-        '/admin/messages' => 'Messages reçus',
+        '/admin/messages' => ['Messages reçus', 'inbox'],
+        '/admin/newsletters' => ['Newsletters', 'mail'],
     ],
 ];
 if ($isAdmin) {
-    $nav['Administration'] = [
-        '/admin/partenaires' => 'Partenaires',
-        '/admin/poles' => 'Coordonnées des pôles',
-        '/admin/identite' => 'Identité du site',
-        '/admin/comptes' => 'Comptes',
+    $nav['Site']['/admin/partenaires'] = ['Partenaires', 'link'];
+    $nav['Réglages'] = [
+        '/admin/identite' => ['Identité du site', 'id'],
+        '/admin/poles' => ['Coordonnées des pôles', 'building'],
+        '/admin/comptes' => ['Comptes', 'key'],
     ];
 }
+$isCurrent = static fn (string $href): bool => $current === $href || ($href !== '/admin/' && str_starts_with($current, $href));
 $isLogin = $user === null;
 ?><!doctype html>
 <html lang="fr">
@@ -44,7 +47,7 @@ $isLogin = $user === null;
 <link rel="preload" href="/assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="/assets/css/admin.css">
-<script src="/assets/js/admin.js" defer></script>
+<script src="/assets/js/admin.js"></script>
 </head>
 <body class="<?= $isLogin ? 'admin-login' : 'admin' ?>">
 <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -60,54 +63,104 @@ $isLogin = $user === null;
   </aside>
   <main id="contenu" class="login__main" tabindex="-1">
     <?php foreach ($flashes as $flash): ?>
-    <p class="alert" role="status"><?= e($flash['message']) ?></p>
+    <p class="notice<?= $flash['type'] === 'error' ? ' notice--error' : ' notice--success' ?>" role="status"><?= e($flash['message']) ?></p>
     <?php endforeach ?>
     <?= $content ?>
-    <p class="login__back"><a href="/">← Retour au site</a></p>
+    <p class="login__back"><a href="/">Retour au site</a></p>
   </main>
 </div>
 <?php else: ?>
-<div class="shell">
-  <header class="shell__side">
-    <a class="shell__brand" href="/admin/">
-      <img src="/assets/img/logo-ess-finistere-blanc.webp" width="320" height="183" alt="ESS Finistère, tableau de bord">
-    </a>
-    <button class="shell__toggle" type="button" aria-expanded="false" aria-controls="admin-nav" hidden>Menu</button>
-    <nav class="shell__nav" id="admin-nav" aria-label="Administration">
-      <?php foreach ($nav as $group => $links): ?>
-      <p class="shell__group"><?= e($group) ?></p>
-      <ul>
-        <?php foreach ($links as $href => $label): ?>
-        <li><a href="<?= e($href) ?>"<?= $current === $href || ($href !== '/admin/' && str_starts_with($current, $href)) ? ' aria-current="page"' : '' ?>><?= e($label) ?></a></li>
+<header class="app__bar">
+  <a class="app__brand" href="/admin/"><img src="/assets/img/logo-ess-finistere-blanc.webp" width="320" height="183" alt="ESS Finistère, tableau de bord"></a>
+  <button class="app__toggle" type="button" aria-expanded="false" aria-controls="admin-side" hidden><?= Ui::icon('menu') ?>Menu</button>
+</header>
+<div class="app__side" id="admin-side">
+  <a class="app__brand" href="/admin/"><img src="/assets/img/logo-ess-finistere-blanc.webp" width="320" height="183" alt="ESS Finistère, tableau de bord"><span>Administration</span></a>
+  <nav class="side-nav" aria-label="Administration">
+    <?php foreach ($nav as $group => $links): $gid = 'nav-' . preg_replace('/[^a-z]/', '', strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $group))); ?>
+    <div>
+      <?php if ($group !== ''): ?><p class="side-nav__group" id="<?= $gid ?>"><?= e($group) ?></p><?php endif ?>
+      <ul<?= $group !== '' ? ' aria-labelledby="' . $gid . '"' : '' ?>>
+        <?php foreach ($links as $href => [$label, $icon]): ?>
+        <li><a class="side-link" href="<?= e($href) ?>"<?= $isCurrent($href) ? ' aria-current="page"' : '' ?>><?= Ui::icon($icon) ?><span><?= e($label) ?></span></a></li>
         <?php endforeach ?>
       </ul>
-      <?php endforeach ?>
-    </nav>
-    <div class="shell__user">
-      <p class="shell__who"><span class="shell__avatar" aria-hidden="true"><?= e(strtoupper(mb_substr_safe($user['username'], 1))) ?></span><span><strong><?= e($user['username']) ?></strong><br><?= $user['role'] === 'admin' ? 'Administrateur' : 'Éditeur' ?></span></p>
-      <a href="/admin/comptes/<?= (int) $user['id'] ?>/mot-de-passe">Mon mot de passe</a>
-      <a href="/" target="_blank" rel="noopener">Voir le site</a>
-      <form method="post" action="/admin/deconnexion">
-        <?= Csrf::field() ?>
-        <button class="button button--ghost button--small" type="submit">Se déconnecter</button>
-      </form>
     </div>
-  </header>
-  <main id="contenu" class="shell__main" tabindex="-1">
-    <?php if (Auth::defaultAccountActive()): ?>
-    <p class="alert alert--warning" role="status"><strong>Compte temporaire actif.</strong> Le compte « lacapsule » a encore son mot de passe d'origine. Supprimez-le ou changez son mot de passe avant la mise en ligne.</p>
-    <?php endif ?>
-    <?php foreach ($flashes as $flash): ?>
-    <p class="alert<?= $flash['type'] === 'error' ? ' alert--error' : ' alert--success' ?>" role="status"><?= $flash['type'] === 'error' ? 'Erreur : ' : '' ?><?= e($flash['message']) ?></p>
     <?php endforeach ?>
-    <?= $content ?>
-  </main>
+  </nav>
+  <div class="app__user">
+    <p class="app__who"><span class="app__avatar" aria-hidden="true"><?= e(strtoupper(mb_substr_safe($user['username'], 1))) ?></span><span><strong><?= e($user['username']) ?></strong><small><?= $isAdmin ? 'Administrateur' : 'Éditeur' ?></small></span></p>
+    <?php if (!$isAdmin): ?>
+    <a class="side-link side-link--quiet" href="/admin/comptes/<?= (int) $user['id'] ?>/mot-de-passe"><?= Ui::icon('lock') ?>Changer mon mot de passe</a>
+    <?php endif ?>
+    <a class="side-link side-link--quiet" href="/" target="_blank" rel="noopener"><?= Ui::icon('external') ?>Voir le site<span class="visually-hidden"> (nouvel onglet)</span></a>
+    <form method="post" action="/admin/deconnexion">
+      <?= Csrf::field() ?>
+      <button class="side-link side-link--quiet" type="submit"><?= Ui::icon('logout') ?>Se déconnecter</button>
+    </form>
+  </div>
 </div>
+<main id="contenu" class="app__main" tabindex="-1">
+  <?php foreach ($flashes as $flash): $err = $flash['type'] === 'error'; ?>
+  <div class="notice <?= $err ? 'notice--error' : 'notice--success' ?>" role="<?= $err ? 'alert' : 'status' ?>"><?= Ui::icon($err ? 'alert' : 'check') ?><p><?= $err ? '<strong>Erreur :</strong> ' : '' ?><?= e($flash['message']) ?></p></div>
+  <?php endforeach ?>
+  <?= $content ?>
+</main>
+<p class="visually-hidden" id="admin-live" role="status" aria-live="polite"></p>
+<dialog class="modal" id="modal" aria-labelledby="modal-title">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title"></h2>
+    <button class="btn btn--icon btn--ghost" type="button" data-modal-close><?= Ui::icon('close') ?><span class="visually-hidden">Fermer</span></button>
+  </div>
+  <div class="modal__body" data-modal-body tabindex="-1"></div>
+  <div class="modal__foot" data-modal-foot-slot hidden></div>
+</dialog>
+<dialog class="modal modal--preview" id="preview-dialog" aria-labelledby="preview-title">
+  <div class="modal__head">
+    <h2 class="modal__title" id="preview-title">Aperçu de la newsletter</h2>
+    <div class="segmented" role="group" aria-label="Largeur de l'aperçu">
+      <button class="segmented__option" type="button" data-preview-width="desktop" aria-pressed="true"><?= Ui::icon('monitor') ?>Ordinateur</button>
+      <button class="segmented__option" type="button" data-preview-width="mobile" aria-pressed="false"><?= Ui::icon('phone') ?>Mobile</button>
+    </div>
+    <button class="btn btn--icon btn--ghost" type="button" data-preview-close><?= Ui::icon('close') ?><span class="visually-hidden">Fermer l'aperçu</span></button>
+  </div>
+  <div class="modal__body preview-stage">
+    <iframe class="preview-frame" title="Aperçu de l'e-mail" sandbox="" data-preview-frame></iframe>
+  </div>
+</dialog>
+<dialog class="confirm link-dialog" id="link-dialog" aria-labelledby="link-dialog-title">
+  <form method="dialog" novalidate>
+    <h2 class="modal__title" id="link-dialog-title">Lien</h2>
+    <?php $lid = 'link-target'; $lname = ''; $url = ''; $llabel = 'Le lien mène vers'; require ROOT . '/templates/admin/partials/link.php'; ?>
+    <p class="field__error" id="link-error" role="alert" hidden>Choisissez une page, ou saisissez une adresse valable.</p>
+    <div class="field" data-link-text>
+      <label for="link-text">Texte du lien</label>
+      <input id="link-text" type="text" autocomplete="off">
+    </div>
+    <div class="button-row">
+      <button class="btn btn--danger" type="button" data-link-remove hidden><?= Ui::icon('trash') ?>Retirer le lien</button>
+      <span class="button-row__spacer"></span>
+      <button class="btn" type="button" data-link-cancel>Annuler</button>
+      <button class="btn btn--primary" type="submit">Valider</button>
+    </div>
+  </form>
+</dialog>
+<template id="rte-toolbar">
+  <div class="rte__toolbar" role="toolbar" aria-label="Mise en forme">
+    <button class="rte__tool" type="button" data-rte-tool="bold" aria-pressed="false" title="Gras (Ctrl+B)"><?= Ui::icon('bold') ?><span>Gras</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="italic" aria-pressed="false" title="Italique (Ctrl+I)"><?= Ui::icon('italic') ?><span>Italique</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="link"><?= Ui::icon('link') ?><span>Lien</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="list" aria-pressed="false"><?= Ui::icon('list') ?><span>Liste</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="olist" aria-pressed="false"><?= Ui::icon('olist') ?><span>Liste numérotée</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="heading" aria-pressed="false"><?= Ui::icon('heading') ?><span>Intertitre</span></button>
+    <button class="rte__tool" type="button" data-rte-tool="button"><?= Ui::icon('button') ?><span>Bouton</span></button>
+  </div>
+</template>
 <dialog class="confirm" id="confirm-dialog" aria-labelledby="confirm-text">
   <p id="confirm-text"></p>
-  <div class="form-actions">
-    <button class="button" type="button" data-confirm-ok>Confirmer</button>
-    <button class="button button--secondary" type="button" data-confirm-cancel>Annuler</button>
+  <div class="button-row button-row--end">
+    <button class="btn" type="button" data-confirm-cancel>Annuler</button>
+    <button class="btn btn--primary" type="button" data-confirm-ok>Confirmer</button>
   </div>
 </dialog>
 <?php endif ?>

@@ -3,24 +3,42 @@ use App\Site\Components;
 use App\Site\Section;
 
 // Sans JavaScript : les trois pôles se suivent, chacun avec son ancre. Avec : onglets (site.js, data-tabs).
+// Chaque pôle prend la couleur de son logo (classe pole--<slug>, tokens --color-pole-*).
 ?>
 <div class="tabs" data-tabs>
   <div class="tabs__list" data-tabs-list hidden>
-    <?php foreach ($poles as $i => $p): ?>
-    <button class="tabs__tab" type="button" id="onglet-<?= e($p['slug']) ?>" data-tab="<?= e($p['slug']) ?>" aria-controls="<?= e($p['slug']) ?>"><?= e(str_replace('Pôle ESS ', '', $p['name'])) ?></button>
+    <?php foreach ($poles as $p): ?>
+    <button class="tabs__tab pole--<?= e($p['slug']) ?>" type="button" id="onglet-<?= e($p['slug']) ?>" data-tab="<?= e($p['slug']) ?>" aria-controls="<?= e($p['slug']) ?>"><?= e(str_replace('Pôle ESS ', '', $p['name'])) ?></button>
     <?php endforeach ?>
   </div>
   <?php foreach ($poles as $p): ?>
-  <div class="tabs__panel" id="<?= e($p['slug']) ?>" data-tab-panel="<?= e($p['slug']) ?>">
+  <?php
+  $main = $aside = [];
+  foreach ($p['page']['sections'] ?? [] as $s) {
+      $html = Section::body($s, $h + 2);
+      if ($html === '') {
+          continue;
+      }
+      if (in_array('aside', explode(' ', $s['variant']), true)) {
+          $aside[] = [$s, $html];
+      } else {
+          $main[] = [$s, $html];
+      }
+  }
+  ?>
+  <div class="tabs__panel pole--<?= e($p['slug']) ?>" id="<?= e($p['slug']) ?>" data-tab-panel="<?= e($p['slug']) ?>">
     <div class="pole-intro">
       <div class="pole-intro__brand">
         <?php if ($logo = Components::poleLogo($p['slug'])): ?>
-        <img class="pole-intro__logo" src="<?= e($logo) ?>" alt="" width="204" height="125" loading="lazy" decoding="async">
+        <img class="pole-intro__logo" src="<?= e($logo) ?>" alt="" width="217" height="125" loading="lazy" decoding="async">
         <?php endif ?>
-        <h<?= $h ?> class="pole-intro__name"><?= e($p['name']) ?></h<?= $h ?>>
+        <div>
+          <h<?= $h ?> class="pole-intro__name"><?= e($p['name']) ?></h<?= $h ?>>
+          <?php if ($p['is_head_office']): ?><p class="pole-intro__badge">Siège du groupement</p><?php endif ?>
+        </div>
       </div>
       <address class="pole-intro__contact">
-        <span><?= nl2br(e($p['address_lines'])) ?><br><?= e($p['postal_code'] . ' ' . $p['city']) ?></span>
+        <span><?= App\Site\Components::address($p) ?></span>
         <span>
           <?php foreach (explode("\n", $p['phones']) as $phone): ?>
           <a href="tel:+33<?= e(substr(str_replace(' ', '', $phone), 1)) ?>"><?= e($phone) ?></a><br>
@@ -29,17 +47,25 @@ use App\Site\Section;
         </span>
       </address>
     </div>
-    <div class="pole-blocks">
-    <?php foreach ($p['page']['sections'] ?? [] as $s): ?>
-    <?php $html = Section::body($s, $h + 2); ?>
-    <?php if ($html !== ''): ?>
-    <?php $wide = str_starts_with(trim($s['body']), '@') || text_length($s['body']) > 900; ?>
-    <div class="pole-block<?= $wide ? ' pole-block--wide' : '' ?>">
-      <h<?= $h + 1 ?> class="pole-block__title"><?= e($s['title']) ?></h<?= $h + 1 ?>>
-      <div class="prose"><?= $html ?></div>
-    </div>
-    <?php endif ?>
-    <?php endforeach ?>
+    <div class="pole-layout<?= $aside === [] ? ' pole-layout--single' : '' ?>">
+      <div class="pole-main">
+        <?php foreach ($main as [$s, $html]): ?>
+        <section class="pole-part" aria-labelledby="<?= e($p['slug'] . '-' . $s['key']) ?>">
+          <h<?= $h + 1 ?> class="pole-part__title" id="<?= e($p['slug'] . '-' . $s['key']) ?>"><?= e($s['title']) ?></h<?= $h + 1 ?>>
+          <div class="prose"><?= $html ?></div>
+        </section>
+        <?php endforeach ?>
+      </div>
+      <?php if ($aside !== []): ?>
+      <div class="pole-aside">
+        <?php foreach ($aside as [$s, $html]): ?>
+        <section class="pole-aside__item" aria-labelledby="<?= e($p['slug'] . '-' . $s['key']) ?>">
+          <h<?= $h + 1 ?> class="pole-aside__title" id="<?= e($p['slug'] . '-' . $s['key']) ?>"><?= e($s['title']) ?></h<?= $h + 1 ?>>
+          <div class="prose"><?= $html ?></div>
+        </section>
+        <?php endforeach ?>
+      </div>
+      <?php endif ?>
     </div>
   </div>
   <?php endforeach ?>

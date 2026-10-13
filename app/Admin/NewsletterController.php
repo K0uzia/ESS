@@ -65,7 +65,7 @@ final class NewsletterController
             $params[] = '%' . $q . '%';
         }
         $rows = Db::run(
-            'SELECT s.*, p.name AS pole FROM newsletter_subscribers s JOIN poles p ON p.id = s.pole_id WHERE ' . implode(' AND ', $where) . ' ORDER BY s.consent_at DESC LIMIT 500',
+            'SELECT s.*, p.name AS pole FROM newsletter_subscribers s JOIN poles p ON p.id = s.pole_id WHERE ' . implode(' AND ', $where) . ' ORDER BY s.consent_at DESC LIMIT 5000',
             $params
         )->fetchAll();
         View::render('admin/newsletters/subscribers', [
@@ -102,7 +102,7 @@ final class NewsletterController
             Auth::log('abonne.ajout', $email);
             Session::flash('Abonné ajouté.');
         }
-        redirect('/admin/newsletters/abonnes?pole=' . $pole);
+        redirect('/admin/newsletters/abonnes');
     }
 
     public static function deleteSubscriber(string $id): void
@@ -264,7 +264,7 @@ final class NewsletterController
         }
         Auth::log('modele.enregistrement', $name);
         Session::flash('Modèle enregistré.');
-        redirect('/admin/newsletters');
+        redirect('/admin/newsletters?vue=modeles');
     }
 
     public static function templateDelete(string $id): void
@@ -274,7 +274,7 @@ final class NewsletterController
         $tpl = self::findTemplate($user, (int) $id);
         Db::run('DELETE FROM newsletter_templates WHERE id = ?', [$tpl['id']]);
         Session::flash('Modèle supprimé.');
-        redirect('/admin/newsletters');
+        redirect('/admin/newsletters?vue=modeles');
     }
 
     // ---- Campagnes
@@ -321,8 +321,8 @@ final class NewsletterController
             $id = (string) Db::pdo()->lastInsertId();
         }
         Auth::log('lettre.enregistrement', $subject);
-        Session::flash('Brouillon enregistré. Vérifiez l\'aperçu et envoyez-vous un test avant l\'envoi.');
-        redirect("/admin/newsletters/campagnes/$id");
+        Session::flash('Brouillon enregistré. Étape suivante : vérifier la lettre.');
+        redirect("/admin/newsletters/campagnes/$id?etape=verifier");
     }
 
     public static function preview(string $id): void
@@ -330,8 +330,11 @@ final class NewsletterController
         $user = Auth::require();
         self::findCampaign($user, (int) $id);
         [$campaign, $template, $pole] = Sender::context((int) $id);
-        header("Content-Security-Policy: default-src 'none'; img-src 'self' https: data:; style-src 'unsafe-inline'; frame-ancestors 'none'");
-        echo Renderer::render($campaign, $template, $pole, null)['html'];
+        // Affiché dans la fenêtre d'aperçu du tableau de bord (iframe isolée, même origine seulement).
+        header("Content-Security-Policy: default-src 'none'; img-src 'self' https: data:; style-src 'unsafe-inline'; frame-ancestors 'self'");
+        header('X-Frame-Options: SAMEORIGIN');
+        // Les e-mails pointent vers le site en ligne ; l'aperçu charge les images depuis ce serveur-ci.
+        echo str_replace(setting('site_url') . '/assets/', '/assets/', Renderer::render($campaign, $template, $pole, null)['html']);
     }
 
     public static function test(string $id): void
@@ -346,7 +349,7 @@ final class NewsletterController
             $ok = Sender::sendTest((int) $id, $to);
             Session::flash($ok ? "Test envoyé à $to." : 'L\'envoi du test a échoué : vérifiez la configuration SMTP.', $ok ? 'success' : 'error');
         }
-        redirect("/admin/newsletters/campagnes/$id");
+        redirect("/admin/newsletters/campagnes/$id?etape=verifier");
     }
 
     public static function send(string $id): void
@@ -356,7 +359,7 @@ final class NewsletterController
         $c = self::findCampaign($user, (int) $id);
         if ($c['status'] !== 'draft' || empty($_POST['confirm'])) {
             Session::flash('Cochez la confirmation pour lancer l\'envoi.', 'error');
-            redirect("/admin/newsletters/campagnes/$id");
+            redirect("/admin/newsletters/campagnes/$id?etape=envoyer");
         }
         $n = Sender::queue((int) $id);
         Auth::log('lettre.envoi', $c['subject'] . " ($n)");

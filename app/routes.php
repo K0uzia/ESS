@@ -51,8 +51,13 @@ $router->post('/admin/comptes/{id}/mot-de-passe', [AccountController::class, 'pa
 
 $router->get('/admin/pages', [ContentController::class, 'index']);
 $router->get('/admin/pages/{key}', [ContentController::class, 'edit']);
-$router->post('/admin/pages/{key}', [ContentController::class, 'update']);
-$router->post('/admin/pages/{key}/sections', [ContentController::class, 'addSection']);
+$router->get('/admin/pages/{key}/en-tete', [ContentController::class, 'head']);
+$router->post('/admin/pages/{key}/en-tete', [ContentController::class, 'headUpdate']);
+$router->get('/admin/pages/{key}/sections/nouvelle', [ContentController::class, 'create']);
+$router->post('/admin/pages/{key}/sections', [ContentController::class, 'store']);
+$router->get('/admin/pages/{key}/sections/{section}', [ContentController::class, 'section']);
+$router->post('/admin/pages/{key}/sections/{section}', [ContentController::class, 'sectionUpdate']);
+$router->post('/admin/pages/{key}/sections/{section}/suppression', [ContentController::class, 'destroy']);
 
 $router->get('/admin/identite', [SettingsController::class, 'edit']);
 $router->post('/admin/identite', [SettingsController::class, 'update']);
@@ -62,7 +67,9 @@ $router->get('/admin/messages/{id}', [MessageController::class, 'show']);
 $router->post('/admin/messages/{id}/suppression', [MessageController::class, 'destroy']);
 
 $router->get('/admin/medias', [MediaController::class, 'index']);
+$router->get('/admin/medias/nouvelle', [MediaController::class, 'create']);
 $router->post('/admin/medias', [MediaController::class, 'store']);
+$router->get('/admin/medias/{id}', [MediaController::class, 'edit']);
 $router->post('/admin/medias/{id}', [MediaController::class, 'update']);
 $router->post('/admin/medias/{id}/suppression', [MediaController::class, 'destroy']);
 

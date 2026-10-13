@@ -66,6 +66,21 @@ final class AccountController
         if ($input['role'] !== 'admin' && $account['role'] === 'admin' && self::adminCount() <= 1) {
             $errors['role'] = 'Il doit rester au moins un administrateur.';
         }
+        // Mot de passe : facultatif depuis la fiche ; l'ancien est demandé pour son propre compte.
+        $password = (string) ($_POST['password'] ?? '');
+        if ($password !== '') {
+            if (self::isOwn($account)) {
+                $hash = (string) Db::run('SELECT password_hash FROM users WHERE id = ?', [$account['id']])->fetchColumn();
+                if (!password_verify((string) ($_POST['current_password'] ?? ''), $hash)) {
+                    $errors['current_password'] = 'Mot de passe actuel incorrect.';
+                }
+            }
+            if (text_length($password) < Auth::MIN_PASSWORD_LENGTH) {
+                $errors['password'] = 'Au moins ' . Auth::MIN_PASSWORD_LENGTH . ' caractères.';
+            } elseif ($password !== ($_POST['password_confirm'] ?? '')) {
+                $errors['password_confirm'] = 'Les deux mots de passe ne correspondent pas.';
+            }
+        }
         if ($errors !== []) {
             self::form($account, $errors, $input);
             return;
@@ -74,8 +89,12 @@ final class AccountController
             'UPDATE users SET username = ?, email = ?, role = ?, pole_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [$input['username'], $input['email'], $input['role'], $input['pole_id'], $account['id']]
         );
+        if ($password !== '') {
+            Db::run('UPDATE users SET password_hash = ? WHERE id = ?', [Auth::hash($password), $account['id']]);
+            Auth::log('compte.mot_de_passe', $input['username']);
+        }
         Auth::log('compte.modification', $input['username']);
-        Session::flash('Compte « ' . $input['username'] . ' » mis à jour.');
+        Session::flash('Compte « ' . $input['username'] . ' » mis à jour' . ($password !== '' ? ', mot de passe changé.' : '.'));
         redirect('/admin/comptes');
     }
 
@@ -100,6 +119,9 @@ final class AccountController
     public static function passwordForm(string $id): void
     {
         $account = self::authorizePassword($id);
+        if (Auth::user()['role'] === 'admin') {
+            redirect('/admin/comptes/' . (int) $account['id'] . '#mot-de-passe');
+        }
         View::render('admin/accounts/password', [
             'title' => 'Mot de passe',
             'account' => $account,
@@ -227,6 +249,7 @@ final class AccountController
         View::render('admin/accounts/form', [
             'title' => $account === null ? 'Nouveau compte' : 'Modifier le compte',
             'account' => $account,
+            'own' => $account !== null && self::isOwn($account),
             'values' => $input ?? $account ?? ['username' => '', 'email' => '', 'role' => 'admin', 'pole_id' => null],
             'errors' => $errors,
             'poles' => Db::run('SELECT id, name FROM poles ORDER BY position')->fetchAll(),

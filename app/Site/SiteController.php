@@ -22,14 +22,14 @@ final class SiteController
         '/accessibilite/' => 'accessibilite',
     ];
 
-    /** Photo d'en-tête par page (bin/build-images.php) ; absente = en-tête en dégradé seul. */
+    /** Photo d'en-tête par page (Section::PHOTOS, un seul emploi par photo) ; absente = en-tête en dégradé seul. */
     public const HEAD_PHOTO = [
         'les-poles' => 'reseau',
         'equipe' => 'equipe',
         'decouvrir-l-ess' => 'decouvrir',
         'agir' => 'agir',
         'se-former' => 'former',
-        'tag29' => 'agir',
+        'tag29' => 'tag29',
     ];
 
     public const NAV = [

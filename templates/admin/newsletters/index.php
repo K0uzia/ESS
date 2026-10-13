@@ -1,66 +1,82 @@
-<?php use App\Core\Csrf;
-$labels = ['draft' => 'Brouillon', 'queued' => 'En file', 'sending' => 'En cours d\'envoi', 'sent' => 'Envoyée'];
+<?php
+use App\Admin\Ui;
+use App\Core\Csrf;
+
+$labels = ['draft' => 'Brouillon', 'queued' => 'En cours d\'envoi', 'sending' => 'En cours d\'envoi', 'sent' => 'Envoyée'];
+$slug = static fn (string $pole): string => strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', Ui::poleShort($pole)));
+$vue = ($_GET['vue'] ?? '') === 'modeles' ? 'modeles' : 'lettres';
 ?>
-<div class="page-title">
-  <p class="page-title__kicker">Communication</p>
-  <h1>Newsletters</h1>
-  <a class="button" href="/admin/newsletters/campagnes/nouvelle">Rédiger une lettre</a>
-</div>
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Newsletters</h1>
+  </div>
+  <div class="page-head__actions">
+    <?php if ($vue === 'modeles'): ?>
+    <a class="btn btn--primary" href="/admin/newsletters/modeles/nouveau"><?= Ui::icon('plus') ?>Nouveau modèle</a>
+    <?php else: ?>
+    <a class="btn btn--primary" href="/admin/newsletters/campagnes/nouvelle"><?= Ui::icon('plus') ?>Nouvelle lettre</a>
+    <?php endif ?>
+  </div>
+</header>
+<?php $tab = $vue; require __DIR__ . '/tabs.php'; ?>
 
-<ul class="kpis" role="list">
-  <?php foreach ($poles as $p): $c = $counts[$p['id']] ?? []; ?>
-  <li class="kpi">
-    <span class="kpi__label"><strong><?= e($p['name']) ?></strong></span>
-    <span class="kpi__value"><?= (int) ($c['active'] ?? 0) ?></span>
-    <span class="kpi__label">abonnés actifs · <?= (int) ($c['pending'] ?? 0) ?> en attente · <?= (int) ($c['unsubscribed'] ?? 0) ?> désinscrits</span>
-    <span class="kpi__label">Expéditeur : <?= e($p['email']) ?></span>
-    <a class="kpi__link" href="/admin/newsletters/abonnes?pole=<?= (int) $p['id'] ?>">Voir les abonnés</a>
-  </li>
-  <?php endforeach ?>
-</ul>
-
-<section class="panel" aria-labelledby="envoi-titre">
-  <h2 id="envoi-titre">Envoi</h2>
-  <p>Les lettres partent par lots de <?= (int) $quota[2] ?> toutes les 10 minutes (tâche planifiée <code>bin/newsletter-send</code>), dans la limite de <?= (int) $quota[1] ?> e-mails par 24 heures pour respecter le forfait Hostinger. Envoyés ces dernières 24 h : <strong><?= (int) $quota[0] ?></strong>. En attente : <strong><?= (int) $pending ?></strong>.</p>
-  <?php if ($pending > 0): ?>
-  <form method="post" action="/admin/newsletters/lot"><?= Csrf::field() ?><button class="button button--secondary" type="submit">Envoyer un lot maintenant</button></form>
+<?php if ($vue === 'modeles'): ?>
+<section class="card card--flush" aria-label="Modèles">
+  <?php if ($templates === []): ?>
+  <div class="empty"><strong>Aucun modèle</strong><p>Un modèle ajoute la même introduction et la même signature à plusieurs lettres. Il est facultatif.</p></div>
+  <?php else: ?>
+  <div class="table-wrap">
+    <table class="table table--stack">
+      <caption class="visually-hidden">Modèles</caption>
+      <thead><tr><th scope="col">Nom</th><th scope="col">Pôle</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        <?php foreach ($templates as $t): ?>
+        <tr>
+          <th scope="row"><a href="/admin/newsletters/modeles/<?= (int) $t['id'] ?>"><?= e($t['name']) ?></a></th>
+          <td data-label="Pôle"><?= Ui::poleBadge($t['pole']) ?></td>
+          <td class="actions-col"><a class="btn" href="/admin/newsletters/modeles/<?= (int) $t['id'] ?>"><?= Ui::icon('edit') ?>Modifier<span class="visually-hidden"> <?= e($t['name']) ?></span></a></td>
+        </tr>
+        <?php endforeach ?>
+      </tbody>
+    </table>
+  </div>
   <?php endif ?>
 </section>
-
-<h2 class="block-title">Lettres</h2>
-<?php if ($campaigns === []): ?>
-<div class="empty"><p>Aucune lettre rédigée pour l'instant.</p><a class="button" href="/admin/newsletters/campagnes/nouvelle">Rédiger la première</a></div>
 <?php else: ?>
-<div class="table-wrap">
-<table>
-  <caption class="visually-hidden">Lettres</caption>
-  <thead><tr><th scope="col">Objet</th><th scope="col">Pôle</th><th scope="col">Statut</th><th scope="col">Envoi</th><th scope="col">Créée le</th></tr></thead>
-  <tbody>
-    <?php foreach ($campaigns as $c): ?>
-    <tr>
-      <th scope="row"><a href="/admin/newsletters/campagnes/<?= (int) $c['id'] ?>"><?= e($c['subject']) ?></a></th>
-      <td><?= e($c['pole']) ?></td>
-      <td><span class="badge<?= $c['status'] === 'sent' ? ' badge--on' : '' ?>"><?= e($labels[$c['status']]) ?></span></td>
-      <td><?= $c['total'] ? (int) $c['sent'] . ' / ' . (int) $c['total'] : '—' ?></td>
-      <td><?= e(date('d/m/Y', strtotime($c['created_at'] . ' UTC'))) ?></td>
-    </tr>
-    <?php endforeach ?>
-  </tbody>
-</table>
+<?php if ($pending > 0): ?>
+<div class="notice"><?= Ui::icon('send') ?><p>Envoi en cours : <?= (int) $pending ?> e-mail<?= $pending > 1 ? 's' : '' ?> en attente, envoyés par lots de <?= (int) $quota[2] ?> toutes les 10 minutes (<?= (int) $quota[0] ?> / <?= (int) $quota[1] ?> sur 24 h).</p>
+  <form method="post" action="/admin/newsletters/lot"><?= Csrf::field() ?><button class="btn" type="submit">Envoyer un lot maintenant</button></form>
 </div>
 <?php endif ?>
-
-<div class="page-title page-title--sub">
-  <h2>Modèles</h2>
-  <a class="button button--secondary" href="/admin/newsletters/modeles/nouveau">Nouveau modèle</a>
-</div>
-<p class="lead">Un modèle ajoute un texte d'introduction et une signature communs à plusieurs lettres d'un pôle. Le logo et les coordonnées du pôle sont toujours ajoutés.</p>
-<?php if ($templates === []): ?>
-<div class="empty"><p>Aucun modèle. Les lettres peuvent aussi être envoyées sans modèle.</p></div>
-<?php else: ?>
-<ul class="tiles" role="list">
-  <?php foreach ($templates as $t): ?>
-  <li class="tile"><a class="tile__link" href="/admin/newsletters/modeles/<?= (int) $t['id'] ?>"><?= e($t['name']) ?></a><span class="tile__meta"><?= e($t['pole']) ?></span></li>
-  <?php endforeach ?>
-</ul>
+<section class="card card--flush" data-list aria-label="Lettres">
+  <?php if ($campaigns === []): ?>
+  <div class="empty"><strong>Aucune lettre pour l'instant</strong><p>Rédigez une lettre, vérifiez-la, puis envoyez-la aux abonnés d'un pôle.</p><a class="btn btn--primary" href="/admin/newsletters/campagnes/nouvelle"><?= Ui::icon('plus') ?>Nouvelle lettre</a></div>
+  <?php else: ?>
+  <?php
+    $filters = ['statut' => ['Statut', ['draft' => 'Brouillon', 'sending' => 'En cours d\'envoi', 'sent' => 'Envoyée']]];
+    if (count($poles) > 1) { $filters['pole'] = ['Pôle', array_combine(array_map(static fn ($p) => $slug($p['name']), $poles), array_map(static fn ($p) => Ui::poleShort($p['name']), $poles))]; }
+    $searchLabel = 'Rechercher'; $countWords = ['lettre', 'lettres']; $total = count($campaigns);
+    require ROOT . '/templates/admin/partials/filters.php';
+  ?>
+  <div class="table-wrap">
+    <table class="table table--stack">
+      <caption class="visually-hidden">Lettres</caption>
+      <thead><tr><th scope="col">Objet</th><th scope="col">Pôle</th><th scope="col">Statut</th><th scope="col" class="num">Envoyés</th><th scope="col" class="num">Créée le</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        <?php foreach ($campaigns as $c): $st = $c['status'] === 'queued' ? 'sending' : $c['status']; ?>
+        <tr data-f-statut="<?= e($st) ?>" data-f-pole="<?= e($slug($c['pole'])) ?>">
+          <th scope="row"><a href="/admin/newsletters/campagnes/<?= (int) $c['id'] ?>"><?= e($c['subject']) ?></a></th>
+          <td data-label="Pôle"><?= Ui::poleBadge($c['pole']) ?></td>
+          <td data-label="Statut"><span class="badge<?= $st === 'sent' ? ' badge--on' : ($st === 'draft' ? ' badge--off' : ' badge--warn') ?>"><?= e($labels[$c['status']]) ?></span></td>
+          <td data-label="Envoyés" class="num"><?= $c['total'] ? (int) $c['sent'] . ' / ' . (int) $c['total'] : '—' ?></td>
+          <td data-label="Créée le" class="num"><?= e(Ui::date($c['created_at'])) ?></td>
+          <td class="actions-col"><a class="btn" href="/admin/newsletters/campagnes/<?= (int) $c['id'] ?>"><?= $c['status'] === 'draft' ? Ui::icon('edit') . 'Continuer' : Ui::icon('eye') . 'Voir' ?><span class="visually-hidden"> <?= e($c['subject']) ?></span></a></td>
+        </tr>
+        <?php endforeach ?>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty" data-filter-empty hidden><strong>Aucun résultat</strong><p>Aucune lettre ne correspond à la recherche ou aux filtres.</p><button class="btn" type="button" data-filter-reset>Effacer les filtres</button></div>
+  <?php endif ?>
+</section>
 <?php endif ?>

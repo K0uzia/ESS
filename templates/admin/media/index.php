@@ -1,51 +1,45 @@
-<?php use App\Core\Csrf; ?>
-<div class="page-title">
-  <p class="page-title__kicker">Contenus</p>
-  <h1>Médiathèque</h1>
-</div>
-<p class="lead">Photos réelles fournies par les pôles (événements, locaux, équipes). Elles sont converties en WebP et redimensionnées automatiquement. Les photos de la charte restent toujours disponibles dans l'éditeur de pages.</p>
+<?php
+use App\Admin\Ui;
 
-<form class="panel upload" method="post" action="/admin/medias" enctype="multipart/form-data">
-  <?= Csrf::field() ?>
-  <div class="form-grid">
-    <div class="field">
-      <label for="photo">Photo (JPG, PNG ou WebP, 15 Mo au plus)</label>
-      <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" required>
-    </div>
-    <div class="field">
-      <label for="alt">Description courte (pour la retrouver)</label>
-      <input id="alt" name="alt" maxlength="120">
-    </div>
-    <div class="field field--check field--wide">
-      <label class="switch" for="rights">
-        <input type="checkbox" id="rights" name="rights" value="1" required>
-        <span class="switch__track" aria-hidden="true"></span>
-        <span>Cette photo est réelle, et j'ai l'accord des personnes reconnaissables et du photographe pour la publier.</span>
-      </label>
-    </div>
+$photos = count(array_filter($library, static fn (array $i): bool => $i['kind'] === 'photo'));
+$filters = [
+    'type' => ['Type', ['photo' => 'Photos', 'logo' => 'Logos']],
+    'emploi' => ['Utilisation', ['utilisee' => 'Utilisées', 'libre' => 'Disponibles']],
+];
+$searchLabel = 'Rechercher une image';
+$countWords = ['image', 'images'];
+$total = count($library);
+?>
+<header class="page-head">
+  <div class="page-head__text">
+    <h1>Médiathèque</h1>
+    <p class="page-head__sub">Toutes les images du site : <?= $photos ?> photos et <?= $total - $photos ?> logos. Une photo se change depuis la section qui l'affiche.</p>
   </div>
-  <div class="form-actions"><button class="button" type="submit">Ajouter la photo</button></div>
-</form>
+  <div class="page-head__actions"><a class="btn btn--primary" href="/admin/medias/nouvelle" data-modal><?= Ui::icon('upload') ?>Ajouter une photo</a></div>
+</header>
 
-<?php if ($media === []): ?>
-<div class="empty"><p>Aucune photo ajoutée pour l'instant.</p></div>
-<?php else: ?>
-<ul class="media-grid" role="list">
-  <?php foreach ($media as $m): ?>
-  <li class="media-card">
-    <img src="<?= e($m['path']) ?>" alt="" width="<?= (int) $m['width'] ?>" height="<?= (int) $m['height'] ?>" loading="lazy">
-    <form method="post" action="/admin/medias/<?= (int) $m['id'] ?>">
-      <?= Csrf::field() ?>
-      <label class="visually-hidden" for="alt-<?= (int) $m['id'] ?>">Description</label>
-      <input id="alt-<?= (int) $m['id'] ?>" name="alt" value="<?= e($m['alt']) ?>" placeholder="Description">
-      <button class="button button--secondary button--small" type="submit">Enregistrer</button>
-    </form>
-    <p class="media-card__meta"><?= isset($used['media-' . $m['id']]) ? 'Utilisée dans ' . (int) $used['media-' . $m['id']] . ' section(s)' : 'Non utilisée' ?></p>
-    <form method="post" action="/admin/medias/<?= (int) $m['id'] ?>/suppression" data-confirm="Supprimer cette photo ?">
-      <?= Csrf::field() ?>
-      <button class="button--link button--danger" type="submit">Supprimer</button>
-    </form>
-  </li>
-  <?php endforeach ?>
-</ul>
-<?php endif ?>
+<section data-list aria-label="Images du site">
+  <div class="card filters-card"><?php require ROOT . '/templates/admin/partials/filters.php'; ?></div>
+  <ul class="library" role="list" data-filter-grid>
+    <?php foreach ($library as $value => $item): $used = $item['uses'] !== []; ?>
+    <li class="card library__item library__item--<?= e($item['kind']) ?>" data-filter-row data-f-type="<?= e($item['kind']) ?>" data-f-emploi="<?= $used ? 'utilisee' : 'libre' ?>">
+      <div class="library__img"><img src="<?= e($item['src']) ?>" alt="" width="<?= $item['width'] ?>" height="<?= $item['height'] ?>" loading="lazy" decoding="async"></div>
+      <div class="library__body">
+        <p class="library__name"><?= e($item['label']) ?></p>
+        <p class="library__meta"><span class="chip"><?= e($item['source']) ?></span><?= $used ? '' : ' <span class="badge badge--off">Disponible</span>' ?></p>
+        <?php if ($used): ?>
+        <ul class="library__uses" role="list">
+          <?php foreach ($item['uses'] as $use): ?>
+          <li><?= isset($use['href']) ? '<a href="' . e($use['href']) . '">' . e($use['label']) . '</a>' : e($use['label']) ?></li>
+          <?php endforeach ?>
+        </ul>
+        <?php endif ?>
+      </div>
+      <?php if (isset($item['id'])): ?>
+      <a class="btn library__edit" href="/admin/medias/<?= $item['id'] ?>" data-modal><?= Ui::icon('edit') ?>Modifier<span class="visually-hidden"> <?= e($item['label']) ?></span></a>
+      <?php endif ?>
+    </li>
+    <?php endforeach ?>
+  </ul>
+  <div class="card empty" data-filter-empty hidden><strong>Aucune image</strong><p>Aucune image ne correspond à la recherche ou aux filtres.</p><button class="btn" type="button" data-filter-reset>Effacer les filtres</button></div>
+</section>

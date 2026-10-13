@@ -3,9 +3,10 @@ title: Découvrir l'économie sociale et solidaire
 description: Définitions et histoire de l'ESS, loi du 31 juillet 2014, ateliers de sensibilisation et fiches pratiques proposés par les pôles ESS du Finistère.
 h1: Découvrir l'ESS
 intro: L'économie sociale et solidaire est de plus en plus connue. Ses origines, ses définitions et ses enjeux en quelques repères.
+actions: Demander un atelier | #sensibilisation ; Fiches pratiques | #outils
 ---
 
-## Économie sociale, économie solidaire : de quoi parle-t-on ? {#definitions .split image=collectif}
+## Économie sociale, économie solidaire : de quoi parle-t-on ? {#definitions .split image=circuits-courts}
 
 Penser et agir autrement en société, et donner du sens à l'acte d'entreprendre. L'économie sociale et solidaire combine engagement social et initiative économique pour mettre la personne humaine au centre des activités et replacer l'économie dans son contexte : les activités économiques sont un moyen au service d'un projet social.
 
@@ -42,7 +43,7 @@ Cette loi a cinq objectifs principaux.
 
 Pour aller plus loin : [Tout savoir sur la loi ESS (CRESS Bretagne, PDF)](https://www.ess-bretagne.org/uploads/files/cress_ressources/ess-brochure.pdf).
 
-## Sensibilisation à l'ESS {#sensibilisation .split image=atelier}
+## Sensibilisation à l'ESS {#sensibilisation .split .inverse image=sensibilisation}
 
 Vous souhaitez mieux connaître l'économie sociale et solidaire : son historique, ses fondements et les réalités des acteurs aujourd'hui ? Vous voulez transmettre à vos élèves, collègues ou collaborateurs votre intérêt pour l'ESS ? Vous cherchez des outils pédagogiques pour en parler ?
 

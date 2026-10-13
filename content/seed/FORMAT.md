@@ -8,6 +8,7 @@ title: Titre SEO, unique, moins de 60 caractères
 description: Description unique de 140 à 160 caractères, fidèle au contenu affiché.
 h1: Titre affiché de la page
 intro: Une ou deux phrases de chapeau (facultatif, une seule ligne).
+actions: Texte du bouton | /lien-ou-#ancre ; Second bouton | #ancre   (facultatif, deux boutons au plus dans l'en-tête)
 ---
 
 ## Titre de section {#cle-de-section}
@@ -35,7 +36,7 @@ Règles du Markdown accepté (le moteur ne connaît que ça) :
   - `.etapes` : la liste numérotée `1.` devient des étapes numérotées ;
   - `.temoignages` : les citations `> « … » (Prénom, âge)` se placent en grille, avec les guillemets de la charte ;
   - `.encart` : bandeau sombre centré, pour un appel à l'action ;
-  - `.split image=<photo>` (`.inverse` pour la photo à gauche) : texte et photo côte à côte ; photos : accueil, reseau, equipe, decouvrir, agir, former, contact, adherer, atelier, collectif ;
+  - `.split image=<photo>` (`.inverse` pour la photo à gauche) : texte et photo côte à côte ; noms de photos : `App\Site\Section::PHOTOS`. Une photo n'a qu'un seul emploi sur tout le site (en-têtes de page compris, `SiteController::HEAD_PHOTO`) ;
   - `.fond` (teinté) ou `.sombre` (dégradé Glaz) : fond forcé ; sinon alternance automatique.
 - Pictogrammes (`!nom`) : ampoule, avionenpapier, bulles, calendrier, camembert, cible, client, engrenage, enveloppe, fleche1, fleche2, horloge, liste, localisation, loupe, megaphone, reseau.
 - Liste dont chaque élément commence par un nombre : affichée en chiffres clés.
@@ -58,7 +59,7 @@ Règles du Markdown accepté (le moteur ne connaît que ça) :
 
 Fichiers de données (TSV, tabulation, première ligne = en-têtes, UTF-8) dans `content/seed/` :
 - `equipe.tsv` : `nom	role	pole	groupe	structure	email	telephone	ordre` — pole = slug (`pays-de-morlaix`, `pays-de-brest`, `pays-de-cornouaille`) ou `tag29` ; groupe = `salaries` ou `ca` ; email/téléphone seulement s'ils sont publiés et pas périmés (aucun @adess29.fr, @adessdupaysdemorlaix.org, gmail ancien).
-- `adherents.tsv` : `nom	pole	statut	url	publie` — publie = 1 ou 0 (0 si le nom est déduit d'un fichier et non écrit sur le site).
+- `adherents.tsv` : `nom	pole	statut	url	publie	adresse	latitude	longitude` — publie = 1 ou 0 (0 si le nom est déduit d'un fichier et non écrit sur le site). Brest et Morlaix : export des cartes GoGoCarto publiques des pôles (adess29 et adherentspolessmx, licence ODbL, fiches validées seulement) ; adresse, latitude et longitude facultatives (sans coordonnées, l'adhérent est listé mais absent de la carte).
 - `documents.tsv` : `titre	pole	categorie	annee	url_source` — categorie = `document`, `fiche_pratique`, `ressource` ; url_source = URL complète du PDF sur ess29.org.
 - `partenaires.tsv` : `nom	type	url	pole` — type = `partenaire` ou `reseau` ; pole vide si global.
 

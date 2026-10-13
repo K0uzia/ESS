@@ -62,7 +62,11 @@ final class Markdown
             }
             if (str_starts_with($trimmed, '> ')) {
                 $flushAll();
-                $html[] = '<blockquote class="quote"><p>' . self::inline(substr($trimmed, 2)) . '</p></blockquote>';
+                // « … » (Prénom, âge) : l'auteur final passe en légende de la citation.
+                $quote = substr($trimmed, 2);
+                $author = preg_match('/^(.*»)\s*\(([^()]+)\)$/u', $quote, $q) ? $q[2] : '';
+                $html[] = '<figure class="quote"><blockquote><p>' . self::inline($author !== '' ? $q[1] : $quote) . '</p></blockquote>'
+                    . ($author !== '' ? '<figcaption class="quote__author">' . e($author) . '</figcaption>' : '') . '</figure>';
                 continue;
             }
             if (str_starts_with($trimmed, '|')) {

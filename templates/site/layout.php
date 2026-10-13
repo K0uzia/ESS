@@ -116,7 +116,7 @@ $jsonLd = [
         <?php foreach ($poles as $p): ?>
         <div class="site-footer__pole">
           <strong><a href="/les-poles/#<?= e($p['slug']) ?>"><?= e($p['name']) ?></a></strong>
-          <span><?= e($p['postal_code'] . ' ' . $p['city']) ?></span>
+          <address><?= App\Site\Components::address($p, true) ?></address>
           <?php foreach (explode("\n", $p['phones']) as $phone): ?>
           <a href="tel:+33<?= e(substr(str_replace(' ', '', $phone), 1)) ?>"><?= e($phone) ?></a>
           <?php endforeach ?>

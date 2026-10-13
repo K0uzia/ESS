@@ -71,8 +71,8 @@ if (isEmpty('team_members')) {
 if (isEmpty('members')) {
     foreach (tsv("$seed/adherents.tsv") as $i => $r) {
         Db::run(
-            'INSERT INTO members (pole_id, name, status, url, position, is_published) VALUES (?, ?, ?, ?, ?, ?)',
-            [$poleId($r['pole']), $r['nom'], $nullable($r['statut']), $nullable($r['url']), $i, (int) $r['publie']]
+            'INSERT INTO members (pole_id, name, status, url, address, latitude, longitude, position, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$poleId($r['pole']), $r['nom'], $nullable($r['statut']), $nullable($r['url']), $nullable($r['adresse']), $r['latitude'] === '' ? null : (float) $r['latitude'], $r['longitude'] === '' ? null : (float) $r['longitude'], $i, (int) $r['publie']]
         );
     }
     echo 'adhérents : ' . $pdo->query('SELECT COUNT(*) FROM members')->fetchColumn() . "\n";

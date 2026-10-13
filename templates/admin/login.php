@@ -5,7 +5,7 @@
   <form method="post" action="/admin/connexion" novalidate>
     <?= Csrf::field() ?>
     <?php if ($error): ?>
-    <p class="alert alert--error" id="login-error" role="alert">Erreur : <?= e($error) ?></p>
+    <p class="notice notice--error" id="login-error" role="alert"><strong>Erreur :</strong>&nbsp;<?= e($error) ?></p>
     <?php endif ?>
     <div class="field">
       <label for="username">Identifiant</label>
@@ -15,6 +15,6 @@
       <label for="password">Mot de passe</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required<?= $error ? ' aria-invalid="true" aria-describedby="login-error"' : '' ?>>
     </div>
-    <button class="button button--block" type="submit">Se connecter</button>
+    <button class="btn btn--primary btn--block" type="submit">Se connecter</button>
   </form>
 </div>

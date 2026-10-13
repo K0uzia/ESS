@@ -3,6 +3,7 @@ title: Agir dans l'ESS en Finistère
 description: Entreprendre autrement, travailler à la Boussol', engager une collectivité dans l'ESS, s'impliquer dans le réseau : les appuis des pôles ESS du Finistère.
 h1: Agir dans l'ESS
 intro: Porteurs de projet, entrepreneurs, collectivités, acteurs de l'ESS : les pôles ESS du Finistère vous accompagnent pour agir dans l'économie sociale et solidaire.
+actions: Faire le point sur mon projet | #entreprendre ; Offres d'emploi | #offres
 ---
 
 ## Entreprendre autrement {#entreprendre .blocs}
@@ -218,7 +219,7 @@ Lancé en octobre 2015, le projet CIPEC (Coopérer et innover pour l'économie c
 
 Contact : [Pôle ESS Pays de Morlaix](/#contact).
 
-## Travailler dans l'ESS {#emploi .split .inverse image=collectif}
+## Travailler dans l'ESS {#emploi .split .inverse image=emploi}
 
 Présente dans la quasi-totalité des secteurs d'activité, l'ESS compte peu de métiers spécifiques : vos compétences et vos valeurs peuvent servir des entreprises solidaires.
 

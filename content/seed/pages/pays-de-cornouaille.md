@@ -43,7 +43,7 @@ Les documents de la vie associative du pôle sont publiés sur son [site AssoCon
 
 @documents:pays-de-cornouaille
 
-## L'équipe {#equipe}
+## L'équipe {#equipe .aside}
 
-@equipe:pays-de-cornouaille
+→ [Voir l'équipe du pôle](/equipe/#equipe-pays-de-cornouaille)
 

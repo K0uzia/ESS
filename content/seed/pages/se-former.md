@@ -3,9 +3,10 @@ title: Se former à l'ESS avec le Pôle ESS Pays de Brest
 description: Formations du Pôle ESS Pays de Brest : la Coopérative de restauration, des parcours sur mesure en ESS et une démarche qualité Qualiopi pour les stagiaires.
 h1: Se former
 intro: Parce que la formation est un levier essentiel du développement de l'ESS, le Pôle ESS Pays de Brest propose des actions de formation adaptées à vos besoins et à votre profil.
+actions: Découvrir la formation | #cooperative-restauration ; Formation sur mesure | #sur-mesure
 ---
 
-## Une démarche qualité {#qualite .split image=atelier}
+## Une démarche qualité {#qualite .split image=formation}
 
 Le Pôle ESS Pays de Brest a engagé en 2022 une démarche de certification de la qualité de ses prestations de formation, pour répondre aux exigences du référentiel Qualiopi.
 
@@ -71,9 +72,9 @@ Cette formation est financée par la Région Bretagne et le Contrat de ville de 
 
 ## Ils témoignent {#temoignages .temoignages}
 
-> « J'ai appris et découvert plein de choses. » (Issa, 30 ans)
-
 > « J'ai travaillé longtemps dans les serres mais je ne pouvais plus poursuivre ce métier à cause de mes allergies. La formation Cuisine du monde m'a tout de suite intéressée. J'ai été reçue en entretien puis immédiatement intégrée dans l'équipe. Mon parcours dans cette formation m'a amenée à réaliser un stage et, pendant ce stage, j'ai été embauchée en CDD puis en CDI. » (Hill, 42 ans)
+
+> « J'ai appris et découvert plein de choses. » (Issa, 30 ans)
 
 > « La formation m'a permis non seulement de me retrouver personnellement, mais elle m'a confortée dans mes aptitudes culinaires. » (Marie-Louise, 49 ans)
 

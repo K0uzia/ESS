@@ -22,7 +22,7 @@ if (in_array($method, ['GET', 'HEAD'], true)) {
     }
 }
 
-$mapFrame = setting('gogocarto_url') !== '' ? ' frame-src https://*.gogocarto.fr;' : '';
+$mapFrame = setting('gogocarto_url') !== '' ? " frame-src 'self' https://*.gogocarto.fr;" : '';
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';$mapFrame frame-ancestors 'none'");
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');

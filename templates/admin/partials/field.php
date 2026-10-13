@@ -2,28 +2,34 @@
 /**
  * Champ de formulaire admin.
  * @var string $name @var array $f (label, type, required, hint, options, empty, step) @var mixed $value @var ?string $error
- * @var list<array<string, mixed>> $poles (type pole) @var ?int $lockedPole
+ * @var list<array<string, mixed>> $poles (type pole) @var ?int $lockedPole @var ?string $formId (champ placé hors du formulaire)
  */
 $id = 'f-' . $name;
-$describedBy = trim((!empty($f['hint']) ? "$id-hint " : '') . ($error ? "$id-error" : ''));
+$type = $f['type'];
+$todo = is_string($value) && str_contains($value, '__À_REMPLIR__');
+$hint = (string) ($f['hint'] ?? '');
+if ($todo) {
+    $hint = trim('À compléter avant la mise en ligne : remplacez __À_REMPLIR__ par la vraie valeur. ' . $hint);
+}
+$describedBy = trim(($hint !== '' ? "$id-hint " : '') . ($error ? "$id-error" : ''));
 $aria = ($describedBy !== '' ? ' aria-describedby="' . $describedBy . '"' : '') . ($error ? ' aria-invalid="true"' : '');
 $req = !empty($f['required']) ? ' required' : '';
-$type = $f['type'];
+$form = !empty($formId) ? ' form="' . e($formId) . '"' : '';
+$classes = 'field' . ($type === 'checkbox' ? ' field--check' : '') . (in_array($type, ['textarea', 'markdown', 'image'], true) ? ' field--wide' : '') . ($todo ? ' field--todo' : '');
 ?>
-<div class="field<?= $type === 'checkbox' ? ' field--check' : '' ?><?= in_array($type, ['textarea', 'markdown'], true) ? ' field--wide' : '' ?>">
+<div class="<?= $classes ?>">
   <?php if ($type === 'checkbox'): ?>
   <label class="switch" for="<?= $id ?>">
-    <input type="checkbox" id="<?= $id ?>" name="<?= e($name) ?>" value="1"<?= (int) $value === 1 ? ' checked' : '' ?><?= $aria ?>>
+    <input type="checkbox" id="<?= $id ?>" name="<?= e($name) ?>" value="1"<?= (int) $value === 1 ? ' checked' : '' ?><?= $aria . $form ?>>
     <span class="switch__track" aria-hidden="true"></span>
-    <span><?= e($f['label']) ?></span>
+    <span class="switch__text"><?= e($f['label']) ?></span>
   </label>
   <?php else: ?>
-  <label for="<?= $id ?>"><?= e($f['label']) ?><?= !empty($f['required']) ? ' <span class="req" aria-hidden="true">*</span>' : '' ?></label>
+  <label for="<?= $id ?>" id="<?= $id ?>-label"><?= e($f['label']) ?><?= !empty($f['required']) ? ' <span class="req">(obligatoire)</span>' : '' ?></label>
   <?php if ($type === 'textarea' || $type === 'markdown'): ?>
-  <textarea id="<?= $id ?>" name="<?= e($name) ?>" rows="<?= $type === 'markdown' ? 12 : 4 ?>"<?= $req . $aria ?><?= $type === 'markdown' ? ' class="mono"' : '' ?>><?= e((string) $value) ?></textarea>
-  <?php if ($type === 'markdown'): ?><p class="field__hint">Mise en forme : <code>**gras**</code>, <code>*italique*</code>, <code>[texte](https://lien)</code>, listes avec <code>- </code>, intertitres avec <code>### </code>.</p><?php endif ?>
+  <textarea id="<?= $id ?>" name="<?= e($name) ?>" rows="<?= $type === 'markdown' ? 10 : 4 ?>"<?= $req . $aria . $form ?><?= $type === 'markdown' ? ' data-rte="full" data-rte-html="' . e(App\Admin\TextFields::editorHtml((string) $value)) . '"' : '' ?>><?= e((string) $value) ?></textarea>
   <?php elseif ($type === 'select'): ?>
-  <select id="<?= $id ?>" name="<?= e($name) ?>"<?= $req . $aria ?>>
+  <select id="<?= $id ?>" name="<?= e($name) ?>"<?= $req . $aria . $form ?>>
     <?php foreach ($f['options'] as $optValue => $optLabel): ?>
     <option value="<?= e((string) $optValue) ?>"<?= (string) $value === (string) $optValue ? ' selected' : '' ?>><?= e($optLabel) ?></option>
     <?php endforeach ?>
@@ -32,25 +38,50 @@ $type = $f['type'];
   <?php if ($lockedPole !== null): ?>
   <input id="<?= $id ?>" value="<?= e(array_column($poles, 'name', 'id')[$lockedPole] ?? '') ?>" disabled>
   <?php else: ?>
-  <select id="<?= $id ?>" name="<?= e($name) ?>"<?= $req . $aria ?>>
+  <select id="<?= $id ?>" name="<?= e($name) ?>"<?= $req . $aria . $form ?>>
     <option value=""><?= e($f['empty'] ?? 'Choisir un pôle') ?></option>
     <?php foreach ($poles as $p): ?>
     <option value="<?= (int) $p['id'] ?>"<?= (int) $value === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name']) ?></option>
     <?php endforeach ?>
   </select>
   <?php endif ?>
-  <?php elseif ($type === 'pdf' || $type === 'image'): ?>
+  <?php elseif ($type === 'image'): ?>
+  <?php
+    // Logos déjà présents sur le site (médiathèque), hors logos de la charte ESS ; ou envoi d'un nouveau fichier.
+    $logos = array_filter(App\Admin\MediaController::library(), static fn (array $i): bool => $i['kind'] === 'logo' && !str_starts_with($i['src'], '/assets/img/logo-'));
+  ?>
+  <div class="photo-pick photo-pick--logo" data-photo-pick>
+    <div class="photo-pick__current">
+      <img src="<?= e((string) $value) ?>" alt="" width="160" height="80" data-photo-preview<?= $value ? '' : ' hidden' ?>>
+      <p data-photo-label><?= $value ? 'Logo actuel' : 'Aucun logo' ?></p>
+    </div>
+    <details class="photo-pick__more">
+      <summary class="btn"><?= App\Admin\Ui::icon('image') ?>Choisir dans la médiathèque</summary>
+      <div class="photo-grid photo-grid--logos">
+        <?php foreach ($logos as $logo): $pid = $id . '-' . substr(md5($logo['src']), 0, 8); ?>
+        <label class="photo-choice" for="<?= $pid ?>">
+          <input type="radio" id="<?= $pid ?>" name="<?= e($name) ?>_pick" value="<?= e($logo['src']) ?>"<?= $value === $logo['src'] ? ' checked' : '' ?> data-src="<?= e($logo['src']) ?>" data-label="<?= e($logo['label']) ?>"<?= $form ?>>
+          <img src="<?= e($logo['src']) ?>" alt="" width="<?= $logo['width'] ?>" height="<?= $logo['height'] ?>" loading="lazy" decoding="async">
+          <span class="photo-choice__name"><?= e($logo['label']) ?></span>
+        </label>
+        <?php endforeach ?>
+      </div>
+    </details>
+    <p class="field__hint" id="<?= $id ?>-upload">Ou envoyez un nouveau logo (PNG, JPG ou WebP) : il rejoindra la médiathèque.</p>
+    <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="image/png,image/jpeg,image/webp" aria-describedby="<?= $id ?>-upload"<?= $form ?>>
+  </div>
+  <?php elseif ($type === 'pdf'): ?>
   <?php if ($value): ?>
   <p class="file-current">
-    <?php if ($type === 'image'): ?><img src="<?= e((string) $value) ?>" alt="" height="48"><?php endif ?>
-    <a href="<?= e((string) $value) ?>" target="_blank" rel="noopener">Fichier actuel</a> · envoyer un autre fichier le remplace.
+    <a href="<?= e((string) $value) ?>" target="_blank" rel="noopener">Ouvrir le fichier actuel<span class="visually-hidden"> (nouvel onglet)</span></a>
+    <span class="muted">Envoyer un autre fichier le remplace.</span>
   </p>
   <?php endif ?>
-  <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="<?= $type === 'pdf' ? 'application/pdf' : 'image/png,image/jpeg,image/webp' ?>"<?= !$value && !empty($f['required']) ? ' required' : '' ?><?= $aria ?>>
+  <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="application/pdf"<?= !$value && !empty($f['required']) ? ' required' : '' ?><?= $aria . $form ?>>
   <?php else: ?>
-  <input id="<?= $id ?>" name="<?= e($name) ?>" type="<?= e($type) ?>" value="<?= e((string) $value) ?>"<?= isset($f['step']) ? ' step="' . e($f['step']) . '"' : '' ?><?= $type === 'email' ? ' autocomplete="off"' : '' ?><?= $req . $aria ?>>
+  <input id="<?= $id ?>" name="<?= e($name) ?>" type="<?= e($type) ?>" value="<?= e((string) $value) ?>"<?= isset($f['step']) ? ' step="' . e($f['step']) . '"' : '' ?><?= $type === 'email' ? ' autocomplete="off"' : '' ?><?= $req . $aria . $form ?>>
   <?php endif ?>
   <?php endif ?>
-  <?php if (!empty($f['hint'])): ?><p class="field__hint" id="<?= $id ?>-hint"><?= e($f['hint']) ?></p><?php endif ?>
+  <?php if ($hint !== ''): ?><p class="field__hint" id="<?= $id ?>-hint"><?= e($hint) ?></p><?php endif ?>
   <?php if ($error): ?><p class="field__error" id="<?= $id ?>-error">Erreur : <?= e($error) ?></p><?php endif ?>
 </div>
