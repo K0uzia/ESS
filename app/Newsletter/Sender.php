@@ -75,8 +75,8 @@ final class Sender
                 Db::run("UPDATE newsletter_campaigns SET status = 'sending' WHERE id = ? AND status = 'queued'", [$campaign['id']]);
                 $unsubscribe = $site . '/newsletter/desinscription?jeton=' . $r['token'];
                 $mail = Renderer::render($campaign, $template, $pole, $unsubscribe);
-                $ok = Mailer::send($r['email'], (string) $campaign['subject'], $mail['text'], $mail['html'], null, (string) $pole['email'], [
-                    'List-Unsubscribe' => "<$unsubscribe>, <mailto:{$pole['email']}?subject=desinscription>",
+                $ok = Mailer::send($r['email'], (string) $campaign['subject'], $mail['text'], $mail['html'], (string) $pole['email'], self::sender($pole), [
+                    'List-Unsubscribe' => "<$unsubscribe>, <mailto:" . self::sender($pole) . '?subject=desinscription>',
                     'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click',
                 ], (string) $pole['name']);
                 Db::run(
@@ -100,7 +100,16 @@ final class Sender
     {
         [$campaign, $template, $pole] = self::context($campaignId);
         $mail = Renderer::render($campaign, $template, $pole, null);
-        return Mailer::send($to, '[Test] ' . $campaign['subject'], $mail['text'], $mail['html'], null, (string) $pole['email'], [], (string) $pole['name']);
+        return Mailer::send($to, '[Test] ' . $campaign['subject'], $mail['text'], $mail['html'], (string) $pole['email'], self::sender($pole), [], (string) $pole['name']);
+    }
+
+    /**
+     * Expéditeur des newsletters du pôle ; les réponses vont à l'e-mail de contact du pôle (Reply-To).
+     * @param array<string, mixed> $pole
+     */
+    public static function sender(array $pole): string
+    {
+        return (string) ($pole['newsletter_email'] ?: $pole['email']);
     }
 
     /** @return array{0: array<string, mixed>, 1: array<string, mixed>|null, 2: array<string, mixed>} */

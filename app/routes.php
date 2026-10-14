@@ -4,11 +4,9 @@ declare(strict_types=1);
 use App\Admin\AccountController;
 use App\Admin\ContentController;
 use App\Admin\MediaController;
-use App\Admin\MessageController;
 use App\Admin\NewsletterController;
 use App\Admin\ResourceController;
 use App\Admin\Resources;
-use App\Admin\SettingsController;
 use App\Admin\AuthController;
 use App\Admin\DashboardController;
 use App\Core\Router;
@@ -33,11 +31,14 @@ $router->post('/newsletter/desinscription', [FormController::class, 'unsubscribe
 $router->get('/robots.txt', [Discovery::class, 'robots']);
 $router->get('/sitemap.xml', [Discovery::class, 'sitemap']);
 $router->get('/llms.txt', [Discovery::class, 'llms']);
-$router->get('/les-poles/adherents.json', [Discovery::class, 'members']);
 
 $router->get('/admin/connexion', [AuthController::class, 'form']);
 $router->post('/admin/connexion', [AuthController::class, 'login']);
 $router->post('/admin/deconnexion', [AuthController::class, 'logout']);
+$router->get('/admin/mot-de-passe/oublie', [AuthController::class, 'forgotForm']);
+$router->post('/admin/mot-de-passe/oublie', [AuthController::class, 'forgot']);
+$router->get('/admin/mot-de-passe', [AuthController::class, 'resetForm']);
+$router->post('/admin/mot-de-passe', [AuthController::class, 'reset']);
 $router->get('/admin/', [DashboardController::class, 'index']);
 
 $router->get('/admin/comptes', [AccountController::class, 'index']);
@@ -53,18 +54,10 @@ $router->get('/admin/pages', [ContentController::class, 'index']);
 $router->get('/admin/pages/{key}', [ContentController::class, 'edit']);
 $router->get('/admin/pages/{key}/en-tete', [ContentController::class, 'head']);
 $router->post('/admin/pages/{key}/en-tete', [ContentController::class, 'headUpdate']);
-$router->get('/admin/pages/{key}/sections/nouvelle', [ContentController::class, 'create']);
-$router->post('/admin/pages/{key}/sections', [ContentController::class, 'store']);
 $router->get('/admin/pages/{key}/sections/{section}', [ContentController::class, 'section']);
 $router->post('/admin/pages/{key}/sections/{section}', [ContentController::class, 'sectionUpdate']);
-$router->post('/admin/pages/{key}/sections/{section}/suppression', [ContentController::class, 'destroy']);
 
-$router->get('/admin/identite', [SettingsController::class, 'edit']);
-$router->post('/admin/identite', [SettingsController::class, 'update']);
 
-$router->get('/admin/messages', [MessageController::class, 'index']);
-$router->get('/admin/messages/{id}', [MessageController::class, 'show']);
-$router->post('/admin/messages/{id}/suppression', [MessageController::class, 'destroy']);
 
 $router->get('/admin/medias', [MediaController::class, 'index']);
 $router->get('/admin/medias/nouvelle', [MediaController::class, 'create']);
@@ -74,7 +67,6 @@ $router->post('/admin/medias/{id}', [MediaController::class, 'update']);
 $router->post('/admin/medias/{id}/suppression', [MediaController::class, 'destroy']);
 
 $router->get('/admin/newsletters', [NewsletterController::class, 'index']);
-$router->post('/admin/newsletters/lot', [NewsletterController::class, 'batch']);
 $router->get('/admin/newsletters/abonnes', [NewsletterController::class, 'subscribers']);
 $router->post('/admin/newsletters/abonnes', [NewsletterController::class, 'addSubscriber']);
 $router->get('/admin/newsletters/abonnes/export', [NewsletterController::class, 'export']);
@@ -94,6 +86,8 @@ $router->post('/admin/newsletters/campagnes/{id}/test', [NewsletterController::c
 $router->post('/admin/newsletters/campagnes/{id}/envoi', [NewsletterController::class, 'send']);
 $router->post('/admin/newsletters/campagnes/{id}/suppression', [NewsletterController::class, 'campaignDelete']);
 
+$router->get('/admin/adresses', [ResourceController::class, 'addresses']);
+
 // Modules simples (Resources) : une route par clé, pour ne pas capturer les autres chemins de l'admin.
 foreach (array_keys(Resources::all()) as $resource) {
     $router->get("/admin/$resource", static fn () => ResourceController::index($resource));
@@ -102,6 +96,7 @@ foreach (array_keys(Resources::all()) as $resource) {
     $router->get("/admin/$resource/{id}", static fn (string $id) => ResourceController::edit($resource, $id));
     $router->post("/admin/$resource/{id}", static fn (string $id) => ResourceController::update($resource, $id));
     $router->post("/admin/$resource/{id}/suppression", static fn (string $id) => ResourceController::destroy($resource, $id));
+    $router->post("/admin/$resource/{id}/deplacer", static fn (string $id) => ResourceController::move($resource, $id));
 }
 
 return $router;

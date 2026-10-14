@@ -46,7 +46,7 @@ Règles du Markdown accepté (le moteur ne connaît que ça) :
   - `@coordonnees` : coordonnées complètes des 3 pôles + e-mail générique
   - `@equipe` : toute l'équipe, regroupée et filtrable par pôle
   - `@equipe:<pole-slug>` : l'équipe d'un pôle
-  - `@adherents` : tous les adhérents, filtrables par pôle (+ carte GoGoCarto au clic)
+  - `@adherents` : tous les adhérents, filtrables par pôle, avec la carte du Finistère
   - `@documents:<pole-slug>` : documents d'un pôle ; `@documents:fiche_pratique` ; `@documents:ressource`
   - `@offres` : offres d'emploi en cours
   - `@partenaires` : partenaires et réseaux

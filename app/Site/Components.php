@@ -24,7 +24,7 @@ final class Components
                 self::poles()
             )],
             'equipe' => ['groups' => self::team($arg)],
-            'adherents' => ['groups' => self::members(), 'map' => setting('gogocarto_url')],
+            'adherents' => ['groups' => self::members()],
             'documents' => ['documents' => self::documents((string) $arg)],
             'offres' => ['offers' => self::offers()],
             'partenaires' => ['partners' => Db::run('SELECT * FROM partners WHERE is_published = 1 ORDER BY kind, position')->fetchAll()],

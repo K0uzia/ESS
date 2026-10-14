@@ -8,31 +8,21 @@ $user = Auth::user();
 $flashes = Session::takeFlashes();
 $current = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isAdmin = $user !== null && $user['role'] === 'admin';
-// Groupe => [chemin => [libellé, icône]] ; les modules réservés aux administrateurs sont retirés pour un éditeur.
-$nav = [
-    '' => ['/admin/' => ['Tableau de bord', 'home']],
-    'Site' => [
-        '/admin/pages' => ['Pages', 'page'],
-        '/admin/medias' => ['Médiathèque', 'image'],
-        '/admin/documents' => ['Documents', 'folder'],
-    ],
-    'Réseau' => [
-        '/admin/equipe' => ['Équipe', 'users'],
-        '/admin/adherents' => ['Adhérents', 'pin'],
-        '/admin/offres' => ['Offres d\'emploi', 'briefcase'],
-    ],
-    'Communication' => [
-        '/admin/messages' => ['Messages reçus', 'inbox'],
-        '/admin/newsletters' => ['Newsletters', 'mail'],
-    ],
-];
-if ($isAdmin) {
-    $nav['Site']['/admin/partenaires'] = ['Partenaires', 'link'];
-    $nav['Réglages'] = [
-        '/admin/identite' => ['Identité du site', 'id'],
-        '/admin/poles' => ['Coordonnées des pôles', 'building'],
-        '/admin/comptes' => ['Comptes', 'key'],
-    ];
+// Menu sans groupes, comme Ulamir : chemin => [libellé, icône]. Comptes est réservé aux administrateurs.
+$nav = ['' => [
+    '/admin/' => ['Tableau de bord', 'home'],
+    '/admin/pages' => ['Pages', 'page'],
+    '/admin/equipe' => ['Équipe', 'users'],
+    '/admin/adherents' => ['Adhérents', 'pin'],
+    '/admin/offres' => ['Offres d\'emploi', 'briefcase'],
+    '/admin/documents' => ['Documents', 'folder'],
+    '/admin/partenaires' => ['Partenaires', 'link'],
+    '/admin/medias' => ['Médiathèque', 'image'],
+    '/admin/newsletters' => ['Newsletters', 'mail'],
+]];
+// Éditeur TAg29 : sa page, son équipe, et ce qui est commun à tous (partenaires, médiathèque).
+if ($user !== null && Auth::scope($user) === 'tag29') {
+    $nav[''] = array_intersect_key($nav[''], array_flip(['/admin/', '/admin/pages', '/admin/equipe', '/admin/partenaires', '/admin/medias']));
 }
 $isCurrent = static fn (string $href): bool => $current === $href || ($href !== '/admin/' && str_starts_with($current, $href));
 $isLogin = $user === null;
@@ -89,9 +79,9 @@ $isLogin = $user === null;
     <?php endforeach ?>
   </nav>
   <div class="app__user">
-    <p class="app__who"><span class="app__avatar" aria-hidden="true"><?= e(strtoupper(mb_substr_safe($user['username'], 1))) ?></span><span><strong><?= e($user['username']) ?></strong><small><?= $isAdmin ? 'Administrateur' : 'Éditeur' ?></small></span></p>
-    <?php if (!$isAdmin): ?>
-    <a class="side-link side-link--quiet" href="/admin/comptes/<?= (int) $user['id'] ?>/mot-de-passe"><?= Ui::icon('lock') ?>Changer mon mot de passe</a>
+    <p class="app__who"><span class="app__avatar" aria-hidden="true"><?= e(strtoupper(mb_substr_safe($user['name'] ?: $user['username'], 1))) ?></span><span><strong><?= e($user['name'] ?: $user['username']) ?></strong><small><?= $isAdmin ? 'Administrateur' : 'Éditeur' ?></small></span></p>
+    <?php if ($isAdmin): ?>
+    <a class="side-link side-link--quiet" href="/admin/comptes"<?= $isCurrent('/admin/comptes') ? ' aria-current="page"' : '' ?>><?= Ui::icon('key') ?>Comptes</a>
     <?php endif ?>
     <a class="side-link side-link--quiet" href="/" target="_blank" rel="noopener"><?= Ui::icon('external') ?>Voir le site<span class="visually-hidden"> (nouvel onglet)</span></a>
     <form method="post" action="/admin/deconnexion">

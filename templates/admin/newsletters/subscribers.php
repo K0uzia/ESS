@@ -29,14 +29,14 @@ $n = count($rows);
   <div class="table-wrap">
     <table class="table table--stack">
       <caption class="visually-hidden">Abonnés</caption>
-      <thead><tr><th scope="col">Adresse</th><th scope="col">Pôle</th><th scope="col">Statut</th><th scope="col">Origine</th><th scope="col" class="num">Depuis le</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <thead><tr><th scope="col">Adresse</th><th scope="col">Pôle</th><th scope="col">Statut</th><th scope="col">Accord donné</th><th scope="col" class="num">Depuis le</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
       <tbody>
         <?php foreach ($rows as $r): ?>
         <tr data-f-pole="<?= e($slug($r['pole'])) ?>" data-f-etat="<?= e($r['status']) ?>">
           <th scope="row"><?= e($r['email']) ?></th>
           <td data-label="Pôle"><?= Ui::poleBadge($r['pole']) ?></td>
           <td data-label="Statut"><span class="badge<?= $r['status'] === 'active' ? ' badge--on' : ($r['status'] === 'unsubscribed' ? ' badge--off' : ' badge--warn') ?>"><?= $labels[$r['status']] ?></span></td>
-          <td data-label="Origine" class="excerpt"><?= e($r['source']) ?></td>
+          <td data-label="Accord donné" class="excerpt"><?= e($r['source']) ?></td>
           <td data-label="Depuis le" class="num"><?= e(Ui::date($r['consent_at'])) ?></td>
           <td class="actions-col">
             <form method="post" action="/admin/newsletters/abonnes/<?= (int) $r['id'] ?>/suppression" data-confirm="Supprimer définitivement <?= e($r['email']) ?> ?">
@@ -62,26 +62,26 @@ $n = count($rows);
       <?php if (count($poles) > 1): ?>
       <div class="field"><label for="a-pole">Lettre du pôle</label><select id="a-pole" name="pole"><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach ?></select></div>
       <?php endif ?>
-      <div class="field"><label for="a-source">Origine de l'accord <span class="req">(obligatoire)</span></label><input id="a-source" name="source" required placeholder="Ex. : bulletin d'adhésion 2026"></div>
+      <div class="field"><label for="a-source">Comment a-t-elle donné son accord ? <span class="req">(obligatoire)</span></label><input id="a-source" name="source" required aria-describedby="a-source-hint"><p class="field__hint" id="a-source-hint">Par exemple : bulletin d'adhésion 2026, salon de mai. Gardé comme preuve de l'accord.</p></div>
       <button class="btn btn--primary" type="submit">Ajouter l'abonné</button>
     </form>
   </details>
 
   <details class="card advanced-card">
-    <summary class="card__title"><?= Ui::icon('upload') ?>Importer un fichier CSV</summary>
+    <summary class="card__title"><?= Ui::icon('upload') ?>Importer une liste d'adresses</summary>
     <form method="post" action="/admin/newsletters/abonnes/import" enctype="multipart/form-data" novalidate>
       <?= Csrf::field() ?>
-      <p class="muted">Une colonne <code>email</code> obligatoire ; <code>pole</code> et <code>date</code> facultatives. Une adresse déjà connue n'est jamais modifiée.</p>
-      <div class="field"><label for="i-csv">Fichier CSV <span class="req">(obligatoire)</span></label><input id="i-csv" name="csv" type="file" accept=".csv,text/csv" required></div>
+      <p class="muted">Un fichier tableur enregistré au format CSV, avec une colonne « email ». Une colonne « pole » (Brest, Morlaix ou Cornouaille) et une colonne « date » sont reconnues si elles existent. Une adresse déjà inscrite n'est jamais modifiée.</p>
+      <div class="field"><label for="i-csv">Fichier (.csv) <span class="req">(obligatoire)</span></label><input id="i-csv" name="csv" type="file" accept=".csv,text/csv" required></div>
       <?php if (count($poles) > 1): ?>
-      <div class="field"><label for="i-pole">Pôle si la colonne « pole » manque</label><select id="i-pole" name="pole"><option value="">Aucun</option><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach ?></select></div>
+      <div class="field"><label for="i-pole">Lettre du pôle</label><select id="i-pole" name="pole"><option value="">Selon la colonne « pole » du fichier</option><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach ?></select></div>
       <?php endif ?>
-      <div class="field"><label for="i-source">Origine des contacts <span class="req">(obligatoire)</span></label><input id="i-source" name="source" required placeholder="Ex. : inscrits de l'ancien site"></div>
+      <div class="field"><label for="i-source">D'où viennent ces adresses ? <span class="req">(obligatoire)</span></label><input id="i-source" name="source" required aria-describedby="i-source-hint"><p class="field__hint" id="i-source-hint">Par exemple : inscrits de l'ancien site. Gardé comme preuve de l'accord.</p></div>
       <div class="field">
         <label class="switch" for="i-consent">
           <input type="checkbox" id="i-consent" name="consent" value="1">
           <span class="switch__track" aria-hidden="true"></span>
-          <span class="switch__text">Ils se sont inscrits eux-mêmes (sinon : importés « en attente », sans envoi).</span>
+          <span class="switch__text">Ces personnes se sont inscrites elles-mêmes. Sinon, elles ne recevront rien tant qu'elles n'auront pas confirmé.</span>
         </label>
       </div>
       <button class="btn btn--primary" type="submit"><?= Ui::icon('upload') ?>Importer</button>

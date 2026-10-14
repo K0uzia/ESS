@@ -82,12 +82,6 @@ $height = MembersMap::height();
   </figcaption>
 </figure>
 <?php endif ?>
-<?php if ($map !== ''): ?>
-<div class="map-facade" data-map-src="<?= e($map) ?>">
-  <p>La carte interactive des adhérents est hébergée par GoGoCarto : l'afficher charge un service extérieur. <a href="<?= e($map) ?>" rel="noopener">Ouvrir la carte sur GoGoCarto</a></p>
-  <button class="button button--secondary" type="button" data-map-load>Afficher la carte</button>
-</div>
-<?php endif ?>
 <div id="adherents-tout" data-view-panel="liste">
 <?php foreach ($groups as $g): ?>
 <div class="team-group pole--<?= e($g['slug']) ?>" id="adherents-<?= e($g['slug']) ?>" data-filter-group="<?= e($g['slug']) ?>">

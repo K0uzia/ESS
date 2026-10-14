@@ -12,8 +12,8 @@ intro: Le Groupement Territorial ESS Finistère - Penn Ar Bed est responsable de
 | Données | nom, adresse e-mail, pôle choisi, message |
 | Finalité | répondre à votre message |
 | Base légale | intérêt légitime à répondre aux demandes reçues |
-| Destinataires | l'équipe du pôle concerné ; l'hébergeur du site et le prestataire d'envoi des e-mails, pour l'acheminement |
-| Durée | 12 mois après l'envoi du message, puis suppression automatique |
+| Destinataires | l'équipe du groupement, à l'adresse bonjour@ess29.org ; le prestataire d'envoi des e-mails, pour l'acheminement |
+| Durée | le site ne garde pas le message ; il est conservé dans la messagerie du groupement 12 mois au plus |
 
 ## Lettres d'information des pôles {#newsletters}
 
@@ -29,17 +29,15 @@ Chaque lettre contient un lien de désinscription. Vous pouvez aussi la demander
 
 ## Comptes du tableau de bord {#comptes}
 
-Les membres des équipes qui gèrent le site ont un compte (identifiant, e-mail facultatif, mot de passe chiffré). Un cookie de session, strictement nécessaire, n'est déposé que pendant la connexion au tableau de bord.
+Les membres des équipes qui gèrent le site ont un compte (identifiant, adresse e-mail pour l'invitation et les changements de mot de passe, mot de passe chiffré). Un cookie de session, strictement nécessaire, n'est déposé que pendant la connexion au tableau de bord.
 
 ## Cookies et mesure d'audience {#cookies}
 
 Les pages publiques ne déposent aucun cookie et n'utilisent aucun outil de mesure d'audience ni de publicité.
 
-Sur la page des adhérents, la carte GoGoCarto n'est chargée que si vous cliquez sur « Afficher la carte ». GoGoCarto reçoit alors votre adresse IP, comme tout site visité.
-
 ## Hébergement et envoi des e-mails {#hebergement}
 
-- Hébergeur du site : __À_REMPLIR__
+- Hébergeur du site : La Capsule, chantier d'insertion numérique de l'ULAMIR CPIE, serveur situé à Morlaix
 - Envoi des e-mails : Hostinger (raison sociale, adresse et localisation des serveurs : __À_REMPLIR__)
 
 ## Vos droits {#droits}

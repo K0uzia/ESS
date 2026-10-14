@@ -472,9 +472,6 @@ main:focus { outline: none; }
 .members-map__help { display: block; margin-top: var(--space-1); }
 .members-map__help[hidden] { display: none; }
 .members-map__caption { max-width: none; margin-top: var(--space-4); font-size: var(--text-xs); color: var(--color-text-soft); text-align: center; }
-.map-facade { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-8); padding: var(--space-6) var(--space-8); border-radius: var(--radius-lg); background: var(--color-surface-tint); }
-.map-facade p { margin: 0; }
-.map-frame { width: 100%; height: min(70vh, 36rem); border: 0; border-radius: var(--radius-lg); }
 
 /* Documents */
 .documents { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--space-3); margin: 0; padding: 0; list-style: none; }

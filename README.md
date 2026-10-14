@@ -22,4 +22,4 @@ Visuels régénérés depuis `Charte/` : `php bin/build-images.php` ; polices : 
 - Racine web : `public/` uniquement (`app/`, `config/`, `data/`, `content/` hors web). `public/.htaccess` gère HTTPS, redirections, blocages et cache.
 - `.env` à partir de `.env.example` : `APP_ENV=production`, `APP_KEY` (64 caractères hexadécimaux), SMTP Hostinger, quotas de newsletter.
 - Tâche planifiée pour l'envoi des newsletters par lots : `*/10 * * * * cd /chemin/du/site && php bin/newsletter-send >> data/newsletter.log 2>&1`
-- Bloquant avant mise en ligne : supprimer le compte temporaire `lacapsule` ou changer son mot de passe, compléter les `__À_REMPLIR__` (Identité du site).
+- Bloquant avant mise en ligne : supprimer le compte temporaire `lacapsule` ou changer son mot de passe, compléter les `__À_REMPLIR__` restants (`grep -r __À_REMPLIR__ content migrations`) ; identité et coordonnées se modifient par une migration dans `migrations/data/`, pas depuis le tableau de bord.

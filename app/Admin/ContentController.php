@@ -12,14 +12,11 @@ use App\Core\View;
 use App\Site\SiteController;
 
 /**
- * Contenus des pages : seulement les textes et la photo. La mise en page, les pictogrammes, les liens des cartes et
- * l'ordre des sections sont fixés par les fichiers de contenu (content/seed/) et ne passent pas par ce formulaire.
+ * Contenus des pages : seulement les textes et la photo des sections existantes. Les sections, leur ordre, la mise en
+ * page, les pictogrammes, les liens des cartes et les textes pour Google sont fixés par content/seed/ (La Capsule).
  */
 final class ContentController
 {
-    /** Identifiants fixes des gabarits publics (templates/site/), interdits comme ancre de section. */
-    private const RESERVED_IDS = ['contenu', 'menu-principal', 'footer-nav', 'formulaire-contact', 'formulaire-newsletter', 'equipe', 'adherents', 'documents'];
-
     /** Nom court de chaque page, tel qu'il apparaît dans la navigation du site. */
     public const LABELS = [
         'accueil' => 'Accueil',
@@ -110,7 +107,7 @@ final class ContentController
         Csrf::check();
         $meta = (Page::load($key) ?? ['meta' => []])['meta'];
         $values = [];
-        foreach (['h1', 'intro', 'title', 'description'] as $field) {
+        foreach (['h1', 'intro'] as $field) {
             if (isset($_POST['meta'][$field])) {
                 $values[$field] = trim((string) preg_replace('/\s+/u', ' ', (string) $_POST['meta'][$field]));
             }
@@ -136,7 +133,7 @@ final class ContentController
             $values['actions'] = implode(' ; ', array_map(static fn (array $a): string => $a[0] . ' | ' . $a[1], $actions));
         }
         if ($rejected !== []) {
-            Session::flash('Bouton « ' . implode(' », « ', $rejected) . ' » non enregistré : choisissez sa redirection.', 'error');
+            Session::flash('Bouton « ' . implode(' », « ', $rejected) . ' » non enregistré : choisissez la page vers laquelle il mène.', 'error');
             redirect("/admin/pages/$key/en-tete");
         }
         if (($values['h1'] ?? 'x') === '') {
@@ -196,56 +193,6 @@ final class ContentController
         foreach (TextFields::$rejected as $name) {
             Session::flash('Le lien de « ' . $name . ' » n\'a pas été changé : l\'adresse saisie n\'est pas valable.', 'error');
         }
-        redirect("/admin/pages/$key");
-    }
-
-    public static function create(string $key): void
-    {
-        $user = Auth::require();
-        self::guard($user, $key);
-        View::render('admin/content/new', ['title' => 'Nouvelle section', 'key' => $key, 'label' => self::pages()[$key]], 'admin/layout');
-    }
-
-    public static function store(string $key): void
-    {
-        $user = Auth::require();
-        self::guard($user, $key);
-        Csrf::check();
-        $title = trim((string) preg_replace('/\s+/u', ' ', (string) ($_POST['title'] ?? '')));
-        if ($title === '') {
-            Session::flash('Donnez un titre à la nouvelle section.', 'error');
-            redirect("/admin/pages/$key/sections/nouvelle");
-        }
-        $base = trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $title))), '-') ?: 'section';
-        $sectionKey = substr($base, 0, 50);
-        $n = 2;
-        // L'ancre ne doit reprendre ni une section de la page ni un identifiant déjà produit par les gabarits du site.
-        if (in_array($sectionKey, self::RESERVED_IDS, true) || preg_match('/^(adherents?|equipe|onglet|nl|c|documents|carte|filtre|vue|pays-de)-/', $sectionKey)) {
-            $base = $sectionKey = substr('section-' . $sectionKey, 0, 50);
-        }
-        $taken = static fn (string $k): bool => (bool) Db::run('SELECT 1 FROM page_contents WHERE page_key = ? AND section_key = ?', [$key, $k])->fetchColumn();
-        while ($taken($sectionKey)) {
-            $sectionKey = substr($base, 0, 46) . '-' . $n++;
-        }
-        $position = (int) Db::run('SELECT COALESCE(MAX(position), 0) + 1 FROM page_contents WHERE page_key = ?', [$key])->fetchColumn();
-        $body = str_replace("\r\n", "\n", trim((string) ($_POST['body'] ?? '')));
-        foreach (['title' => $title, 'variant' => '', 'image' => '', 'body' => $body] as $field => $value) {
-            self::upsert($key, $sectionKey, $field, $value, $position, $field === 'body' ? 'markdown' : 'text');
-        }
-        Auth::log('page.section_ajout', "$key#$sectionKey");
-        Session::flash('Section « ' . $title . ' » ajoutée en fin de page.');
-        redirect("/admin/pages/$key");
-    }
-
-    public static function destroy(string $key, string $section): void
-    {
-        $user = Auth::require();
-        self::guard($user, $key);
-        Csrf::check();
-        $s = self::findSection($key, $section);
-        Db::run('DELETE FROM page_contents WHERE page_key = ? AND section_key = ?', [$key, $section]);
-        Auth::log('page.section_suppression', "$key#$section");
-        Session::flash('Section « ' . $s['title'] . ' » supprimée.');
         redirect("/admin/pages/$key");
     }
 
@@ -337,7 +284,7 @@ final class ContentController
         if ($user['role'] === 'admin') {
             return $pages;
         }
-        $slug = (string) Db::run('SELECT slug FROM poles WHERE id = ?', [$user['pole_id']])->fetchColumn();
+        $slug = Auth::scope($user) === 'tag29' ? 'tag29' : (string) Db::run('SELECT slug FROM poles WHERE id = ?', [$user['pole_id']])->fetchColumn();
         return array_intersect_key($pages, [$slug => true]);
     }
 

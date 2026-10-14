@@ -1,32 +1,49 @@
 <?php
+/**
+ * Liste en lignes (comme Ulamir) : vignette, nom, détails, état, flèches d'ordre, « Modifier ».
+ * Avec 'list_group' [champ de choix, titres des groupes], une carte par valeur, chacune avec son bouton « Ajouter ».
+ */
 use App\Admin\Ui;
 
 $poleNames = array_column($poles, 'name', 'id');
 $poleSlug = static fn ($id): string => $id === null || !isset($poleNames[$id]) ? 'aucun' : strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', Ui::poleShort($poleNames[$id])));
-$display = static function (string $col, array $row) use ($res, $poleNames): string {
-    $f = $res['fields'][$col] ?? ['type' => 'text'];
-    $v = $row[$col] ?? null;
-    return match (true) {
-        $col === 'is_published' => (int) $v === 1 ? '<span class="badge badge--on">En ligne</span>' : '<span class="badge badge--off">Masqué</span>',
-        $f['type'] === 'checkbox' => (int) $v === 1 ? 'Oui' : '<span class="muted">Non</span>',
-        $f['type'] === 'pole' => Ui::poleBadge($poleNames[$v] ?? null, $f['empty'] ?? '—'),
-        $f['type'] === 'select' => e($f['options'][$v] ?? (string) $v),
-        $f['type'] === 'image' => $v ? '<img class="thumb" src="' . e($v) . '" alt="" height="32" loading="lazy">' : '<span class="muted">Aucun</span>',
-        $f['type'] === 'date' => $v ? e(date('d/m/Y', (int) strtotime($v))) : '<span class="muted">—</span>',
-        default => $v === null || $v === '' ? '<span class="muted">—</span>' : e((string) $v),
-    };
-};
 $first = array_key_first($res['columns']);
-$fixed = !empty($res['fixed']);
-$total = count($rows);
-$numeric = static fn (string $col): bool => in_array($res['fields'][$col]['type'] ?? '', ['number', 'date'], true);
+[$groupField, $groups] = $res['list_group'] ?? [null, ['' => '']];
+$sortable = isset($res['sortable']);
+$imageCol = null;
+foreach ($res['columns'] as $col => $label) {
+    if (($res['fields'][$col]['type'] ?? '') === 'image') {
+        $imageCol = $col;
+    }
+}
+// Détails d'une ligne : colonnes hors nom, image, état et groupe, en texte simple.
+$details = static function (array $row) use ($res, $poleNames, $first, $imageCol, $groupField): array {
+    $out = [];
+    foreach ($res['columns'] as $col => $label) {
+        if (in_array($col, [$first, $imageCol, $groupField, 'is_published'], true)) {
+            continue;
+        }
+        $f = $res['fields'][$col] ?? ['type' => 'text'];
+        $v = $row[$col] ?? null;
+        if ($v === null || $v === '') {
+            continue;
+        }
+        $out[] = match ($f['type']) {
+            'pole' => Ui::poleBadge($poleNames[$v] ?? null),
+            'select' => e($f['options'][$v] ?? (string) $v),
+            'date' => e($label . ' : ' . date('d/m/Y', (int) strtotime((string) $v))),
+            default => e((string) $v),
+        };
+    }
+    return $out;
+};
 
 // Filtres instantanés : pôle, listes de choix et statut de publication, seulement s'ils départagent la liste.
 $filters = [];
 $keys = [];
 foreach ($res['fields'] as $name => $f) {
     if ($f['type'] === 'pole' && $canFilter) {
-        $keys['pole'] = [$name, 'Pôle', static fn ($v) => $poleSlug($v)];
+        $keys['pole'] = [$name, static fn ($v) => $poleSlug($v)];
         $opts = [];
         foreach ($poles as $p) {
             $opts[$poleSlug($p['id'])] = Ui::poleShort($p['name']);
@@ -35,15 +52,15 @@ foreach ($res['fields'] as $name => $f) {
             $opts['aucun'] = $f['empty'];
         }
         $filters['pole'] = ['Pôle', $opts];
-    } elseif ($f['type'] === 'select') {
-        $keys[$name] = [$name, $f['label'], static fn ($v) => (string) $v];
+    } elseif ($f['type'] === 'select' && $name !== $groupField) {
+        $keys[$name] = [$name, static fn ($v) => (string) $v];
         $filters[$name] = [$f['label'], $f['options']];
     } elseif ($name === 'is_published') {
-        $keys['statut'] = [$name, 'Statut', static fn ($v) => (int) $v === 1 ? 'en-ligne' : 'masque'];
-        $filters['statut'] = ['Statut', ['en-ligne' => 'En ligne', 'masque' => 'Masqué']];
+        $keys['statut'] = [$name, static fn ($v) => (int) $v === 1 ? 'en-ligne' : 'masque'];
+        $filters['statut'] = ['Sur le site', ['en-ligne' => 'Affiché', 'masque' => 'Masqué']];
     }
 }
-foreach ($keys as $fk => [$col, , $map]) {
+foreach ($keys as $fk => [$col, $map]) {
     $values = array_unique(array_map(static fn ($r) => $map($r[$col] ?? null), $rows));
     if (count($values) < 2) {
         unset($filters[$fk], $keys[$fk]);
@@ -60,44 +77,42 @@ $article = in_array($singular, ['personne', 'offre'], true) ? 'une' : 'un';
     <h1><?= e($res['label']) ?></h1>
     <p class="page-head__sub"><?= e($res['intro']) ?></p>
   </div>
-  <?php if (!$fixed): ?>
+  <?php if ($groupField === null): ?>
   <div class="page-head__actions"><a class="btn btn--primary" href="/admin/<?= e($key) ?>/nouveau" data-modal><?= Ui::icon('plus') ?>Ajouter <?= $article ?> <?= e($singular) ?></a></div>
   <?php endif ?>
 </header>
 
-<section class="card card--flush" data-list aria-label="<?= e($res['label']) ?>">
-  <?php if ($rows === []): ?>
-  <div class="empty">
-    <strong>Aucun<?= $article === 'une' ? 'e' : '' ?> <?= e($singular) ?> pour l'instant</strong>
-    <?php if (!$fixed): ?><a class="btn btn--primary" href="/admin/<?= e($key) ?>/nouveau" data-modal><?= Ui::icon('plus') ?>Ajouter <?= $article ?> <?= e($singular) ?></a><?php endif ?>
-  </div>
-  <?php else: ?>
-  <?php if ($total > 5) { $searchLabel = 'Rechercher'; $countWords = [$singular, $plural]; require ROOT . '/templates/admin/partials/filters.php'; } ?>
-  <div class="table-wrap">
-    <table class="table table--stack">
-      <caption class="visually-hidden"><?= e($res['label']) ?></caption>
-      <thead>
-        <tr>
-          <?php foreach ($res['columns'] as $col => $label): ?><th scope="col"<?= $numeric($col) ? ' class="num"' : '' ?>><?= e($label) ?></th><?php endforeach ?>
-          <th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($rows as $row): $name = (string) ($row[$first] ?? ''); ?>
-        <tr<?php foreach ($keys as $fk => [$col, , $map]): ?> data-f-<?= e($fk) ?>="<?= e($map($row[$col] ?? null)) ?>"<?php endforeach ?>>
-          <?php foreach ($res['columns'] as $col => $label): ?>
-          <?php if ($col === $first): ?>
-          <th scope="row"><a href="/admin/<?= e($key) ?>/<?= (int) $row['id'] ?>" data-modal><?= $display($col, $row) ?></a></th>
-          <?php else: ?>
-          <td data-label="<?= e($label) ?>"<?= $numeric($col) ? ' class="num"' : '' ?>><?= $display($col, $row) ?></td>
-          <?php endif ?>
-          <?php endforeach ?>
-          <td class="actions-col"><a class="btn" href="/admin/<?= e($key) ?>/<?= (int) $row['id'] ?>" data-modal><?= Ui::icon('edit') ?>Modifier<span class="visually-hidden"> <?= e($name) ?></span></a></td>
-        </tr>
-        <?php endforeach ?>
-      </tbody>
-    </table>
-  </div>
-  <div class="empty" data-filter-empty hidden><strong>Aucun résultat</strong><p>Aucune fiche ne correspond à la recherche ou aux filtres.</p><button class="btn" type="button" data-filter-reset>Effacer les filtres</button></div>
-  <?php endif ?>
-</section>
+<div data-list>
+  <?php if (count($rows) > 5) { $searchLabel = 'Rechercher'; $countWords = [$singular, $plural]; $total = count($rows); require ROOT . '/templates/admin/partials/filters.php'; } ?>
+  <?php foreach ($groups as $group => $groupLabel): $items = array_values(array_filter($rows, static fn (array $r): bool => $groupField === null || (string) $r[$groupField] === (string) $group)); ?>
+  <section class="card card--flush group-card" data-filter-grid aria-label="<?= e($groupLabel !== '' ? $groupLabel : $res['label']) ?>">
+    <?php if ($groupField !== null): ?>
+    <div class="group-card__head">
+      <h2 class="group-card__title"><?= e($groupLabel) ?> <span class="tabset__count"><?= count($items) ?></span></h2>
+      <a class="btn btn--primary" href="/admin/<?= e($key) ?>/nouveau?<?= e(http_build_query([$groupField => $group])) ?>" data-modal><?= Ui::icon('plus') ?>Ajouter<span class="visually-hidden"> : <?= e($groupLabel) ?></span></a>
+    </div>
+    <?php endif ?>
+    <?php if ($items === []): ?>
+    <p class="group-card__empty">Aucun<?= $article === 'une' ? 'e' : '' ?> <?= e($singular) ?> pour l'instant.<?php if ($groupField === null): ?> <a href="/admin/<?= e($key) ?>/nouveau" data-modal>Ajouter <?= $article ?> <?= e($singular) ?></a><?php endif ?></p>
+    <?php else: ?>
+    <ul class="rows" role="list">
+      <?php foreach ($items as $n => $row): $name = (string) ($row[$first] ?? ''); $href = '/admin/' . $key . '/' . (int) $row['id']; ?>
+      <li class="rows__item" id="ligne-<?= (int) $row['id'] ?>" data-filter-row<?php foreach ($keys as $fk => [$col, $map]): ?> data-f-<?= e($fk) ?>="<?= e($map($row[$col] ?? null)) ?>"<?php endforeach ?>>
+        <?php if ($imageCol !== null): ?>
+        <span class="rows__thumb"><?php if ($row[$imageCol]): ?><img src="<?= e($row[$imageCol]) ?>" alt="" loading="lazy" decoding="async"><?php endif ?></span>
+        <?php endif ?>
+        <a class="rows__main" href="<?= e($href) ?>" data-modal>
+          <span class="rows__name"><?= e($name) ?></span>
+          <?php if ($d = $details($row)): ?><span class="rows__detail"><?= implode(' · ', $d) ?></span><?php endif ?>
+        </a>
+        <?php if (isset($row['is_published']) && (int) $row['is_published'] !== 1): ?><span class="badge badge--off">Masqué</span><?php endif ?>
+        <?php if ($sortable && count($items) > 1) { $isFirst = $n === 0; $isLast = $n === count($items) - 1; $moveTab = ''; require ROOT . '/templates/admin/partials/move.php'; } ?>
+        <a class="btn" href="<?= e($href) ?>" data-modal><?= Ui::icon('edit') ?>Modifier<span class="visually-hidden"> <?= e($name) ?></span></a>
+      </li>
+      <?php endforeach ?>
+    </ul>
+    <?php endif ?>
+  </section>
+  <?php endforeach ?>
+  <div class="card empty" data-filter-empty hidden><strong>Aucun résultat</strong><p>Aucune fiche ne correspond à la recherche ou aux filtres.</p><button class="btn" type="button" data-filter-reset>Effacer les filtres</button></div>
+</div>

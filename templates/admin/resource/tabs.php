@@ -7,7 +7,8 @@ use App\Admin\Ui;
 
 $cfg = $res['tabs'];
 $groupField = $cfg['group'] ?? null;
-$groupLabels = $groupField !== null ? $res['fields'][$groupField]['options'] : [];
+// Libellés des groupes pris dans la définition complète : pour un éditeur TAg29, le champ « Groupe » est retiré du formulaire.
+$groupLabels = $groupField !== null ? (App\Admin\Resources::get($key)['fields'][$groupField]['options'] ?? []) : [];
 $singular = $res['singular'];
 $article = in_array($singular, ['personne', 'offre'], true) ? 'une' : 'un';
 
@@ -81,13 +82,15 @@ $addUrl = static function (array $tab, string $group) use ($key, $groupField): s
       <p class="group-card__empty">Aucun<?= $article === 'une' ? 'e' : '' ?> <?= e($singular) ?> pour l'instant.</p>
       <?php else: ?>
       <ul class="rows" role="list">
-        <?php foreach ($items as $row): $detail = (string) ($row[$cfg['detail'] ?? ''] ?? ''); ?>
-        <li class="rows__item" data-filter-row>
+        <?php foreach ($items as $n => $row): $detail = (string) ($row[$cfg['detail'] ?? ''] ?? ''); ?>
+        <li class="rows__item" id="ligne-<?= (int) $row['id'] ?>" data-filter-row>
           <a class="rows__main" href="/admin/<?= e($key) ?>/<?= (int) $row['id'] ?>" data-modal>
             <span class="rows__name"><?= e((string) $row['name']) ?></span>
             <?php if ($detail !== ''): ?><span class="rows__detail"><?= e($detail) ?></span><?php endif ?>
           </a>
           <?php if (isset($row['is_published']) && (int) $row['is_published'] !== 1): ?><span class="badge badge--off">Masqué</span><?php endif ?>
+          <?php if (isset($res['geocode']) && $row['latitude'] === null): ?><span class="badge badge--warn" title="Adresse absente ou introuvable">Pas sur la carte</span><?php endif ?>
+          <?php if (isset($res['sortable']) && count($items) > 1) { $isFirst = $n === 0; $isLast = $n === count($items) - 1; $moveTab = $slug; require ROOT . '/templates/admin/partials/move.php'; } ?>
           <a class="btn btn--icon btn--ghost" href="/admin/<?= e($key) ?>/<?= (int) $row['id'] ?>" data-modal tabindex="-1" aria-hidden="true"><?= Ui::icon('edit') ?></a>
         </li>
         <?php endforeach ?>

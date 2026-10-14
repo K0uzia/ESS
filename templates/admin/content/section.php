@@ -53,7 +53,7 @@ $current = $library[$s['image']] ?? null;
         <label for="<?= $id ?>">Texte du bouton</label>
         <input id="<?= $id ?>" name="<?= $name ?>[text]" value="<?= e($u['text']) ?>">
       </div>
-      <?php $lid = "$id-link"; $lname = "{$name}[link]"; $url = $u['url']; $llabel = 'Redirection'; $lbase = App\Admin\ContentController::publicUrl($key); require ROOT . '/templates/admin/partials/link.php'; ?>
+      <?php $lid = "$id-link"; $lname = "{$name}[link]"; $url = $u['url']; $llabel = 'Le bouton mène vers'; $lbase = App\Admin\ContentController::publicUrl($key); require ROOT . '/templates/admin/partials/link.php'; ?>
     </div>
   </fieldset>
     <?php break;
@@ -104,7 +104,7 @@ $current = $library[$s['image']] ?? null;
     case 'component': $comp = Ui::component($u['raw']); ?>
   <div class="module-link">
     <?= Ui::icon('link') ?>
-    <p>Ici s'affiche automatiquement <?= e($comp[0]) ?>.<?= $comp[1] ? ' Pour le modifier : « ' . e($comp[2]) . ' ».' : '' ?></p>
+    <p>Ici s'affiche automatiquement <?= e($comp[0]) ?>.<?= $comp[1] ? ' Pour le modifier : « ' . e($comp[2]) . ' ».' : ' Pour le changer, écrivez à La Capsule.' ?></p>
     <?php if ($comp[1]): ?><a class="btn" href="<?= e($comp[1]) ?>">Ouvrir « <?= e($comp[2]) ?> »<?= Ui::icon('arrow') ?></a><?php endif ?>
   </div>
     <?php break;
@@ -161,13 +161,9 @@ $current = $library[$s['image']] ?? null;
   </fieldset>
   <?php endif ?>
 </form>
-<form id="section-delete" method="post" action="<?= $action ?>/suppression" hidden data-confirm="Supprimer la section « <?= e($s['title'] !== '' ? $s['title'] : 'sans titre') ?> » ? Son texte sera perdu.">
-  <?= Csrf::field() ?>
-</form>
 <div class="form-foot" data-modal-foot>
   <button class="btn btn--primary" type="submit" form="section-form">Enregistrer</button>
   <a class="btn" href="/admin/pages/<?= e($key) ?>" data-modal-close>Annuler</a>
   <a class="btn btn--ghost" href="<?= e($viewUrl) ?>" target="_blank" rel="noopener"><?= Ui::icon('eye') ?>Voir sur le site<span class="visually-hidden"> (nouvel onglet)</span></a>
-  <button class="btn btn--danger form-foot__end" type="submit" form="section-delete"><?= Ui::icon('trash') ?>Supprimer<span class="visually-hidden"> la section</span></button>
 </div>
 </div>

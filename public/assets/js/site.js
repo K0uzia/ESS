@@ -4,7 +4,6 @@ document.documentElement.classList.add('js');
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
   document.querySelectorAll('[data-filter]').forEach(initFilter);
-  document.querySelectorAll('[data-map-src]').forEach(initMap);
   document.querySelectorAll('[data-tabs]').forEach(initTabs);
   document.querySelectorAll('[data-subnav]').forEach(initSubnav);
   document.querySelectorAll('[data-map]').forEach(initMembersMap);
@@ -120,20 +119,6 @@ function initFilter(filter) {
   const linked = options.find((option) => option.getAttribute('href') === location.hash);
   // Sans option « tout » (documents), la première rubrique est affichée d'emblée.
   apply(linked ? linked.dataset.filterValue : filter.dataset.filterDefault ?? 'tout');
-}
-
-function initMap(facade) {
-  const button = facade.querySelector('[data-map-load]');
-  if (!button || facade.dataset.ready) return;
-  facade.dataset.ready = '1';
-  button.addEventListener('click', () => {
-    const frame = document.createElement('iframe');
-    frame.className = 'map-frame';
-    frame.src = facade.dataset.mapSrc;
-    frame.title = 'Carte des adhérents (GoGoCarto)';
-    frame.loading = 'lazy';
-    button.replaceWith(frame);
-  }, { once: true });
 }
 
 // Barre « Sur cette page » : le lien de la section lue est marqué, et reste visible dans la barre.

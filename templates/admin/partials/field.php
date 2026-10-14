@@ -11,7 +11,7 @@ $hint = (string) ($f['hint'] ?? '');
 if ($todo) {
     $hint = trim('À compléter avant la mise en ligne : remplacez __À_REMPLIR__ par la vraie valeur. ' . $hint);
 }
-$describedBy = trim(($hint !== '' ? "$id-hint " : '') . ($error ? "$id-error" : ''));
+$describedBy = trim(($type === 'address' ? "$id-geo " : '') . ($hint !== '' ? "$id-hint " : '') . ($error ? "$id-error" : ''));
 $aria = ($describedBy !== '' ? ' aria-describedby="' . $describedBy . '"' : '') . ($error ? ' aria-invalid="true"' : '');
 $req = !empty($f['required']) ? ' required' : '';
 $form = !empty($formId) ? ' form="' . e($formId) . '"' : '';
@@ -70,6 +70,21 @@ $classes = 'field' . ($type === 'checkbox' ? ' field--check' : '') . (in_array($
     <p class="field__hint" id="<?= $id ?>-upload">Ou envoyez un nouveau logo (PNG, JPG ou WebP) : il rejoindra la médiathèque.</p>
     <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="image/png,image/jpeg,image/webp" aria-describedby="<?= $id ?>-upload"<?= $form ?>>
   </div>
+  <?php elseif ($type === 'address'): ?>
+  <?php
+    // État de la position sur la carte, d'après la fiche enregistrée ; admin.js le met à jour pendant la saisie.
+    $onMap = ($values['latitude'] ?? null) !== null && ($values['latitude'] ?? '') !== '';
+    [$geoClass, $geoText] = match (true) {
+        $onMap => ['ok', 'Sur la carte : l\'adresse a été trouvée.'],
+        (string) $value !== '' => ['off', 'Pas sur la carte : adresse introuvable. Corrigez-la en choisissant une suggestion.'],
+        default => ['', 'Sans adresse, l\'adhérent figure dans la liste mais pas sur la carte.'],
+    };
+  ?>
+  <div class="combo" data-address>
+    <input id="<?= $id ?>" name="<?= e($name) ?>" type="text" value="<?= e((string) $value) ?>" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="<?= $id ?>-list" data-address-input<?= $req . $aria . $form ?>>
+    <ul class="combo__list" id="<?= $id ?>-list" role="listbox" aria-label="Adresses suggérées" hidden data-address-list></ul>
+  </div>
+  <p class="geo-status<?= $geoClass !== '' ? ' geo-status--' . $geoClass : '' ?>" id="<?= $id ?>-geo" aria-live="polite" data-address-status><?= e($geoText) ?></p>
   <?php elseif ($type === 'pdf'): ?>
   <?php if ($value): ?>
   <p class="file-current">

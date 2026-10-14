@@ -10,7 +10,7 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
 ?>
 <header class="page-head">
   <div class="page-head__text">
-    <a class="back" href="/admin/newsletters"><?= Ui::icon('back') ?>Newsletters</a>
+    <a class="back" href="/admin/newsletters<?= $c['pole_id'] ? '?onglet=' . e((string) (array_column($poles, 'slug', 'id')[$c['pole_id']] ?? '')) : '' ?>"><?= Ui::icon('back') ?>Lettres<?= $poleName ? ' · ' . e(Ui::poleShort($poleName)) : '' ?></a>
     <h1><?= e($id ? $c['subject'] : 'Nouvelle lettre') ?></h1>
   </div>
   <?php if ($id): ?>
@@ -49,7 +49,7 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
     <?php if (count($poles) > 1): ?>
     <div class="field"><label for="c-pole">Envoyée aux abonnés du pôle</label><select id="c-pole" name="pole"><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"<?= (int) $c['pole_id'] === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name']) ?></option><?php endforeach ?></select></div>
     <?php endif ?>
-    <div class="field"><label for="c-template">Modèle (facultatif)</label><select id="c-template" name="template_id"><option value="">Aucun</option><?php foreach ($templates as $t): ?><option value="<?= (int) $t['id'] ?>"<?= (int) $c['template_id'] === (int) $t['id'] ? ' selected' : '' ?>><?= e($t['name']) ?> (<?= e(Ui::poleShort($t['pole'])) ?>)</option><?php endforeach ?></select></div>
+    <div class="field"><label for="c-template">Modèle (facultatif)</label><select id="c-template" name="template_id"><option value="">Aucun</option><?php foreach ($templates as $t): ?><option value="<?= (int) $t['id'] ?>"<?= (int) $c['template_id'] === (int) $t['id'] ? ' selected' : '' ?>><?= e($t['name']) ?></option><?php endforeach ?></select></div>
     <div class="field field--wide">
       <label for="c-body" id="c-body-label">Texte de la lettre <span class="req">(obligatoire)</span></label>
       <textarea id="c-body" name="body" rows="16" required aria-describedby="c-body-hint" data-rte="full" data-rte-html="<?= e(App\Admin\TextFields::editorHtml((string) $c['body'])) ?>"><?= e($c['body']) ?></textarea>
@@ -85,7 +85,7 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
 <form class="card" method="post" action="<?= $base ?>/envoi" novalidate aria-labelledby="envoi-titre">
   <?= Csrf::field() ?>
   <h2 class="card__title" id="envoi-titre">Envoyer la lettre</h2>
-  <p><strong><?= (int) $recipients ?></strong> abonné<?= $recipients > 1 ? 's' : '' ?> actif<?= $recipients > 1 ? 's' : '' ?> <?= $poleName ? 'du ' . e($poleName) : '' ?> <?= $recipients > 1 ? 'recevront' : 'recevra' ?> cette lettre. L'envoi part par lots et ne peut plus être annulé.</p>
+  <p><strong><?= (int) $recipients ?></strong> abonné<?= $recipients > 1 ? 's' : '' ?> actif<?= $recipients > 1 ? 's' : '' ?> <?= $poleName ? 'du ' . e($poleName) : '' ?> <?= $recipients > 1 ? 'recevront' : 'recevra' ?> cette lettre. Les e-mails partent petit à petit dans les heures qui suivent ; l'envoi ne peut plus être annulé.</p>
   <?php if ($recipients === 0): ?>
   <div class="notice notice--warning"><?= Ui::icon('alert') ?><p>Aucun abonné actif pour ce pôle : l'envoi est impossible.</p></div>
   <?php else: ?>

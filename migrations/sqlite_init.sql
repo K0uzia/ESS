@@ -157,17 +157,7 @@ CREATE TABLE media (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE contact_messages (
-    id         INTEGER PRIMARY KEY,
-    pole_id    INTEGER REFERENCES poles(id) ON DELETE SET NULL,
-    name       TEXT NOT NULL,
-    email      TEXT NOT NULL,
-    message    TEXT NOT NULL,
-    mail_sent  INTEGER NOT NULL DEFAULT 0 CHECK (mail_sent IN (0, 1)),
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- Newsletters : une liste par pôle, plusieurs modèles par pôle.
+-- Newsletters : une liste et des lettres par pôle ; modèles communs (migrations/data/002).
 CREATE TABLE newsletter_subscribers (
     id              INTEGER PRIMARY KEY,
     pole_id         INTEGER NOT NULL REFERENCES poles(id) ON DELETE CASCADE,

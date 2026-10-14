@@ -48,25 +48,4 @@ final class Discovery
         }
         echo $out;
     }
-
-    /** Export public des adhérents publiés, pour l'import dynamique de GoGoCarto (même source que la page). */
-    public static function members(): void
-    {
-        $rows = Db::run(
-            'SELECT m.id, m.name, m.status, m.url, m.address, m.latitude, m.longitude, p.name AS pole
-             FROM members m JOIN poles p ON p.id = m.pole_id WHERE m.is_published = 1 ORDER BY p.position, m.name'
-        )->fetchAll();
-        header('Content-Type: application/json; charset=UTF-8');
-        header('Cache-Control: public, max-age=3600');
-        echo json_encode(['data' => array_map(static fn (array $r): array => [
-            'id' => (string) $r['id'],
-            'name' => $r['name'],
-            'categories' => [$r['pole']],
-            'description' => $r['status'] ?? '',
-            'website' => $r['url'] ?? '',
-            'address' => $r['address'] ?? '',
-            'latitude' => $r['latitude'] !== null ? (float) $r['latitude'] : null,
-            'longitude' => $r['longitude'] !== null ? (float) $r['longitude'] : null,
-        ], $rows)], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    }
 }

@@ -71,5 +71,3 @@ $todo = static fn (string $text): bool => str_contains($text, '__À_REMPLIR__');
   </li>
   <?php endforeach ?>
 </ol>
-
-<p><a class="btn" href="<?= $base ?>/sections/nouvelle" data-modal><?= Ui::icon('plus') ?>Ajouter une section de texte</a></p>

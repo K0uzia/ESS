@@ -10,13 +10,14 @@ $err = static fn (string $n): string => isset($errors[$n]) ? '<p class="field__e
 $desc = static fn (string $n, string $extra = ''): string => trim($extra . (isset($errors[$n]) ? " c-$n-error" : '')) !== '' ? ' aria-describedby="' . trim($extra . (isset($errors[$n]) ? " c-$n-error" : '')) . '"' : '';
 ?>
 <?php if ($sent): ?>
-<p class="alert" role="status" id="formulaire-contact" tabindex="-1">Merci, votre message a bien été envoyé. Le pôle concerné vous répondra par e-mail.</p>
+<p class="alert" role="status" id="formulaire-contact" tabindex="-1">Merci, votre message a bien été envoyé. Nous vous répondrons par e-mail.</p>
 <?php else: ?>
 <form class="form" method="post" action="/contact/" id="formulaire-contact" novalidate>
   <?= FormGuard::fields() ?>
   <?php if ($errors !== []): ?>
   <div class="alert alert--error" role="alert">
-    <p>Erreur : le message n'a pas été envoyé. Corrigez <?= count(array_diff_key($errors, ['form' => 1])) > 1 ? 'les champs signalés' : 'le champ signalé' ?>.</p>
+    <?php $fields = count(array_diff_key($errors, ['form' => 1])); ?>
+    <p>Erreur : le message n'a pas été envoyé.<?= $fields > 0 ? ' Corrigez ' . ($fields > 1 ? 'les champs signalés' : 'le champ signalé') . '.' : '' ?></p>
     <?php if (isset($errors['form'])): ?><p><?= e($errors['form']) ?></p><?php endif ?>
   </div>
   <?php endif ?>

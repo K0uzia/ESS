@@ -36,8 +36,11 @@ final class Ui
         'upload' => 'M12 16V5M7 10l5-5 5 5M4 20h16',
         'trash' => 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
         'eye' => 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+        'eye-off' => 'M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2',
         'send' => 'M21 3 3 10l7 3 3 7zM10 13l11-10',
         'edit' => 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
+        'up' => 'M12 19V5M6 11l6-6 6 6',
+        'down' => 'M12 5v14M6 13l6 6 6-6',
         'chevron' => 'M9 6l6 6-6 6',
         'bold' => 'M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z',
         'italic' => 'M10 5h8M6 19h8M14 5l-4 14',
@@ -57,6 +60,19 @@ final class Ui
         return '<svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="' . $d . '"/></svg>';
     }
 
+    /**
+     * Champ mot de passe avec bouton « œil » pour afficher la saisie (le bouton n'apparaît qu'avec JavaScript).
+     * $attrs : attributs supplémentaires déjà échappés (required, aria-*, minlength…).
+     */
+    public static function password(string $id, string $name, string $autocomplete, string $attrs = ''): string
+    {
+        return '<div class="password"><input id="' . e($id) . '" name="' . e($name) . '" type="password" autocomplete="' . e($autocomplete) . '"' . $attrs . '>'
+            . '<button class="password__toggle" type="button" aria-controls="' . e($id) . '" aria-pressed="false" data-password-toggle hidden>'
+            . str_replace('class="icon"', 'class="icon icon--show"', self::icon('eye'))
+            . str_replace('class="icon"', 'class="icon icon--hide"', self::icon('eye-off'))
+            . '<span class="visually-hidden">Afficher le mot de passe</span></button></div>';
+    }
+
     /** Bloc dynamique d'une section (ligne « @nom ») → [ce qu'il affiche, module où le modifier]. */
     public static function component(string $body): ?array
     {
@@ -70,9 +86,9 @@ final class Ui
             'offres' => ['les offres d\'emploi', '/admin/offres', 'Offres d\'emploi'],
             'partenaires' => ['les logos des partenaires', '/admin/partenaires', 'Partenaires'],
             'newsletter' => ['l\'inscription aux newsletters', '/admin/newsletters', 'Newsletters'],
-            'contact' => ['le formulaire de contact', '/admin/messages', 'Messages reçus'],
-            'identite' => ['l\'identité du groupement', '/admin/identite', 'Identité du site'],
-            'poles', 'poles-onglets' => ['les coordonnées des pôles', '/admin/poles', 'Coordonnées des pôles'],
+            'contact' => ['le formulaire de contact', null, null],
+            'identite' => ['l\'identité du groupement', null, null],
+            'poles', 'poles-onglets' => ['les coordonnées des pôles', null, null],
             default => ['un contenu automatique', null, null],
         };
     }

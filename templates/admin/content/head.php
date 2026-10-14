@@ -30,24 +30,11 @@ $actions = ContentController::actions($meta['actions'] ?? '');
         <label for="action-<?= $i ?>">Texte du bouton</label>
         <input id="action-<?= $i ?>" name="actions[<?= $i ?>][text]" value="<?= e($text) ?>">
       </div>
-      <?php $lid = "action-$i-link"; $lname = "actions[$i][link]"; $llabel = 'Redirection'; $lbase = ContentController::publicUrl($key); require ROOT . '/templates/admin/partials/link.php'; ?>
+      <?php $lid = "action-$i-link"; $lname = "actions[$i][link]"; $llabel = 'Le bouton mène vers'; $lbase = ContentController::publicUrl($key); require ROOT . '/templates/admin/partials/link.php'; ?>
     </div>
     <?php if ($text !== ''): ?><p class="field__hint">Videz le texte pour retirer ce bouton.</p><?php endif ?>
   </fieldset>
   <?php endfor ?>
-  <details class="advanced">
-    <summary><?= Ui::icon('chevron') ?>Apparence dans les résultats Google</summary>
-    <div class="advanced__body">
-      <div class="field">
-        <label for="meta-title">Titre affiché par Google</label>
-        <input id="meta-title" name="meta[title]" maxlength="70" value="<?= e($meta['title'] ?? '') ?>" data-count="60">
-      </div>
-      <div class="field">
-        <label for="meta-description">Description affichée par Google</label>
-        <textarea id="meta-description" name="meta[description]" rows="3" maxlength="200" data-count="160"><?= e($meta['description'] ?? '') ?></textarea>
-      </div>
-    </div>
-  </details>
 </form>
 <div class="form-foot" data-modal-foot>
   <button class="btn btn--primary" type="submit" form="head-form">Enregistrer</button>

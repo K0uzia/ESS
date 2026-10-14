@@ -11,12 +11,12 @@ use App\Core\View;
 use App\Newsletter\Renderer;
 use App\Newsletter\Sender;
 
-/** Newsletters des pôles : abonnés, modèles, campagnes, envoi par lots. Un éditeur ne gère que son pôle. */
+/** Newsletters : abonnés et lettres par pôle, modèles communs, envoi par lots. Un éditeur ne gère que les lettres et abonnés de son pôle. */
 final class NewsletterController
 {
     public static function index(): void
     {
-        $user = Auth::require();
+        $user = self::user();
         $poles = self::poles($user);
         $ids = array_column($poles, 'id');
         $in = implode(',', array_map('intval', $ids)) ?: '0';
@@ -35,9 +35,8 @@ final class NewsletterController
                         (SELECT COUNT(*) FROM newsletter_deliveries d WHERE d.campaign_id = c.id AND d.status = 'sent') AS sent
                  FROM newsletter_campaigns c JOIN poles p ON p.id = c.pole_id WHERE c.pole_id IN ($in) ORDER BY c.created_at DESC"
             )->fetchAll(),
-            'templates' => Db::run("SELECT t.*, p.name AS pole FROM newsletter_templates t JOIN poles p ON p.id = t.pole_id WHERE t.pole_id IN ($in) ORDER BY p.position, t.name")->fetchAll(),
+            'templates' => Db::run('SELECT * FROM newsletter_templates ORDER BY name')->fetchAll(),
             'pending' => (int) Db::run("SELECT COUNT(*) FROM newsletter_deliveries WHERE status = 'pending'")->fetchColumn(),
-            'quota' => [Sender::sentLast24h(), Sender::dailyLimit(), Sender::batchSize()],
         ], 'admin/layout');
     }
 
@@ -45,7 +44,7 @@ final class NewsletterController
 
     public static function subscribers(): void
     {
-        $user = Auth::require();
+        $user = self::user();
         $poles = self::poles($user);
         $pole = self::poleParam($user, $_GET['pole'] ?? null);
         $status = in_array($_GET['statut'] ?? '', ['active', 'pending', 'unsubscribed'], true) ? $_GET['statut'] : '';
@@ -80,7 +79,7 @@ final class NewsletterController
 
     public static function addSubscriber(): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         $email = trim((string) ($_POST['email'] ?? ''));
         $pole = self::poleParam($user, $_POST['pole'] ?? null);
@@ -107,7 +106,7 @@ final class NewsletterController
 
     public static function deleteSubscriber(string $id): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         $row = Db::run('SELECT * FROM newsletter_subscribers WHERE id = ?', [(int) $id])->fetch();
         if ($row && in_array((int) $row['pole_id'], array_map('intval', array_column(self::poles($user), 'id')), true)) {
@@ -120,7 +119,7 @@ final class NewsletterController
 
     public static function export(): void
     {
-        $user = Auth::require();
+        $user = self::user();
         $pole = self::poleParam($user, $_GET['pole'] ?? null);
         $in = implode(',', array_map('intval', $pole !== null ? [$pole] : array_column(self::poles($user), 'id'))) ?: '0';
         $rows = Db::run("SELECT s.email, p.slug AS pole, s.status, s.source, s.consent_at, s.confirmed_at, s.unsubscribed_at FROM newsletter_subscribers s JOIN poles p ON p.id = s.pole_id WHERE s.pole_id IN ($in) ORDER BY p.position, s.email")->fetchAll();
@@ -142,7 +141,7 @@ final class NewsletterController
      */
     public static function import(): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         $defaultPole = self::poleParam($user, $_POST['pole'] ?? null);
         $source = trim((string) ($_POST['source'] ?? ''));
@@ -240,27 +239,26 @@ final class NewsletterController
 
     public static function templateForm(?string $id = null): void
     {
-        $user = Auth::require();
-        $tpl = $id !== null ? self::findTemplate($user, (int) $id) : ['name' => '', 'header' => '', 'footer' => '', 'pole_id' => $user['pole_id']];
-        View::render('admin/newsletters/template', ['title' => $id ? 'Modifier le modèle' : 'Nouveau modèle', 'tpl' => $tpl, 'poles' => self::poles($user), 'id' => $id], 'admin/layout');
+        self::user();
+        $tpl = $id !== null ? self::findTemplate((int) $id) : ['name' => '', 'header' => '', 'footer' => ''];
+        View::render('admin/newsletters/template', ['title' => $id ? 'Modifier le modèle' : 'Nouveau modèle', 'tpl' => $tpl, 'id' => $id], 'admin/layout');
     }
 
     public static function templateSave(?string $id = null): void
     {
-        $user = Auth::require();
+        self::user();
         Csrf::check();
         $name = trim((string) ($_POST['name'] ?? ''));
-        $pole = self::poleParam($user, $_POST['pole'] ?? null);
-        if ($name === '' || $pole === null) {
-            Session::flash('Le nom et le pôle du modèle sont obligatoires.', 'error');
+        if ($name === '') {
+            Session::flash('Le nom du modèle est obligatoire.', 'error');
             redirect($id ? "/admin/newsletters/modeles/$id" : '/admin/newsletters/modeles/nouveau');
         }
-        $values = [$pole, $name, trim((string) ($_POST['header'] ?? '')), trim((string) ($_POST['footer'] ?? ''))];
+        $values = [$name, trim((string) ($_POST['header'] ?? '')), trim((string) ($_POST['footer'] ?? ''))];
         if ($id !== null) {
-            self::findTemplate($user, (int) $id);
-            Db::run('UPDATE newsletter_templates SET pole_id = ?, name = ?, header = ?, footer = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [...$values, (int) $id]);
+            self::findTemplate((int) $id);
+            Db::run('UPDATE newsletter_templates SET name = ?, header = ?, footer = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [...$values, (int) $id]);
         } else {
-            Db::run('INSERT INTO newsletter_templates (pole_id, name, header, footer) VALUES (?, ?, ?, ?)', $values);
+            Db::run('INSERT INTO newsletter_templates (name, header, footer) VALUES (?, ?, ?)', $values);
         }
         Auth::log('modele.enregistrement', $name);
         Session::flash('Modèle enregistré.');
@@ -269,9 +267,9 @@ final class NewsletterController
 
     public static function templateDelete(string $id): void
     {
-        $user = Auth::require();
+        self::user();
         Csrf::check();
-        $tpl = self::findTemplate($user, (int) $id);
+        $tpl = self::findTemplate((int) $id);
         Db::run('DELETE FROM newsletter_templates WHERE id = ?', [$tpl['id']]);
         Session::flash('Modèle supprimé.');
         redirect('/admin/newsletters?vue=modeles');
@@ -281,15 +279,15 @@ final class NewsletterController
 
     public static function campaignForm(?string $id = null): void
     {
-        $user = Auth::require();
-        $c = $id !== null ? self::findCampaign($user, (int) $id) : ['subject' => '', 'body' => '', 'pole_id' => $user['pole_id'], 'template_id' => null, 'status' => 'draft'];
-        $in = implode(',', array_map('intval', array_column(self::poles($user), 'id'))) ?: '0';
+        $user = self::user();
+        $c = $id !== null ? self::findCampaign($user, (int) $id)
+            : ['subject' => '', 'body' => '', 'pole_id' => self::poleParam($user, $_GET['pole'] ?? null), 'template_id' => null, 'status' => 'draft'];
         View::render('admin/newsletters/campaign', [
             'title' => $id ? 'Lettre : ' . $c['subject'] : 'Nouvelle lettre',
             'c' => $c,
             'id' => $id,
             'poles' => self::poles($user),
-            'templates' => Db::run("SELECT t.id, t.name, p.name AS pole FROM newsletter_templates t JOIN poles p ON p.id = t.pole_id WHERE t.pole_id IN ($in) ORDER BY p.position, t.name")->fetchAll(),
+            'templates' => Db::run('SELECT id, name FROM newsletter_templates ORDER BY name')->fetchAll(),
             'recipients' => $id ? (int) Db::run("SELECT COUNT(*) FROM newsletter_subscribers WHERE pole_id = ? AND status = 'active'", [$c['pole_id']])->fetchColumn() : null,
             'progress' => $id ? Db::run('SELECT status, COUNT(*) FROM newsletter_deliveries WHERE campaign_id = ? GROUP BY status', [(int) $id])->fetchAll(\PDO::FETCH_KEY_PAIR) : [],
         ], 'admin/layout');
@@ -297,7 +295,7 @@ final class NewsletterController
 
     public static function campaignSave(?string $id = null): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         if ($id !== null && self::findCampaign($user, (int) $id)['status'] !== 'draft') {
             Session::flash('Une lettre déjà envoyée ne peut plus être modifiée.', 'error');
@@ -307,7 +305,7 @@ final class NewsletterController
         $body = trim(str_replace("\r\n", "\n", (string) ($_POST['body'] ?? '')));
         $pole = self::poleParam($user, $_POST['pole'] ?? null);
         $template = (int) ($_POST['template_id'] ?? 0) ?: null;
-        if ($template !== null && (int) Db::run('SELECT pole_id FROM newsletter_templates WHERE id = ?', [$template])->fetchColumn() !== $pole) {
+        if ($template !== null && !Db::run('SELECT 1 FROM newsletter_templates WHERE id = ?', [$template])->fetchColumn()) {
             $template = null;
         }
         if ($subject === '' || $body === '' || $pole === null) {
@@ -327,7 +325,7 @@ final class NewsletterController
 
     public static function preview(string $id): void
     {
-        $user = Auth::require();
+        $user = self::user();
         self::findCampaign($user, (int) $id);
         [$campaign, $template, $pole] = Sender::context((int) $id);
         // Affiché dans la fenêtre d'aperçu du tableau de bord (iframe isolée, même origine seulement).
@@ -339,7 +337,7 @@ final class NewsletterController
 
     public static function test(string $id): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         self::findCampaign($user, (int) $id);
         $to = trim((string) ($_POST['to'] ?? ''));
@@ -347,14 +345,14 @@ final class NewsletterController
             Session::flash('Adresse de test invalide.', 'error');
         } else {
             $ok = Sender::sendTest((int) $id, $to);
-            Session::flash($ok ? "Test envoyé à $to." : 'L\'envoi du test a échoué : vérifiez la configuration SMTP.', $ok ? 'success' : 'error');
+            Session::flash($ok ? "Test envoyé à $to." : 'L\'envoi du test a échoué. Réessayez ; si cela échoue encore, prévenez La Capsule.', $ok ? 'success' : 'error');
         }
         redirect("/admin/newsletters/campagnes/$id?etape=verifier");
     }
 
     public static function send(string $id): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         $c = self::findCampaign($user, (int) $id);
         if ($c['status'] !== 'draft' || empty($_POST['confirm'])) {
@@ -364,32 +362,31 @@ final class NewsletterController
         $n = Sender::queue((int) $id);
         Auth::log('lettre.envoi', $c['subject'] . " ($n)");
         [$sent] = Sender::sendBatch();
-        Session::flash("Envoi lancé vers $n abonnés : $sent envoyés tout de suite, la suite part par lots automatiques.");
+        Session::flash("Envoi lancé vers $n abonnés : $sent sont déjà partis, les autres suivent petit à petit.");
         redirect("/admin/newsletters/campagnes/$id");
-    }
-
-    public static function batch(): void
-    {
-        Auth::require();
-        Csrf::check();
-        [$sent, $failed, $left] = Sender::sendBatch();
-        Session::flash("Lot envoyé : $sent envois, $failed échecs, $left en attente.");
-        redirect('/admin/newsletters');
     }
 
     public static function campaignDelete(string $id): void
     {
-        $user = Auth::require();
+        $user = self::user();
         Csrf::check();
         $c = self::findCampaign($user, (int) $id);
         if ($c['status'] === 'draft') {
             Db::run('DELETE FROM newsletter_campaigns WHERE id = ?', [$c['id']]);
             Session::flash('Brouillon supprimé.');
         }
-        redirect('/admin/newsletters');
+        redirect('/admin/newsletters?onglet=' . urlencode((string) Db::run('SELECT slug FROM poles WHERE id = ?', [$c['pole_id']])->fetchColumn()));
     }
 
     // ---- Outils
+
+    /** @return array<string, mixed> utilisateur connecté, hors éditeur TAg29 (les newsletters sont celles des pôles) */
+    private static function user(): array
+    {
+        $user = Auth::require();
+        Auth::forbidTag29($user);
+        return $user;
+    }
 
     /**
      * @param array<string, mixed> $user
@@ -412,14 +409,11 @@ final class NewsletterController
         return $id > 0 && Db::run('SELECT 1 FROM poles WHERE id = ?', [$id])->fetchColumn() ? $id : null;
     }
 
-    /**
-     * @param array<string, mixed> $user
-     * @return array<string, mixed>
-     */
-    private static function findTemplate(array $user, int $id): array
+    /** @return array<string, mixed> */
+    private static function findTemplate(int $id): array
     {
         $t = Db::run('SELECT * FROM newsletter_templates WHERE id = ?', [$id])->fetch();
-        if (!$t || ($user['role'] === 'editor' && (int) $t['pole_id'] !== (int) $user['pole_id'])) {
+        if (!$t) {
             http_response_code(404);
             exit('Modèle introuvable.');
         }

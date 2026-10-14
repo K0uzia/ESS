@@ -6,7 +6,6 @@ $formId = 'fiche';
 $main = array_filter($res['fields'], static fn (array $f): bool => $f['type'] !== 'checkbox');
 $side = array_filter($res['fields'], static fn (array $f): bool => $f['type'] === 'checkbox');
 $recordName = $row ? (string) ($row['name'] ?? $row['title'] ?? '') : '';
-$fixed = !empty($res['fixed']);
 ?>
 <header class="page-head">
   <div class="page-head__text">
@@ -49,7 +48,7 @@ $fixed = !empty($res['fixed']);
         <a class="btn" href="/admin/<?= e($key) ?>" data-modal-close>Annuler</a>
       </div>
     </section>
-    <?php if ($row && !$fixed): ?>
+    <?php if ($row): ?>
     <form class="card danger-zone" method="post" action="/admin/<?= e($key) ?>/<?= (int) $row['id'] ?>/suppression" data-confirm="Supprimer « <?= e($recordName) ?> » ? Cette action est définitive.">
       <?= Csrf::field() ?>
       <?php if (isset($side['is_published'])): ?><p>Pour retirer la fiche du site sans la perdre, désactivez plutôt « <?= e($side['is_published']['label']) ?> ».</p><?php endif ?>

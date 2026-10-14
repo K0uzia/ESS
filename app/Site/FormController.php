@@ -43,23 +43,19 @@ final class FormController
             return;
         }
 
+        // Le site ne garde aucune copie : le message n'existe que dans l'e-mail envoyé à l'adresse générique.
         if (FormGuard::passes()) {
-            $to = $pole['email'] ?? setting('email_contact');
-            Db::run(
-                'INSERT INTO contact_messages (pole_id, name, email, message) VALUES (?, ?, ?, ?)',
-                [$pole['id'] ?? null, $values['nom'], $values['email'], $values['message']]
-            );
-            $id = (int) Db::pdo()->lastInsertId();
             $sent = Mailer::send(
-                $to,
-                'Message du site ess29.org : ' . $values['nom'],
+                setting('email_contact'),
+                'Message du site ess29.org' . ($pole ? ' (' . $pole['name'] . ')' : '') . ' : ' . $values['nom'],
                 "Nom : {$values['nom']}\nE-mail : {$values['email']}\nPôle : " . ($pole['name'] ?? 'Non précisé') . "\n\n{$values['message']}\n",
                 null,
                 $values['email']
             );
-            Db::run('UPDATE contact_messages SET mail_sent = ? WHERE id = ?', [(int) $sent, $id]);
-            // Durée de conservation annoncée dans /confidentialite/ : 12 mois.
-            Db::run("DELETE FROM contact_messages WHERE created_at < datetime('now', '-12 months')");
+            if (!$sent) {
+                self::renderWithErrors('/', 'accueil', ['form' => 'L\'envoi a échoué de notre côté. Réessayez dans quelques minutes ou écrivez directement à ' . setting('email_contact') . '.'], $values);
+                return;
+            }
         }
         redirect('/?envoye=1#contact');
     }
