@@ -83,7 +83,7 @@ Pages figées (validées le 12 octobre 2026), multipage :
 | Tag29 | `/tag29/` |
 | Contact | section `/#contact` de l'accueil (formulaire) ; `POST /contact/` reste le point d'envoi, `/contact/` redirige |
 | Mentions légales | `/mentions-legales/` |
-| Hors navigation | `/confidentialite/`, `/accessibilite/`, page 404, `/newsletter/` (inscription, confirmation, désinscription) |
+| Hors navigation | `/confidentialite/`, `/accessibilite/`, `/plan-du-site/` (généré depuis les pages et leurs sections, RGAA 12.1, décision du 15 octobre 2026), page 404, `/newsletter/` (inscription, confirmation, désinscription) |
 
 Toutes les pages durables de l'ancien site sont reprises dans ces gabarits ; chaque ancienne URL redirige en 301 vers sa nouvelle place.
 

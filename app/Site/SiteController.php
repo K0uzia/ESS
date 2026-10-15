@@ -20,6 +20,7 @@ final class SiteController
         '/mentions-legales/' => 'mentions-legales',
         '/confidentialite/' => 'confidentialite',
         '/accessibilite/' => 'accessibilite',
+        '/plan-du-site/' => 'plan-du-site',
     ];
 
     /** Photo d'en-tête par page (Section::PHOTOS, un seul emploi par photo) ; absente = en-tête en dégradé seul. */

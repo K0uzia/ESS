@@ -32,6 +32,7 @@ final class Components
             'newsletter', 'contact' => ['poles' => self::poles()],
             'tag29-logos' => ['logos' => array_filter(self::tag29Logos((string) $arg), static fn (array $l): bool => is_file(ROOT . '/public' . $l['path']))],
             'identite' => ['head' => Db::run('SELECT * FROM poles WHERE is_head_office = 1')->fetch() ?: null],
+            'plan' => ['pages' => self::sitePlan()],
             default => null,
         };
         if ($data === null || !is_file(ROOT . "/templates/site/components/$name.php")) {
@@ -93,6 +94,34 @@ final class Components
             }
         }
         return $logos;
+    }
+
+    /**
+     * Plan du site (RGAA 12.1) : chaque page publique et ses sections titrées, tirés de la base ; les onglets des pôles en plus.
+     * @return list<array{path: string, title: string, items: list<array{href: string, title: string, children: list<array{href: string, title: string}>}>}>
+     */
+    private static function sitePlan(): array
+    {
+        $plan = [];
+        foreach (SiteController::PAGES as $path => $key) {
+            $page = $key === 'plan-du-site' ? null : \App\Content\Page::load($key);
+            if ($page === null) {
+                continue;
+            }
+            $items = [];
+            foreach ($page['sections'] as $s) {
+                if ($s['title'] === '') {
+                    continue;
+                }
+                $children = str_starts_with(trim($s['body']), '@poles-onglets')
+                    ? array_map(static fn (array $p): array => ['href' => $path . '#' . $p['slug'], 'title' => (string) $p['name']], self::poles())
+                    : [];
+                $items[] = ['href' => $path . '#' . $s['key'], 'title' => $s['title'], 'children' => $children];
+            }
+            $plan[] = ['path' => $path, 'title' => \App\Admin\ContentController::LABELS[$key] ?? ($page['meta']['h1'] ?? $key), 'items' => $items];
+        }
+        $plan[] = ['path' => '/newsletter/', 'title' => 'Lettres d\'information', 'items' => []];
+        return $plan;
     }
 
     /** @return list<array<string, mixed>> */

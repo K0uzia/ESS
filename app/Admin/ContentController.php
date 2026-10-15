@@ -29,6 +29,7 @@ final class ContentController
         'mentions-legales' => 'Mentions légales',
         'confidentialite' => 'Confidentialité',
         'accessibilite' => 'Accessibilité',
+        'plan-du-site' => 'Plan du site',
     ];
 
     /** @return array<string, string> clé de page → libellé */

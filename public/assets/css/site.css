@@ -534,6 +534,14 @@ th, td { padding: var(--space-3) var(--space-4); text-align: left; vertical-alig
 tbody tr + tr td { border-top: var(--border-width) solid var(--color-line); }
 th { font-size: var(--text-sm); background: var(--color-surface-alt); }
 
+/* Plan du site : une carte par page, ses sections en liste. */
+.sitemap { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--space-5); max-width: none; margin: 0; padding: 0; list-style: none; }
+.prose .sitemap > li + li { margin-top: 0; }
+.sitemap__page { padding: var(--space-5) var(--space-6); border: var(--border-width) solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.prose .sitemap__title, .sitemap__title { margin: 0 0 var(--space-3); font-size: var(--text-lg); }
+.sitemap__title a { color: var(--color-glaz-4); }
+.sitemap__sections { margin: 0; font-size: var(--text-sm); }
+.sitemap__sections ul { margin: var(--space-1) 0 0; }
 .identity { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 0; max-width: 48rem; border: var(--border-width) solid var(--color-line); border-radius: var(--radius-md); overflow: hidden; }
 .identity dt, .identity dd { margin: 0; padding: var(--space-4) var(--space-5); }
 .identity address { margin: 0; }

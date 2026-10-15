@@ -138,6 +138,7 @@ $jsonLd = [
       <p>© <?= date('Y') ?> <?= e(setting('raison_sociale')) ?></p>
       <p class="site-footer__credit">Site réalisé par <a href="https://kouzia.com" rel="noopener">Kouzia</a>, au sein de <a href="https://lacapsule.org" rel="noopener">La Capsule</a></p>
       <ul aria-label="Informations légales">
+        <li><a href="/plan-du-site/">Plan du site</a></li>
         <li><a href="/mentions-legales/">Mentions légales</a></li>
         <li><a href="/confidentialite/">Confidentialité</a></li>
         <li><a href="/accessibilite/">Accessibilité : non conforme</a></li>
