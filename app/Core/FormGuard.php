@@ -9,12 +9,14 @@ final class FormGuard
     private const MIN_SECONDS = 3;
     private const MAX_AGE = 7200;
 
-    public static function fields(): string
+    /** $form : identifiant du formulaire, pour un id unique quand plusieurs formulaires sont sur la même page. */
+    public static function fields(string $form): string
     {
         $ts = (string) time();
+        $id = 'site_web-' . $form;
         return '<input type="hidden" name="_ts" value="' . $ts . '.' . self::sign($ts) . '">'
-            . '<div class="hp" aria-hidden="true"><label for="site_web">Ne pas remplir</label>'
-            . '<input id="site_web" name="site_web" type="text" tabindex="-1" autocomplete="off"></div>';
+            . '<div class="hp" aria-hidden="true"><label for="' . $id . '">Ne pas remplir</label>'
+            . '<input id="' . $id . '" name="site_web" type="text" tabindex="-1" autocomplete="off"></div>';
     }
 
     /** Vrai si la soumission semble humaine. Un robot reçoit la même réponse qu'un humain, sans effet. */
@@ -29,6 +31,16 @@ final class FormGuard
         }
         $age = time() - (int) $ts;
         return $age >= self::MIN_SECONDS && $age <= self::MAX_AGE;
+    }
+
+    /**
+     * Vrai si la page a été ouverte trop longtemps avant l'envoi (signature valide, pot de miel vide) :
+     * la personne doit pouvoir renvoyer sa saisie au lieu de la perdre sans le savoir (RGAA 13.1).
+     */
+    public static function expired(): bool
+    {
+        [$ts, $sig] = array_pad(explode('.', (string) ($_POST['_ts'] ?? ''), 2), 2, '');
+        return ($_POST['site_web'] ?? '') === '' && ctype_digit($ts) && hash_equals(self::sign($ts), $sig) && time() - (int) $ts > self::MAX_AGE;
     }
 
     public static function rateLimited(string $bucket, int $max, int $minutes): bool

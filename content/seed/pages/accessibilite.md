@@ -7,17 +7,27 @@ intro: Le Groupement Territorial ESS Finistère - Penn Ar Bed s'engage à rendre
 
 ## État de conformité {#etat}
 
-Le site ess29.org est **non conforme** au référentiel général d'amélioration de l'accessibilité (RGAA 4.1) : aucun audit de conformité n'a encore été réalisé.
+Le site ess29.org est **partiellement conforme** au référentiel général d'amélioration de l'accessibilité (RGAA 4.1) : 98 % des critères applicables sont respectés (69 sur 70).
 
-Le site est conçu pour respecter le niveau AA des règles WCAG 2.2 : navigation au clavier, contrastes suffisants, textes redimensionnables, structure de titres, formulaires étiquetés. Cette déclaration sera mise à jour après l'audit.
+Le site vise le niveau AA des règles WCAG 2.2 : navigation au clavier, contrastes suffisants, textes redimensionnables, structure de titres, formulaires étiquetés.
 
 ## Contenus non accessibles {#non-accessibles}
 
-Certains documents PDF repris de l'ancien site ne sont peut-être pas accessibles. Si vous ne pouvez pas en lire un, demandez-en une version adaptée.
+Non-conformité relevée lors de l'audit :
+
+- **Documents PDF** (critère 13.3) : 22 documents PDF sur 35 (rapports d'activité, bulletins d'adhésion, documents des pôles repris de l'ancien site) ne sont pas balisés pour les technologies d'assistance.
+
+Si vous ne pouvez pas lire un document, demandez-en une version adaptée : nous vous la fournirons.
 
 ## Établissement de la déclaration {#etablissement}
 
-Déclaration établie le 12 octobre 2026.
+Déclaration établie le 15 octobre 2026, à la suite d'un audit interne réalisé le même jour par La Capsule.
+
+- **Technologies utilisées** : HTML, CSS, JavaScript (menu mobile, filtres, onglets et carte, en amélioration progressive).
+- **Pages auditées** : accueil (avec les formulaires de contact et de newsletter), Les pôles, L'équipe, Découvrir l'ESS, Agir, Se former, Tag29, Mentions légales, Confidentialité, Accessibilité, Plan du site, Lettres d'information, page d'erreur.
+- **Environnement de test** : Chrome sur ordinateur (1280 px) et sur mobile (375 et 320 px), navigation au clavier, zoom du texte à 200 %, espacement du texte augmenté, mouvement réduit.
+- **Outils** : axe-core 4.10, validateur HTML Nu (W3C), mesure des contrastes sur le rendu réel des pages.
+- **Limite** : aucun lecteur d'écran n'a été utilisé lors de cet audit.
 
 ## Signaler un problème {#signaler}
 

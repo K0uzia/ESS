@@ -72,7 +72,7 @@ $height = MembersMap::height();
     <button class="members-map__close" type="button" data-map-close aria-label="Fermer la fiche"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.4 2 8 6.6 12.6 2 14 3.4 9.4 8l4.6 4.6-1.4 1.4L8 9.4 3.4 14 2 12.6 6.6 8 2 3.4z"/></svg></button>
     <p class="members-map__name" id="carte-fiche-nom" data-map-name></p>
     <p class="members-map__meta" data-map-meta></p>
-    <p class="members-map__links"><a data-map-url rel="noopener" hidden>Site web</a> <a data-map-list href="#">Voir dans la liste</a></p>
+    <p class="members-map__links"><a data-map-url href="#" rel="noopener" hidden>Site web</a> <a data-map-list href="#">Voir dans la liste</a></p>
   </div>
   </div>
   <figcaption class="members-map__caption" id="carte-adherents-legende">

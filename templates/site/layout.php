@@ -81,7 +81,7 @@ $jsonLd = [
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 <?php endif ?>
 </head>
-<body class="page-<?= e($pageKey) ?>">
+<body class="page-<?= e($pageKey) ?>" id="haut">
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 <header class="site-header">
   <div class="site-header__inner container">
@@ -141,11 +141,13 @@ $jsonLd = [
         <li><a href="/plan-du-site/">Plan du site</a></li>
         <li><a href="/mentions-legales/">Mentions légales</a></li>
         <li><a href="/confidentialite/">Confidentialité</a></li>
-        <li><a href="/accessibilite/">Accessibilité : non conforme</a></li>
+        <li><a href="/accessibilite/">Accessibilité : partiellement conforme</a></li>
       </ul>
     </div>
   </div>
   <img class="deux-points" src="/assets/img/deux-points-or.webp" width="240" height="97" alt="" loading="lazy" decoding="async">
 </footer>
+<?php /* Retour en haut sans JavaScript : la piste commence après deux écrans, le lien y reste collé en bas de la fenêtre. */ ?>
+<div class="to-top"><a class="to-top__link" href="#haut"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden">Revenir en haut de la page</span></a></div>
 </body>
 </html>

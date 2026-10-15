@@ -8,7 +8,7 @@ $current = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 ?>
 <p class="section__intro">Recevez la lettre d'information du ou des pôles de votre choix.</p>
 <form class="form" method="post" action="/newsletter/" id="formulaire-newsletter" novalidate>
-  <?= FormGuard::fields() ?>
+  <?= FormGuard::fields('newsletter') ?>
   <input type="hidden" name="retour" value="<?= e($current) ?>">
   <?php if (isset($errors['form'])): ?><p class="alert alert--error" role="alert">Erreur : <?= e($errors['form']) ?></p><?php endif ?>
   <fieldset class="field"<?= isset($errors['poles']) ? ' aria-describedby="nl-poles-error"' : '' ?>>

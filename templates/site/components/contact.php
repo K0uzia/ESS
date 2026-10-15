@@ -13,7 +13,7 @@ $desc = static fn (string $n, string $extra = ''): string => trim($extra . (isse
 <p class="alert" role="status" id="formulaire-contact" tabindex="-1">Merci, votre message a bien été envoyé. Nous vous répondrons par e-mail.</p>
 <?php else: ?>
 <form class="form" method="post" action="/contact/" id="formulaire-contact" novalidate>
-  <?= FormGuard::fields() ?>
+  <?= FormGuard::fields('contact') ?>
   <?php if ($errors !== []): ?>
   <div class="alert alert--error" role="alert">
     <?php $fields = count(array_diff_key($errors, ['form' => 1])); ?>

@@ -1,0 +1,107 @@
+critere	statut	constat
+1.1	C	Toutes les images porteuses d'information ont une alternative (logos partenaires, logos de pôle) ; SVG d'interface en aria-hidden (axe : image-alt, svg-img-alt).
+1.2	C	Images de décoration ignorées : alt vide (photos d'illustration, pictogrammes, portraits voisins du nom, deux-points).
+1.3	C	Alternatives pertinentes : nom du partenaire ou du pôle.
+1.4	NA	Aucun CAPTCHA ni image-test.
+1.5	NA	Aucun CAPTCHA.
+1.6	C	Carte des adhérents : la liste complète, lisible sans JavaScript, sert de description détaillée.
+1.7	C	Description détaillée pertinente (mêmes adhérents, même filtre).
+1.8	NA	Aucune image texte hors logotypes (exemptés).
+1.9	NA	Aucune image légendée.
+2.1	NA	Aucun cadre (iframe).
+2.2	NA	Aucun cadre.
+3.1	C	Information jamais donnée par la seule couleur : filtres et pastilles de pôle accompagnés du nom.
+3.2	C	Contraste texte ≥ 4,5:1 (≥ 3:1 grand texte), mesuré sur les pixels réels de 12 gabarits à 1280 et 375 px, après correction du dégradé Glaz et du voile des photos.
+3.3	C	Composants et focus ≥ 3:1 : focus Glaz 3 sur fond clair, or sur fond sombre (corrigé).
+4.1	NA	Aucun média temporel (les vidéos sont de simples liens externes).
+4.2	NA	Aucun média temporel.
+4.3	NA	Aucun média temporel.
+4.4	NA	Aucun média temporel.
+4.5	NA	Aucun média temporel.
+4.6	NA	Aucun média temporel.
+4.7	NA	Aucun média temporel.
+4.8	NA	Aucun média non temporel.
+4.9	NA	Aucun média non temporel.
+4.10	NA	Aucun son déclenché automatiquement.
+4.11	NA	Aucun média.
+4.12	NA	Aucun média non temporel.
+4.13	NA	Aucun média.
+5.1	NA	Aucun tableau de données complexe.
+5.2	NA	Aucun tableau de données complexe.
+5.3	NA	Aucun tableau de mise en forme.
+5.4	C	Tableaux de tarifs titrés par caption (corrigé).
+5.5	C	Titre pertinent : intertitre de la carte (« Formules et tarifs », « Boussol' Brest »).
+5.6	C	En-têtes de colonne en th.
+5.7	C	En-têtes associés par scope="col".
+5.8	NA	Aucun tableau de mise en forme.
+6.1	C	Liens explicites, contexte ajouté en texte masqué (« Lire la suite : … ») ; nouvel onglet signalé (axe : link-name).
+6.2	C	Chaque lien a un intitulé (logo du site : alternative « ESS Finistère »).
+7.1	C	Menu (aria-expanded), onglets des pôles (motif ARIA tabs), filtres (role=button, aria-pressed), carte (role=button, fiche en dialogue) : nom, rôle, état restitués.
+7.2	C	Alternatives aux scripts : contenu complet sans JavaScript (listes, menu déplié).
+7.3	C	Tout se commande au clavier : menu, onglets (flèches), filtres (Entrée, Espace), carte (Entrée, Échap rend le focus). Échap du menu corrigé.
+7.4	C	Pas de changement de contexte sans action de l'utilisateur.
+7.5	C	Messages de statut : filtre (role=status), erreurs de formulaire (role=alert).
+8.1	C	Type de document HTML5.
+8.2	C	Code valide au validateur Nu sur les 12 gabarits (identifiants dupliqués et lien sans href corrigés).
+8.3	C	Langue par défaut lang="fr".
+8.4	C	Langue pertinente.
+8.5	C	Chaque page a un titre.
+8.6	C	Titres de page uniques et pertinents.
+8.7	C	Pas de passage en langue étrangère hors noms propres (Penn Ar Bed).
+8.8	NA	Aucun changement de langue signalé.
+8.9	C	Aucune balise utilisée à seule fin de présentation.
+8.10	NA	Aucun changement de sens de lecture.
+9.1	C	Un h1 par page, titres hiérarchisés sans saut (contrôlé sur 12 gabarits).
+9.2	C	Repères header, nav, main, footer.
+9.3	C	Listes balisées ul/ol.
+9.4	C	Citations en blockquote.
+10.1	C	Présentation par CSS uniquement.
+10.2	C	Contenu lisible sans CSS.
+10.3	C	Ordre du code cohérent avec l'ordre visuel.
+10.4	C	Zoom texte 200 % (largeur 640 px) : rien de coupé, pas de défilement horizontal.
+10.5	C	Couleurs de texte et de fond déclarées ensemble.
+10.6	C	Liens du texte soulignés.
+10.7	C	Focus visible partout (45 tabulations sur l'accueil et l'équipe), contrasté (corrigé).
+10.8	C	Contenus cachés ignorés des technologies d'assistance.
+10.9	C	Information non donnée par la forme ou la position seules.
+10.10	C	Idem pour les composants.
+10.11	C	Lecture à 320 px sans défilement horizontal (12 gabarits).
+10.12	C	Espacement du texte augmenté (WCAG 1.4.12) : aucun texte coupé, pas de débordement.
+10.13	NA	Aucun contenu additionnel au survol ou au focus.
+10.14	C	Contenus révélés en CSS (Lire la suite, details) accessibles au clavier.
+11.1	C	Chaque champ a une étiquette (label for).
+11.2	C	Étiquettes pertinentes.
+11.3	C	Même fonction, même étiquette (formulaire de newsletter de l'accueil et de /newsletter/).
+11.4	C	Étiquette accolée au champ.
+11.5	C	Cases des lettres regroupées dans un fieldset.
+11.6	C	Légende « Lettres à recevoir ».
+11.7	C	Légende pertinente.
+11.8	C	Liste du pôle : items de même nature.
+11.9	C	Boutons nommés (« Envoyer le message », « Je m'inscris »).
+11.10	C	Champs obligatoires indiqués en texte ; erreurs en texte reliées par aria-describedby et aria-invalid.
+11.11	C	Suggestion de correction (ex. format d'adresse e-mail).
+11.12	NA	Aucune donnée à caractère financier, juridique ou personnel modifiée en ligne.
+11.13	C	Champs nom et e-mail avec autocomplete.
+12.1	C	Deux systèmes de navigation : le menu (repris en pied de page) et le plan du site (/plan-du-site/), ajouté le 15/10/2026.
+12.2	C	Menu et pied de page identiques sur toutes les pages.
+12.3	C	Plan du site pertinent : toutes les pages publiques et leurs sections, généré depuis la base.
+12.4	C	Plan du site atteignable depuis chaque page (pied de page), au même endroit.
+12.5	NA	Pas de moteur de recherche.
+12.6	C	Zones de regroupement atteignables (repères, lien d'évitement).
+12.7	C	Lien d'évitement « Aller au contenu » en premier.
+12.8	C	Ordre de tabulation cohérent.
+12.9	C	Aucun piège au clavier.
+12.10	NA	Aucun raccourci clavier à une touche.
+12.11	C	Fiche de la carte atteignable et fermable au clavier.
+13.1	C	Formulaire resté ouvert plus de 2 h : la saisie est conservée et peut être renvoyée (corrigé).
+13.2	C	Aucune nouvelle fenêtre sans action de l'utilisateur.
+13.3	NC	22 documents PDF sur 35 ne sont pas balisés (rapports, bulletins d'adhésion) et n'ont pas de version accessible.
+13.4	NA	Pas de version accessible proposée (voir 13.3).
+13.5	NA	Aucun contenu cryptique.
+13.6	NA	Aucun contenu cryptique.
+13.7	NA	Aucun effet de flash.
+13.8	NA	Aucun contenu en mouvement automatique ; mouvement réduit respecté.
+13.9	C	Consultable en portrait et en paysage.
+13.10	NA	Aucun geste complexe requis.
+13.11	C	Actions déclenchées au relâchement (clics natifs).
+13.12	NA	Aucune action par mouvement de l'appareil.

@@ -24,13 +24,15 @@
   --color-line: color-mix(in srgb, var(--color-glaz-1) 45%, var(--color-white));
   --color-border: var(--color-glaz);
   --color-accent: var(--color-or);
-  --color-focus: var(--color-or);
+  /* Focus : Glaz 3 sur fond clair (9:1), or sur fond sombre ; l'or seul sur blanc ne fait que 1,9:1 (RGAA 3.3, audit du 15/10/2026). */
+  --color-focus: var(--color-glaz-3);
+  --color-focus-on-dark: var(--color-or);
   --color-on-dark: var(--color-white);
 
   /* Dégradé Glaz de la charte : sombre en bas à gauche, clair en haut à droite (le texte reste côté sombre). */
-  --gradient-glaz: linear-gradient(to top right, var(--color-glaz-4) 0%, var(--color-glaz-3) 55%, var(--color-glaz) 100%);
-  --gradient-photo: linear-gradient(90deg, color-mix(in srgb, var(--color-glaz-4) 94%, transparent) 0%, color-mix(in srgb, var(--color-glaz-4) 78%, transparent) 45%, color-mix(in srgb, var(--color-glaz-3) 20%, transparent) 100%);
-  --gradient-photo-mobile: linear-gradient(0deg, color-mix(in srgb, var(--color-glaz-4) 96%, transparent) 35%, color-mix(in srgb, var(--color-glaz-4) 55%, transparent) 100%);
+  --gradient-glaz: linear-gradient(to top right, var(--color-glaz-4) 0%, var(--color-glaz-3) 55%, color-mix(in srgb, var(--color-glaz) 70%, var(--color-glaz-3)) 100%); /* extrémité claire assombrie : texte blanc ≥ 4,5:1 partout (audit du 15/10/2026) */
+  --gradient-photo: linear-gradient(90deg, color-mix(in srgb, var(--color-glaz-4) 94%, transparent) 0%, color-mix(in srgb, var(--color-glaz-4) 90%, transparent) 50%, color-mix(in srgb, var(--color-glaz-3) 20%, transparent) 100%);
+  --gradient-photo-mobile: linear-gradient(0deg, color-mix(in srgb, var(--color-glaz-4) 96%, transparent) 35%, color-mix(in srgb, var(--color-glaz-4) 75%, transparent) 100%);
 
   /* Typographie */
   --font-ui: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -84,7 +86,7 @@
   --shadow-lg: 0 24px 60px color-mix(in srgb, var(--color-glaz-4) 22%, transparent);
 
   /* Icône de lien vers un autre site (flèche diagonale, fichier local) */
-  --icon-external: url("/assets/img/lien-externe.svg");
+  --icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 2.5h8.5V11h-2V5.9l-7.3 7.3-1.4-1.4 7.3-7.3H5z'/%3E%3C/svg%3E");
   --icon-external-size: 0.75em;
   --icon-inline-size: 1.1em;
   --icon-inline-offset: -0.15em;

@@ -9,7 +9,8 @@ namespace App\Core;
  */
 final class Markdown
 {
-    public static function toHtml(string $source, int $headingShift = 0): string
+    /** $caption : titre donné aux tableaux sans intertitre dans le texte (titre de la carte qui les contient). */
+    public static function toHtml(string $source, int $headingShift = 0, string $caption = ''): string
     {
         $lines = preg_split('/\R/', trim($source)) ?: [];
         $html = [];
@@ -31,9 +32,9 @@ final class Markdown
                 $list = null;
             }
         };
-        $flushTable = static function () use (&$table, &$html): void {
+        $flushTable = static function () use (&$table, &$html, &$caption): void {
             if ($table !== []) {
-                $html[] = self::table($table);
+                $html[] = self::table($table, $caption);
                 $table = [];
             }
         };
@@ -53,6 +54,7 @@ final class Markdown
                 $flushAll();
                 $level = min(6, strlen($m[1]) + $headingShift);
                 $html[] = "<h$level>" . self::inline($m[2]) . "</h$level>";
+                $caption = trim(strip_tags(self::inline($m[2])));
                 continue;
             }
             if (preg_match('/^→\s+(\[[^\]]+\]\([^)\s]+\))$/u', $trimmed, $m)) {
@@ -139,7 +141,7 @@ final class Markdown
     }
 
     /** @param list<string> $rows */
-    private static function table(array $rows): string
+    private static function table(array $rows, string $caption = ''): string
     {
         $cells = static fn (string $row): array => array_map('trim', explode('|', trim($row, " |")));
         $head = $cells(array_shift($rows));
@@ -148,13 +150,23 @@ final class Markdown
         }
         static $count = 0;
         $count++;
-        $out = '<div class="table-wrap" tabindex="0" role="region" aria-label="Tableau ' . $count . '"><table><thead><tr>';
+        // Titre du tableau (RGAA 5.4) : intertitre qui le précède, sinon titre de la carte, sinon numéro.
+        $title = $caption !== '' ? $caption : 'Tableau ' . $count;
+        // Trois colonnes ou plus : lignes empilées en fiches sur mobile, chaque cellule précédée de son en-tête (data-label).
+        $stack = count($head) > 2;
+        $labels = array_map(static fn (string $h): string => trim(strip_tags(self::inline($h))), $head);
+        $out = '<div class="table-wrap" tabindex="0" role="region" aria-label="' . $title . '"><table' . ($stack ? ' class="table--stack"' : '') . '>'
+            . '<caption class="visually-hidden">' . $title . '</caption><thead><tr>';
         foreach ($head as $cell) {
             $out .= '<th scope="col">' . self::inline($cell) . '</th>';
         }
         $out .= '</tr></thead><tbody>';
         foreach ($rows as $row) {
-            $out .= '<tr>' . implode('', array_map(fn ($c) => '<td>' . self::inline($c) . '</td>', $cells($row))) . '</tr>';
+            $out .= '<tr>';
+            foreach ($cells($row) as $i => $cell) {
+                $out .= '<td' . ($stack && isset($labels[$i]) ? ' data-label="' . $labels[$i] . '"' : '') . '>' . self::inline($cell) . '</td>';
+            }
+            $out .= '</tr>';
         }
         return $out . '</tbody></table></div>';
     }

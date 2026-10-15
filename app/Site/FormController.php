@@ -43,6 +43,10 @@ final class FormController
             return;
         }
 
+        if (FormGuard::expired()) {
+            self::renderWithErrors('/', 'accueil', ['form' => 'La page est restée ouverte longtemps : votre message n\'est pas encore parti. Vérifiez-le puis cliquez de nouveau sur « Envoyer le message ».'], $values);
+            return;
+        }
         // Le site ne garde aucune copie : le message n'existe que dans l'e-mail envoyé à l'adresse générique.
         if (FormGuard::passes()) {
             $sent = Mailer::send(
@@ -82,6 +86,10 @@ final class FormController
         $back = isset(SiteController::PAGES[$back]) ? $back : '/';
         if ($errors !== []) {
             self::renderWithErrors($back, SiteController::PAGES[$back], $errors, ['email' => $email, 'poles' => $chosen]);
+            return;
+        }
+        if (FormGuard::expired()) {
+            self::renderWithErrors($back, SiteController::PAGES[$back], ['form' => 'La page est restée ouverte longtemps : votre inscription n\'est pas encore enregistrée. Cliquez de nouveau sur le bouton d\'inscription.'], ['email' => $email, 'poles' => $chosen]);
             return;
         }
 

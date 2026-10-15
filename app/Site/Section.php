@@ -133,7 +133,7 @@ final class Section
                 ? '<img class="bloc__picto" src="/assets/img/pictos/' . $picto . '.webp" alt="" width="96" height="96" loading="lazy" decoding="async">'
                 : '';
             $content = str_replace("\n#### ", "\n### ", "\n" . trim($content));
-            $inner = Markdown::toHtml($content, $h - 2);
+            $inner = Markdown::toHtml($content, $h - 2, e(trim($title)));
             // Contenu long : le premier paragraphe reste visible, la suite se déplie (details natif, sans JavaScript).
             // Cartes de hauteur comparable : le premier bloc reste visible, coupé à hauteur fixe en CSS,
             // la suite se lit dans « Lire la suite ». Une carte avec un tableau (tarifs) reste entière.

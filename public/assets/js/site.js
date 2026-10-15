@@ -79,7 +79,8 @@ function initNav() {
     nav.toggleAttribute('data-open', open);
   };
   toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
-  nav.addEventListener('keydown', (event) => {
+  // Échap ferme le menu où que soit le focus, et rend le focus au bouton.
+  document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
       setOpen(false);
       toggle.focus();
