@@ -20,6 +20,10 @@ $nav = ['' => [
     '/admin/medias' => ['Médiathèque', 'image'],
     '/admin/newsletters' => ['Newsletters', 'mail'],
 ]];
+// E-mails du site (boîte d'envoi, contact, newsletters) : administrateurs seulement.
+if ($isAdmin) {
+    $nav['']['/admin/emails'] = ['E-mails', 'send'];
+}
 // Éditeur TAg29 : sa page, son équipe, et ce qui est commun à tous (partenaires, médiathèque).
 if ($user !== null && Auth::scope($user) === 'tag29') {
     $nav[''] = array_intersect_key($nav[''], array_flip(['/admin/', '/admin/pages', '/admin/equipe', '/admin/partenaires', '/admin/medias']));

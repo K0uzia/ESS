@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use App\Admin\AccountController;
 use App\Admin\ContentController;
+use App\Admin\EmailController;
 use App\Admin\MediaController;
 use App\Admin\NewsletterController;
 use App\Admin\ResourceController;
@@ -49,6 +50,15 @@ $router->post('/admin/comptes/{id}', [AccountController::class, 'update']);
 $router->post('/admin/comptes/{id}/suppression', [AccountController::class, 'destroy']);
 $router->get('/admin/comptes/{id}/mot-de-passe', [AccountController::class, 'passwordForm']);
 $router->post('/admin/comptes/{id}/mot-de-passe', [AccountController::class, 'passwordUpdate']);
+
+$router->get('/admin/emails', [EmailController::class, 'index']);
+$router->get('/admin/emails/boite', [EmailController::class, 'mailboxForm']);
+$router->post('/admin/emails/boite', [EmailController::class, 'mailbox']);
+$router->post('/admin/emails/test', [EmailController::class, 'test']);
+$router->get('/admin/emails/contact', [EmailController::class, 'contactForm']);
+$router->post('/admin/emails/contact', [EmailController::class, 'contact']);
+$router->get('/admin/emails/poles/{id}', [EmailController::class, 'poleForm']);
+$router->post('/admin/emails/poles/{id}', [EmailController::class, 'poleUpdate']);
 
 $router->get('/admin/pages', [ContentController::class, 'index']);
 $router->get('/admin/pages/{key}', [ContentController::class, 'edit']);
