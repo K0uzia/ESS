@@ -15,7 +15,7 @@ $describedBy = trim(($type === 'address' ? "$id-geo " : '') . ($hint !== '' ? "$
 $aria = ($describedBy !== '' ? ' aria-describedby="' . $describedBy . '"' : '') . ($error ? ' aria-invalid="true"' : '');
 $req = !empty($f['required']) ? ' required' : '';
 $form = !empty($formId) ? ' form="' . e($formId) . '"' : '';
-$classes = 'field' . ($type === 'checkbox' ? ' field--check' : '') . (in_array($type, ['textarea', 'markdown', 'image'], true) ? ' field--wide' : '') . ($todo ? ' field--todo' : '');
+$classes = 'field' . ($type === 'checkbox' ? ' field--check' : '') . (in_array($type, ['textarea', 'markdown', 'image', 'portrait'], true) ? ' field--wide' : '') . ($todo ? ' field--todo' : '');
 ?>
 <div class="<?= $classes ?>">
   <?php if ($type === 'checkbox'): ?>
@@ -69,6 +69,17 @@ $classes = 'field' . ($type === 'checkbox' ? ' field--check' : '') . (in_array($
     </details>
     <p class="field__hint" id="<?= $id ?>-upload">Ou envoyez un nouveau logo (PNG, JPG ou WebP) : il rejoindra la médiathèque.</p>
     <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="image/png,image/jpeg,image/webp" aria-describedby="<?= $id ?>-upload"<?= $form ?>>
+  </div>
+  <?php elseif ($type === 'portrait'): ?>
+  <div class="photo-pick" data-photo-pick>
+    <div class="photo-pick__current">
+      <img class="photo-pick__portrait" src="<?= e((string) $value) ?>" alt="" width="96" height="96" data-photo-preview<?= $value ? '' : ' hidden' ?>>
+      <p data-photo-label><?= $value ? 'Portrait actuel' : 'Aucun portrait' ?></p>
+    </div>
+    <input type="file" id="<?= $id ?>" name="<?= e($name) ?>" accept="image/png,image/jpeg,image/webp"<?= $aria . $form ?>>
+    <?php if ($value): ?>
+    <label class="photo-pick__remove" for="<?= $id ?>-remove"><input type="checkbox" id="<?= $id ?>-remove" name="<?= e($name) ?>_remove" value="1"<?= $form ?>> Retirer le portrait</label>
+    <?php endif ?>
   </div>
   <?php elseif ($type === 'address'): ?>
   <?php

@@ -456,6 +456,8 @@ legend { padding: 0; }
 .photo-pick--logo .photo-pick__current img { width: auto; max-width: 12rem; height: 4rem; object-fit: contain; }
 .photo-pick--logo > .field__hint { margin-top: var(--space-4); }
 .photo-pick--logo input[type="file"] { margin-top: var(--space-2); }
+.photo-pick__current .photo-pick__portrait { width: 6rem; height: 6rem; border-radius: 50%; }
+.photo-pick__remove { display: flex; align-items: center; gap: var(--space-2); min-height: var(--target-min); margin-top: var(--space-2); }
 .photo-grid--logos .photo-choice img { object-fit: contain; background: var(--color-white); }
 
 /* ---------- Listes rangées par pôle (Équipe, Adhérents) ---------- */

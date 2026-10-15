@@ -101,6 +101,38 @@ final class Upload
         return isset($_FILES[$field]) && ($_FILES[$field]['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
     }
 
+    /**
+     * Portrait recadré en carré (centré, un peu vers le haut pour garder le visage), WebP de 320 px.
+     * @return array{path: string}|string Chemin public, ou message d'erreur.
+     */
+    public static function portrait(string $field): array|string
+    {
+        $file = self::file($field);
+        if (is_string($file)) {
+            return $file;
+        }
+        if ($file['size'] > self::MAX_IMAGE) {
+            return 'L\'image dépasse 15 Mo.';
+        }
+        if (!in_array((new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']), ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return 'Format accepté : JPG, PNG ou WebP.';
+        }
+        ini_set('memory_limit', '1G');
+        $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
+        if ($src === false) {
+            return 'Image illisible.';
+        }
+        $side = min(imagesx($src), imagesy($src));
+        $size = min(320, $side);
+        $dst = imagecreatetruecolor($size, $size);
+        imagecopyresampled($dst, $src, 0, 0, intdiv(imagesx($src) - $side, 2), intdiv(imagesy($src) - $side, 3), $size, $size, $side, $side);
+        $dir = ROOT . '/public/media/portraits';
+        is_dir($dir) || mkdir($dir, 0775, true);
+        $name = self::slug(pathinfo($file['name'], PATHINFO_FILENAME)) . '-' . bin2hex(random_bytes(3)) . '.webp';
+        imagewebp($dst, "$dir/$name", 78);
+        return ['path' => "/media/portraits/$name"];
+    }
+
     private static function slug(string $value): string
     {
         $value = strtolower((string) preg_replace('/[^A-Za-z0-9]+/', '-', (string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value)));

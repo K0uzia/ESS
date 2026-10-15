@@ -131,7 +131,7 @@ Elle remplace les trois pages statiques (équipe Brest, forces vives Morlaix, é
 
 Page à part entière. Le contenu utile de l'ancienne page enterrée `/tag-29/` peut être repris ; l'URL et le gabarit WordPress ne le sont pas.
 
-Tag29 a sa propre identité, limitée à cette page (logo et titres). Le reste du site reste à la charte ESS Finistère. Logos : `Charte/tag29/3. LOGOS TAG/29/bureautique/` (fichiers RVB). Police : Quicksand, fichiers dans `Charte/tag29/Outils graphiques/POLICES/`, uniquement sur cette page.
+Tag29 a sa propre identité, limitée à cette page (logo et titres), plus son logo sur les cartes de l'équipe TAg29 de `/equipe/`, comme sur l'organigramme (décision du 15 octobre 2026). Le reste du site reste à la charte ESS Finistère. Logos : `Charte/tag29/3. LOGOS TAG/29/bureautique/` (fichiers RVB). Police : Quicksand, fichiers dans `Charte/tag29/Outils graphiques/POLICES/`, uniquement sur cette page.
 
 ## Charte (règle d'or)
 

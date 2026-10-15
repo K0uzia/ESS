@@ -59,10 +59,11 @@ foreach (glob("$seed/pages/*.md") ?: [] as $file) {
 
 if (isEmpty('team_members')) {
     foreach (tsv("$seed/equipe.tsv") as $i => $r) {
-        $team = $r['pole'] === 'tag29' ? 'tag29' : ($r['groupe'] === 'ca' ? 'ca' : 'salaries');
+        $team = $r['pole'] === 'tag29' ? 'tag29' : (in_array($r['groupe'], ['ca', 'groupement'], true) ? $r['groupe'] : 'salaries');
+        $photo = $r['photo'] !== '' ? "/assets/img/equipe/{$r['photo']}.webp" : null;
         Db::run(
-            'INSERT INTO team_members (name, role, pole_id, team, structure, email, phone, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [$r['nom'], $r['role'], $poleId($r['pole']), $team, $nullable($r['structure']), $nullable($r['email']), $nullable($r['telephone']), (int) ($r['ordre'] ?: $i)]
+            'INSERT INTO team_members (name, role, pole_id, team, structure, email, phone, photo_path, is_vacant, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$r['nom'], $r['role'], $poleId($r['pole']), $team, $nullable($r['structure']), $nullable($r['email']), $nullable($r['telephone']), $photo, (int) ($r['recrutement'] === '1'), (int) ($r['ordre'] ?: $i)]
         );
     }
     echo 'équipe : ' . $pdo->query('SELECT COUNT(*) FROM team_members')->fetchColumn() . "\n";

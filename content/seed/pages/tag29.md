@@ -122,7 +122,7 @@ TAg29 fait partie du réseau régional TAg BZH, avec TAg22, TAg35 et TAg56. Le r
 
 ## Contacter TAg29 {#contacts .encart}
 
-L'équipe de TAg29 : Flavie de Jaurias, coordinatrice et responsable de l'Incubateur, et Deborah Hellequin, chargée de mission Incubateur et Idéateur. Écrivez à [contact@tag29.bzh](mailto:contact@tag29.bzh) ou appelez le 07 63 98 84 20.
+L'équipe de TAg29 : Déborah Hellequin, référente Incubateur. Écrivez à [contact@tag29.bzh](mailto:contact@tag29.bzh) ou appelez le 07 63 98 84 20.
 
 Vous préférez faire d'abord le point sur votre idée ? [Un pôle ESS vous reçoit](/agir/#entreprendre).
 

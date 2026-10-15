@@ -1,8 +1,8 @@
 ---
 title: L'équipe des Pôles ESS du Finistère
-description: Salariés et membres des conseils d'administration des Pôles ESS des Pays de Morlaix, de Brest et de Cornouaille, et l'équipe de TAg29, sur une seule page.
+description: L'équipe salariée du groupement ESS Finistère, des trois Pôles ESS (Morlaix, Brest, Cornouaille) et de TAg29, et les conseils d'administration des pôles.
 h1: L'équipe
-intro: Les salariés et les administrateurs bénévoles des trois pôles, ainsi que l'équipe de TAg29.
+intro: L'équipe salariée du groupement, des trois pôles et de TAg29, et les administrateurs bénévoles des pôles.
 actions: Écrire à un pôle | /#contact ; Voir les pôles | /les-poles/
 ---
 

@@ -415,7 +415,24 @@ main:focus { outline: none; }
 .person__name { font-weight: var(--weight-bold); }
 .person__role { font-size: var(--text-sm); color: var(--color-text-soft); }
 .person__structure { font-size: var(--text-sm); color: var(--color-glaz-3); }
-.team-group .person:not(.people--compact .person) { border-color: color-mix(in srgb, var(--pole) 30%, var(--color-surface)); }
+/* Cartes de l'équipe salariée, au style de l'organigramme : portrait rond cerclé, logo du pôle, filet or. */
+.people--cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); }
+.person-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-8) var(--space-5); border: var(--border-width) solid var(--color-line); border-radius: var(--radius-lg); text-align: center; background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.person-card p { margin: 0; }
+.person-card__visual { margin-bottom: var(--space-3); }
+.person-card__photo { display: flex; align-items: center; justify-content: center; width: 7.5rem; height: 7.5rem; border-radius: 50%; font-size: var(--text-xl); font-weight: var(--weight-bold); color: var(--color-on-dark); background: var(--color-glaz-3); box-shadow: 0 0 0 0.3125rem var(--color-surface-tint); object-fit: cover; }
+.person-card__badge { position: absolute; top: var(--space-3); right: var(--space-3); width: auto; max-width: 3.75rem; height: auto; max-height: 4.25rem; }
+.person-card__name { font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: var(--leading-tight); color: var(--color-glaz-3); }
+.person-card__last { display: block; text-transform: uppercase; }
+.person-card__name::after { content: ""; display: block; width: 2.5rem; height: 0.1875rem; margin: var(--space-3) auto 0; border-radius: var(--radius-pill); background: var(--color-accent); }
+.person-card__role { max-width: 18rem; color: var(--color-text-soft); }
+.person-card a { display: inline-flex; align-items: center; min-height: var(--target-min); font-size: var(--text-sm); }
+.person-card--lead { border-color: var(--color-glaz-3); color: var(--color-on-dark); background: var(--color-glaz-3); box-shadow: var(--shadow-md); }
+.person-card--lead .person-card__name, .person-card--lead .person-card__role, .person-card--lead a { color: var(--color-on-dark); }
+.person-card--lead .person-card__photo { box-shadow: 0 0 0 0.3125rem var(--color-on-dark); }
+.person-card--lead .person-card__initials { background: var(--color-glaz); }
+.person-card--vacant { border: 0.125rem dashed var(--color-accent); box-shadow: none; }
+.person-card--vacant .person-card__initials { color: var(--color-glaz-3); background: color-mix(in srgb, var(--color-accent) 18%, var(--color-white)); box-shadow: none; }
 /* Conseil d'administration : liste compacte en colonnes, sans carte par personne. */
 .people--compact { grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); gap: 0 var(--space-6); }
 .people--compact .person { padding: var(--space-3) 0; border: 0; border-top: var(--border-width) solid var(--color-line); border-radius: 0; background: transparent; }

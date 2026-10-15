@@ -90,6 +90,7 @@ $brand = [
     ["$root/Charte/logoPoleESS/PoleEssBrest/PaysdeBrest/Logo-Simple/Logo-PoleESS-PaysdeBrest.png", 'logo-pole-pays-de-brest', 217],
     ["$root/Charte/logoPoleESS/PoleEssCornouaille/Logo-Simple/Logo-PoleESS-PaysdeCornouaille.png", 'logo-pole-pays-de-cornouaille', 217],
     ["$root/Charte/tag29/3. LOGOS TAG/29/bureautique/tag29-rvb-noir.png", 'logo-tag29-noir', 240],
+    ["$root/Charte/tag29/3. LOGOS TAG/TAg29_KIT_COMMUNICATION_salarie_stagiaire/TAg29_LOGOS/29/bureautique/tag29-rvb.png", 'logo-tag29-couleur', 160],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Couleur.png", 'deux-points-or', 240],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Blanc.png", 'deux-points-blanc', 240],
     ["$ingredients/Guillemets/Web-RVB/PNG/ESS-Bretagne_Guillemets_Glaz.png", 'guillemets-glaz', 160],
@@ -113,6 +114,11 @@ foreach (\App\Site\Section::PHOTOS as $name => [$file, $ratio, $focus, $widths])
         save(resize($src, $w, $ratio, $focus), "$out/photos/$name-$w.webp", $w > 1000 ? 60 : 66);
     }
     imagedestroy($src);
+}
+
+// Portraits réels de l'équipe (content/equipe/, repris de l'organigramme), carrés, 2× l'affichage.
+foreach (glob("$root/content/equipe/*.{png,jpg}", GLOB_BRACE) ?: [] as $file) {
+    save(resize(load($file), 240, 1.0, 0.3), "$out/equipe/" . pathinfo($file, PATHINFO_FILENAME) . '.webp', 72);
 }
 
 // Logos partenaires publiés (content/logos/), hauteur utile 2× l'affichage.

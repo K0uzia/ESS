@@ -5,7 +5,7 @@ namespace App\Admin;
 
 /**
  * Définition des modules de gestion simples : une ligne de table = une fiche.
- * Types de champ : text, email, url, tel, textarea, markdown, date, number, checkbox, select, pole, pdf, image.
+ * Types de champ : text, email, url, tel, textarea, markdown, date, number, checkbox, select, pole, pdf, image, portrait.
  */
 final class Resources
 {
@@ -17,25 +17,27 @@ final class Resources
                 'table' => 'team_members',
                 'label' => 'Équipe',
                 'singular' => 'personne',
-                'intro' => 'Les personnes affichées sur la page L\'équipe, rangées par pôle puis par groupe.',
-                'order' => 'COALESCE(pole_id, 99), CASE team WHEN \'salaries\' THEN 0 WHEN \'ca\' THEN 1 ELSE 2 END, position, name',
+                'intro' => 'Les personnes affichées sur la page L\'équipe, rangées par pôle puis par groupe ; le groupement et TAg29 à part.',
+                'order' => 'COALESCE(pole_id, 99), CASE team WHEN \'groupement\' THEN 0 WHEN \'salaries\' THEN 1 WHEN \'ca\' THEN 2 ELSE 3 END, position, name',
                 // Ordre réglé par flèches à l'intérieur d'un même pôle et d'un même groupe.
                 'sortable' => ['pole_id', 'team'],
-                // L'équipe TAg29 n'a pas de pôle ; les autres groupes en ont toujours un.
-                'no_pole' => ['team', 'tag29'],
+                // Le groupement et l'équipe TAg29 n'ont pas de pôle ; les autres groupes en ont toujours un.
+                'no_pole' => ['team', ['groupement', 'tag29']],
                 // Un éditeur TAg29 ne voit et ne modifie que ces fiches (groupe et pôle imposés, champs masqués).
                 'tag29_rows' => ['team' => 'tag29', 'pole_id' => null],
                 'columns' => ['name' => 'Nom', 'role' => 'Rôle', 'pole_id' => 'Pôle', 'team' => 'Groupe', 'is_published' => 'En ligne'],
-                // Liste rangée par onglet de pôle (TAg29 à part), puis par groupe : on ajoute directement au bon endroit.
-                'tabs' => ['extra' => 'TAg29', 'group' => 'team', 'groups' => ['salaries', 'ca'], 'extra_groups' => ['tag29'], 'detail' => 'role'],
+                // Liste rangée par onglet de pôle (groupement et TAg29 à part), puis par groupe : on ajoute directement au bon endroit.
+                'tabs' => ['extra' => 'Groupement et TAg29', 'group' => 'team', 'groups' => ['salaries', 'ca'], 'extra_groups' => ['groupement', 'tag29'], 'detail' => 'role'],
                 'fields' => [
                     'name' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
                     'role' => ['label' => 'Rôle', 'type' => 'text', 'required' => true],
-                    'team' => ['label' => 'Groupe', 'type' => 'select', 'options' => ['salaries' => 'Équipe salariée', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29']],
-                    'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'empty' => '—', 'hint' => 'Pas de pôle pour l\'équipe TAg29.'],
+                    'team' => ['label' => 'Groupe', 'type' => 'select', 'options' => ['groupement' => 'Équipe du groupement', 'salaries' => 'Équipe salariée du pôle', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29']],
+                    'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'empty' => '—', 'hint' => 'Pas de pôle pour le groupement ni pour l\'équipe TAg29.'],
                     'structure' => ['label' => 'Structure représentée', 'type' => 'text', 'hint' => 'Pour les membres du conseil d\'administration.'],
                     'email' => ['label' => 'E-mail public', 'type' => 'email', 'hint' => 'Seulement s\'il peut être publié.'],
                     'phone' => ['label' => 'Téléphone public', 'type' => 'tel'],
+                    'photo_path' => ['label' => 'Portrait', 'type' => 'portrait', 'hint' => 'Une vraie photo de la personne, avec son accord. Sans photo, ses initiales s\'affichent.'],
+                    'is_vacant' => ['label' => 'Poste en recrutement', 'type' => 'checkbox', 'hint' => 'Carte « En recrutement » sans portrait : nom « En recrutement », rôle = intitulé du poste.'],
                     'is_published' => ['label' => 'Afficher sur le site', 'type' => 'checkbox', 'default' => 1],
                 ],
             ],

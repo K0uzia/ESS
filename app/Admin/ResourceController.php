@@ -210,7 +210,7 @@ final class ResourceController
         Db::run("DELETE FROM {$res['table']} WHERE id = ?", [$row['id']]);
         foreach ($res['fields'] as $name => $f) {
             // Un fichier encore utilisé par une autre fiche (logo choisi dans la médiathèque) est gardé.
-            if (in_array($f['type'], ['pdf', 'image'], true) && str_starts_with((string) ($row[$name] ?? ''), '/media/')
+            if (in_array($f['type'], ['pdf', 'image', 'portrait'], true) && str_starts_with((string) ($row[$name] ?? ''), '/media/')
                 && !Db::run("SELECT 1 FROM {$res['table']} WHERE $name = ?", [$row[$name]])->fetchColumn()) {
                 @unlink(ROOT . '/public' . $row[$name]);
             }
@@ -238,6 +238,7 @@ final class ResourceController
                 'number' => is_string($raw) && trim($raw) !== '' ? (($f['step'] ?? '') === 'any' ? (float) str_replace(',', '.', $raw) : (int) $raw) : null,
                 'pole' => (int) $raw > 0 ? (int) $raw : null,
                 'pdf', 'image' => $row[$name] ?? null,
+                'portrait' => isset($_POST[$name . '_remove']) ? null : ($row[$name] ?? null),
                 default => is_string($raw) ? trim(str_replace("\r\n", "\n", $raw)) : '',
             };
             if ($f['type'] === 'pole' && ($forced = self::editorPole($res, $user)) !== null) {
@@ -258,6 +259,14 @@ final class ResourceController
                     if ($item['kind'] === 'logo' && $item['src'] === $pick) {
                         $value = $pick;
                     }
+                }
+            }
+            if ($f['type'] === 'portrait' && Upload::hasFile($name)) {
+                $up = Upload::portrait($name);
+                if (is_string($up)) {
+                    $errors[$name] = $up;
+                } else {
+                    $value = $up['path'];
                 }
             }
             if ($f['type'] === 'image' && Upload::hasFile($name)) {
@@ -295,10 +304,10 @@ final class ResourceController
         $values = ($res['tag29_fixed'] ?? []) + $values;
         if (isset($res['no_pole'])) {
             [$field, $none] = $res['no_pole'];
-            if ($values[$field] === $none) {
+            if (in_array($values[$field], $none, true)) {
                 $values['pole_id'] = null;
                 if (self::editorPole($res, $user) !== null) {
-                    $errors[$field] = 'Seul un administrateur gère l\'équipe TAg29.';
+                    $errors[$field] = 'Seul un administrateur gère le groupement et l\'équipe TAg29.';
                 }
             } elseif ($values['pole_id'] === null) {
                 $errors['pole_id'] = 'Choisissez le pôle.';

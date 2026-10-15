@@ -66,6 +66,17 @@ final class Components
         return is_file(ROOT . '/public' . $file) ? $file : null;
     }
 
+    /** Logo d'une carte de l'équipe, comme sur l'organigramme : pôle, TAg29, ou ESS Finistère pour le groupement (blanc sur fond sombre). */
+    public static function teamLogo(string $slug, bool $onDark = false): ?string
+    {
+        $logo = match ($slug) {
+            'groupement' => $onDark ? '/assets/img/logo-ess-finistere-blanc.webp' : '/assets/img/logo-ess-finistere-couleur.webp',
+            'tag29' => '/assets/img/logo-tag29-couleur.webp',
+            default => self::poleLogo($slug),
+        };
+        return $logo !== null && is_file(ROOT . '/public' . $logo) ? $logo : null;
+    }
+
     /**
      * Logos de la page TAg29 (content/tag29/logos.tsv : groupe, nom, fichier source dans Charte/tag29/), WebP générés par bin/build-images.php.
      * @return list<array{name: string, source: string, path: string}>
@@ -96,7 +107,7 @@ final class Components
         $rows = Db::run(
             "SELECT t.*, p.slug AS pole_slug FROM team_members t LEFT JOIN poles p ON p.id = t.pole_id
              WHERE t.is_published = 1 AND (? IS NULL OR p.slug = ?)
-             ORDER BY COALESCE(p.position, 99), CASE t.team WHEN 'salaries' THEN 0 WHEN 'ca' THEN 1 ELSE 2 END, t.position",
+             ORDER BY t.team <> 'groupement', COALESCE(p.position, 99), CASE t.team WHEN 'salaries' THEN 0 WHEN 'ca' THEN 1 ELSE 2 END, t.position",
             [$poleSlug, $poleSlug]
         )->fetchAll();
         return self::groupByPole($rows);
@@ -121,10 +132,11 @@ final class Components
         $poles = array_column(self::poles(), null, 'slug');
         $groups = [];
         foreach ($rows as $row) {
-            $slug = $row['pole_slug'] ?? 'tag29';
+            // Sans pôle : salariés du groupement, ou équipe TAg29.
+            $slug = $row['pole_slug'] ?? (($row['team'] ?? '') === 'groupement' ? 'groupement' : 'tag29');
             $groups[$slug] ??= [
                 'pole' => $poles[$slug] ?? null,
-                'label' => $poles[$slug]['name'] ?? 'TAg29',
+                'label' => $poles[$slug]['name'] ?? ($slug === 'groupement' ? 'ESS Finistère' : 'TAg29'),
                 'slug' => $slug,
                 'members' => [],
             ];

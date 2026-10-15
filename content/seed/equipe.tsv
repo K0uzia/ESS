@@ -1,44 +1,43 @@
-nom	role	pole	groupe	structure	email	telephone	ordre
-Eliane LE DUFF	Coordinatrice du Pôle ESS Pays de Morlaix	pays-de-morlaix	salaries			09 81 71 87 49	1
-Emilie CARIOU-MENES	Chargée de mission	pays-de-morlaix	salaries			09 81 71 87 49	2
-Chloé MOULARD	Contact du Pôle ESS Pays de Morlaix	pays-de-morlaix	salaries			09 81 71 87 49	3
-Baptiste BERTRAND	Chargé de mission Économie circulaire	pays-de-morlaix	salaries				4
-Chloé JAGUIN	Co-présidente	pays-de-morlaix	ca	Le Repair			10
-Yann MOYOU	Co-président	pays-de-morlaix	ca	Les Genêts d'Or, site de Landivisiau			11
-Jean-Pol CAROFF	Trésorier	pays-de-morlaix	ca	Cellaouate			12
-Elisabeth MAST	Secrétaire	pays-de-morlaix	ca	Adhérente individuelle			13
-Gérard BAU	Co-secrétaire	pays-de-morlaix	ca	Adhérent individuel			14
-Catherine ROUSSEAU	Administratrice	pays-de-morlaix	ca	Fondation Massé-Trévidy			15
-Anne-Claire LEPITRE	Administratrice	pays-de-morlaix	ca	Askoria			16
-Jean-Pierre QUERE	Administrateur	pays-de-morlaix	ca	Sevel Services			17
-Fanny ALLAIS-KERRIEN	Administratrice	pays-de-morlaix	ca	RESAM			18
-Matthieu CIROU	Administrateur suppléant	pays-de-morlaix	ca	RESAM			19
-Marie-Emmanuelle GRIGNON	Administratrice	pays-de-morlaix	ca	Eco Bretons			20
-Laurence MERMET	Administratrice suppléante	pays-de-morlaix	ca	Eco Bretons			21
-Justine NOLL	Administratrice	pays-de-morlaix	ca	Luska			22
-Maurice YERLES	Administrateur	pays-de-morlaix	ca	Projets Echanges et Développement			23
-Myriam Blondy	Coordinatrice	pays-de-brest	salaries			09 72 60 58 88	1
-Carine Sola	Responsable formation – Référente handicap	pays-de-brest	salaries			09 72 60 58 88	2
-Michel Beaugeois	Co-président – référent formation	pays-de-brest	ca	MGEN			10
-Nicolas Lunven	Co-président	pays-de-brest	ca	Les Papillons Blancs			11
-Solène Lagathu	Co-présidente	pays-de-brest	ca	Ara Hotel			12
-Philippe Barbeoch	Co-président – référent formation	pays-de-brest	ca	AB Services Création			13
-David Marzin	Co-président	pays-de-brest	ca	Don Bosco			14
-Camille Tabeling	Co-présidente	pays-de-brest	ca	Ti Coop			15
-Tangi Le Bot	Co-président	pays-de-brest	ca	Skravik			16
-Jérôme Sawtschuk	Co-président	pays-de-brest	ca	Lieu-Dit			17
-Cécile Le Maître	Co-présidente	pays-de-brest	ca	CAE29			18
-David Levaufre	Co-président	pays-de-brest	ca	Groupe Sato			19
-Vincent Brisard	Co-président	pays-de-brest	ca	Adhérent à titre individuel			20
-Samuel GENY	Référent territorial	pays-de-cornouaille	salaries			02 98 60 78 87	1
-France HUNTZINGER	Présidente	pays-de-cornouaille	ca	MAIF			10
-Roger TRESSARD	Trésorier	pays-de-cornouaille	ca	MGEN			11
-Martine PETIT	Secrétaire	pays-de-cornouaille	ca	ACTES en Cornouaille			12
-Eric ANTONI	Membre du conseil d'administration	pays-de-cornouaille	ca	Harmonie Mutuelle			13
-Hélène BUKIET	Membre du conseil d'administration	pays-de-cornouaille	ca	Kan Ar Mor			14
-Xavier JODOCIUS	Membre du conseil d'administration	pays-de-cornouaille	ca	Ateliers Fouesnantais			15
-Delphine LE DOZE	Membre du conseil d'administration	pays-de-cornouaille	ca	GEAI groupement employeurs 29			16
-Pascal PETIT	Membre du conseil d'administration	pays-de-cornouaille	ca	Espace Associatif Quimper			17
-LES CIGALES	Membre du conseil d'administration	pays-de-cornouaille	ca	LES CIGALES			18
-Flavie De Jaurias	Coordinatrice et responsable de l'Incubateur TAg29	tag29	salaries				1
-Deborah Hellequin	Chargée de mission Incubateur et Idéateur TAg29	tag29	salaries				2
+nom	role	pole	groupe	structure	email	telephone	photo	recrutement	ordre
+Eliane LE DUFF	Directrice		groupement				eliane-le-duff		1
+Emilie CARIOU MENES	Référente Coopérations Économiques		groupement				emilie-cariou-menes		2
+Julie POURRIER-FRÉNET	Assistante Comptable		groupement						3
+En recrutement	Assistance administrative et RH		groupement					1	4
+Chloé MOULARD	Chargée de Développement Territorial	pays-de-morlaix	salaries			09 81 71 87 49	chloe-moulard		1
+Chloé JAGUIN	Co-présidente	pays-de-morlaix	ca	Le Repair					10
+Yann MOYOU	Co-président	pays-de-morlaix	ca	Les Genêts d'Or, site de Landivisiau					11
+Jean-Pol CAROFF	Trésorier	pays-de-morlaix	ca	Cellaouate					12
+Elisabeth MAST	Secrétaire	pays-de-morlaix	ca	Adhérente individuelle					13
+Gérard BAU	Co-secrétaire	pays-de-morlaix	ca	Adhérent individuel					14
+Catherine ROUSSEAU	Administratrice	pays-de-morlaix	ca	Fondation Massé-Trévidy					15
+Anne-Claire LEPITRE	Administratrice	pays-de-morlaix	ca	Askoria					16
+Jean-Pierre QUERE	Administrateur	pays-de-morlaix	ca	Sevel Services					17
+Fanny ALLAIS-KERRIEN	Administratrice	pays-de-morlaix	ca	RESAM					18
+Matthieu CIROU	Administrateur suppléant	pays-de-morlaix	ca	RESAM					19
+Marie-Emmanuelle GRIGNON	Administratrice	pays-de-morlaix	ca	Eco Bretons					20
+Laurence MERMET	Administratrice suppléante	pays-de-morlaix	ca	Eco Bretons					21
+Justine NOLL	Administratrice	pays-de-morlaix	ca	Luska					22
+Maurice YERLES	Administrateur	pays-de-morlaix	ca	Projets Echanges et Développement					23
+Carine SOLA	Chargée de Développement Territorial	pays-de-brest	salaries			09 72 60 58 88	carine-sola		1
+Michel Beaugeois	Co-président – référent formation	pays-de-brest	ca	MGEN					10
+Nicolas Lunven	Co-président	pays-de-brest	ca	Les Papillons Blancs					11
+Solène Lagathu	Co-présidente	pays-de-brest	ca	Ara Hotel					12
+Philippe Barbeoch	Co-président – référent formation	pays-de-brest	ca	AB Services Création					13
+David Marzin	Co-président	pays-de-brest	ca	Don Bosco					14
+Camille Tabeling	Co-présidente	pays-de-brest	ca	Ti Coop					15
+Tangi Le Bot	Co-président	pays-de-brest	ca	Skravik					16
+Jérôme Sawtschuk	Co-président	pays-de-brest	ca	Lieu-Dit					17
+Cécile Le Maître	Co-présidente	pays-de-brest	ca	CAE29					18
+David Levaufre	Co-président	pays-de-brest	ca	Groupe Sato					19
+Vincent Brisard	Co-président	pays-de-brest	ca	Adhérent à titre individuel					20
+Samuel GENY	Chargé de Développement Territorial	pays-de-cornouaille	salaries			02 98 60 78 87	samuel-geny		1
+France HUNTZINGER	Présidente	pays-de-cornouaille	ca	MAIF					10
+Roger TRESSARD	Trésorier	pays-de-cornouaille	ca	MGEN					11
+Martine PETIT	Secrétaire	pays-de-cornouaille	ca	ACTES en Cornouaille					12
+Eric ANTONI	Membre du conseil d'administration	pays-de-cornouaille	ca	Harmonie Mutuelle					13
+Hélène BUKIET	Membre du conseil d'administration	pays-de-cornouaille	ca	Kan Ar Mor					14
+Xavier JODOCIUS	Membre du conseil d'administration	pays-de-cornouaille	ca	Ateliers Fouesnantais					15
+Delphine LE DOZE	Membre du conseil d'administration	pays-de-cornouaille	ca	GEAI groupement employeurs 29					16
+Pascal PETIT	Membre du conseil d'administration	pays-de-cornouaille	ca	Espace Associatif Quimper					17
+LES CIGALES	Membre du conseil d'administration	pays-de-cornouaille	ca	LES CIGALES					18
+Déborah HELLEQUIN	Référente Incubateur	tag29	salaries				deborah-hellequin		1
