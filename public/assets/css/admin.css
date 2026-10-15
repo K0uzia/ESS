@@ -55,7 +55,11 @@ main:focus { outline: none; }
 .app__side { position: fixed; inset: 0 auto 0 0; display: flex; flex-direction: column; gap: var(--space-6); width: var(--admin-side-w); padding: var(--space-5) var(--space-3) var(--space-4); color: var(--admin-side-text); background: var(--admin-side-bg); overflow-y: auto; z-index: 40; }
 .app__brand { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-3); color: var(--color-on-dark); text-decoration: none; }
 .app__brand img { display: block; width: 4.5rem; }
-.app__main { min-width: 0; margin-left: var(--admin-side-w); padding: var(--space-8) clamp(var(--space-4), 3vw, var(--space-10)) var(--space-12); }
+.app__main { display: flex; flex-direction: column; min-width: 0; min-height: 100dvh; margin-left: var(--admin-side-w); padding: var(--space-8) clamp(var(--space-4), 3vw, var(--space-10)) var(--space-6); }
+/* Crédit centré en bas de page, poussé sous le contenu même quand la page est courte. */
+.app__credit { align-self: center; margin-top: auto; padding-top: var(--space-12); font-size: var(--text-xs); text-align: center; color: var(--color-text-soft); }
+.app__credit p { margin: 0; }
+.app__credit a { color: inherit; }
 .app__main > * { max-width: var(--admin-main-max); }
 
 .side-nav { display: grid; gap: var(--space-5); }
@@ -81,7 +85,7 @@ main:focus { outline: none; }
   .app__side > .app__brand { display: none; }
   .js .app__side { position: fixed; inset: var(--admin-bar-h) 0 0 0; display: none; box-shadow: var(--shadow-lg); }
   .js .app__side[data-open] { display: flex; }
-  .app__main { margin-left: 0; padding: var(--space-6) var(--space-4) var(--space-10); }
+  .app__main { min-height: calc(100dvh - var(--admin-bar-h)); margin-left: 0; padding: var(--space-6) var(--space-4) var(--space-6); }
   .side-link { height: var(--target-min); }
 }
 
