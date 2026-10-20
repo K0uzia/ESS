@@ -60,22 +60,20 @@ Le collectif travaille dans une logique de coopération, pour offrir aux porteur
 
 ## Travailler à la Boussol' {#boussol .blocs .fond}
 
-Vous cherchez un espace pour travailler, échanger et rencontrer des personnes qui partagent vos valeurs ? Le Pôle ESS Pays de Brest et le Pôle ESS Pays de Morlaix vous accueillent dans les espaces de travail partagé Boussol', à Brest et à Morlaix.
+Les Pôles ESS des Pays de Brest et de Morlaix vous accueillent dans leurs espaces de travail partagé Boussol', pour travailler, échanger et rencontrer des personnes qui partagent vos valeurs. Ils sont ouverts aux acteurs de l'ESS, aux porteurs de projet, aux salariés d'association sans locaux, aux indépendants et aux télétravailleurs, dans un cadre convivial au mobilier de récupération.
 
-Ces lieux sont ouverts aux acteurs de l'ESS, aux porteurs de projet, aux salariés d'association sans locaux, aux indépendants et aux télétravailleurs. Dans l'esprit des tiers-lieux, conviviaux et accessibles, ils favorisent la mise en commun de moyens et de compétences, le tissage de liens et l'accès aux ressources de l'ESS. Le mobilier, créé à partir de matériaux de récupération, offre un cadre propice à la créativité.
+Inclus dans l'abonnement, à Brest comme à Morlaix :
 
-Un abonnement donne accès aux deux espaces, à Brest comme à Morlaix. Les coworkeurs bénéficient :
+- Wifi
+- Reprographie
+- Cuisine partagée
+- Espace pause et détente
+- Documentation sur l'ESS
+- Toutes les animations
+- Salles de réunion
+- Badge et casier sécurisé, sous conditions
 
-- d'un accès wifi ;
-- d'un espace de reprographie ;
-- d'une cuisine partagée ;
-- d'un espace pause et détente ;
-- de documentation sur l'ESS ;
-- de l'ensemble des animations proposées ;
-- de salles de réunion ;
-- sous conditions, d'un badge personnel et d'un casier sécurisé.
-
-Votre première journée de coworking est offerte : passez nous voir.
+**Votre première journée de coworking est offerte : passez nous voir.**
 
 ### !horloge Formules et tarifs
 
@@ -97,10 +95,12 @@ Votre première journée de coworking est offerte : passez nous voir.
 
 Espace sécurisé ouvert de 8h30 à 17h30, café et thé inclus. Deux salles de réunion à louer :
 
-| Salle | Journée, adhérent | Journée, non adhérent | Demi-journée, adhérent | Demi-journée, non adhérent |
-|---|---|---|---|---|
-| Salle solidaire (15 m²) | 20 € | 30 € | 10 € | 15 € |
-| Salle démocratie (40 m²) | 40 € | 50 € | 25 € | 30 € |
+| Location | Salle solidaire (15 m²) | Salle démocratie (40 m²) |
+|---|---|---|
+| Journée, adhérent | 20 € | 40 € |
+| Journée, non adhérent | 30 € | 50 € |
+| Demi-journée, adhérent | 10 € | 25 € |
+| Demi-journée, non adhérent | 15 € | 30 € |
 
 Adresse : 1 rue Louis Pidoux, 29200 Brest. Renseignements auprès du [Pôle ESS Pays de Brest](/#contact).
 

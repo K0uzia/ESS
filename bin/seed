@@ -62,8 +62,9 @@ if (isEmpty('team_members')) {
         $team = $r['pole'] === 'tag29' ? 'tag29' : (in_array($r['groupe'], ['ca', 'groupement'], true) ? $r['groupe'] : 'salaries');
         $photo = $r['photo'] !== '' ? "/assets/img/equipe/{$r['photo']}.webp" : null;
         Db::run(
-            'INSERT INTO team_members (name, role, pole_id, team, structure, email, phone, photo_path, is_vacant, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [$r['nom'], $r['role'], $poleId($r['pole']), $team, $nullable($r['structure']), $nullable($r['email']), $nullable($r['telephone']), $photo, (int) ($r['recrutement'] === '1'), (int) ($r['ordre'] ?: $i)]
+            // Conseils d'administration gardés mais masqués sur le site (décision du 20 octobre 2026).
+            'INSERT INTO team_members (name, role, pole_id, team, structure, email, phone, photo_path, is_vacant, position, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$r['nom'], $r['role'], $poleId($r['pole']), $team, $nullable($r['structure']), $nullable($r['email']), $nullable($r['telephone']), $photo, (int) ($r['recrutement'] === '1'), (int) ($r['ordre'] ?: $i), (int) ($team !== 'ca')]
         );
     }
     echo 'équipe : ' . $pdo->query('SELECT COUNT(*) FROM team_members')->fetchColumn() . "\n";

@@ -52,13 +52,16 @@ $router->get('/admin/comptes/{id}/mot-de-passe', [AccountController::class, 'pas
 $router->post('/admin/comptes/{id}/mot-de-passe', [AccountController::class, 'passwordUpdate']);
 
 $router->get('/admin/emails', [EmailController::class, 'index']);
-$router->get('/admin/emails/boite', [EmailController::class, 'mailboxForm']);
-$router->post('/admin/emails/boite', [EmailController::class, 'mailbox']);
-$router->post('/admin/emails/test', [EmailController::class, 'test']);
-$router->get('/admin/emails/contact', [EmailController::class, 'contactForm']);
-$router->post('/admin/emails/contact', [EmailController::class, 'contact']);
-$router->get('/admin/emails/poles/{id}', [EmailController::class, 'poleForm']);
-$router->post('/admin/emails/poles/{id}', [EmailController::class, 'poleUpdate']);
+$router->get('/admin/emails/boites/nouvelle', [EmailController::class, 'senderForm']);
+$router->post('/admin/emails/boites', [EmailController::class, 'senderSave']);
+$router->get('/admin/emails/boites/{id}', [EmailController::class, 'senderForm']);
+$router->post('/admin/emails/boites/{id}', [EmailController::class, 'senderSave']);
+$router->post('/admin/emails/boites/{id}/test', [EmailController::class, 'senderTest']);
+$router->post('/admin/emails/boites/{id}/suppression', [EmailController::class, 'senderDelete']);
+$router->get('/admin/emails/site', [EmailController::class, 'siteForm']);
+$router->post('/admin/emails/site', [EmailController::class, 'siteSave']);
+$router->get('/admin/emails/organismes/{id}', [EmailController::class, 'orgForm']);
+$router->post('/admin/emails/organismes/{id}', [EmailController::class, 'orgSave']);
 
 $router->get('/admin/pages', [ContentController::class, 'index']);
 $router->get('/admin/pages/{key}', [ContentController::class, 'edit']);

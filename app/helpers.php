@@ -37,3 +37,10 @@ function mb_check_encoding_safe(string $value): bool
 {
     return preg_match('//u', $value) === 1;
 }
+
+/** Adresse d'un fichier de public/assets suivie de sa date de modification : un fichier mis à jour n'est pas resservi depuis le cache. */
+function asset(string $path): string
+{
+    $file = ROOT . '/public' . $path;
+    return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+}

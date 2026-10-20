@@ -129,9 +129,12 @@ final class Section
             if (preg_match('/^!([a-z0-9]+)\s+(.*)$/', trim($title), $m)) {
                 [$picto, $title] = [$m[1], $m[2]];
             }
-            $icon = $picto !== '' && is_file(ROOT . "/public/assets/img/pictos/$picto.webp")
-                ? '<img class="bloc__picto" src="/assets/img/pictos/' . $picto . '.webp" alt="" width="96" height="96" loading="lazy" decoding="async">'
-                : '';
+            // « !diese » : hashtag de la charte TAg29 (page /tag29/ seulement), dessiné en CSS.
+            $icon = match (true) {
+                $picto === 'diese' => '<span class="bloc__diese" aria-hidden="true"></span>',
+                $picto !== '' && is_file(ROOT . "/public/assets/img/pictos/$picto.webp") => '<img class="bloc__picto" src="/assets/img/pictos/' . $picto . '.webp" alt="" width="96" height="96" loading="lazy" decoding="async">',
+                default => '',
+            };
             $content = str_replace("\n#### ", "\n### ", "\n" . trim($content));
             $inner = Markdown::toHtml($content, $h - 2, e(trim($title)));
             // Contenu long : le premier paragraphe reste visible, la suite se déplie (details natif, sans JavaScript).

@@ -106,7 +106,7 @@ final class MediaController
         foreach (Db::run('SELECT slug, name FROM poles ORDER BY position')->fetchAll() as $p) {
             $logo('Logo du ' . $p['name'], '/assets/img/logo-pole-' . $p['slug'] . '.webp', 'Charte du pôle', ['label' => 'Les pôles › ' . $p['name'], 'href' => '/admin/pages/' . $p['slug']]);
         }
-        $logo('Logo TAg29', '/assets/img/logo-tag29-noir.webp', 'Charte TAg29', ['label' => 'Tag29 › en-tête', 'href' => '/admin/pages/tag29']);
+        $logo('Logo TAg29', '/assets/img/logo-tag29-couleur.webp', 'Charte TAg29', ['label' => 'Tag29 › en-tête', 'href' => '/admin/pages/tag29']);
         $logo('Qualiopi', '/assets/img/logos/qualiopi.webp', 'Certification', ['label' => 'Accueil › Qualiopi', 'href' => '/admin/documents']);
         foreach (Db::run("SELECT id, name, logo_path FROM partners WHERE logo_path <> '' ORDER BY kind, position")->fetchAll() as $p) {
             $logo($p['name'], (string) $p['logo_path'], 'Partenaire', ['label' => 'Partenaires et réseaux', 'href' => '/admin/partenaires/' . (int) $p['id']]);

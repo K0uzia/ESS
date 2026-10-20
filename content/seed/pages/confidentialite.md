@@ -12,7 +12,7 @@ intro: Le Groupement Territorial ESS Finistère - Penn Ar Bed est responsable de
 | Données | nom, adresse e-mail, pôle choisi, message |
 | Finalité | répondre à votre message |
 | Base légale | intérêt légitime à répondre aux demandes reçues |
-| Destinataires | l'équipe du groupement, à l'adresse bonjour@ess29.org ; le prestataire d'envoi des e-mails, pour l'acheminement |
+| Destinataires | l'équipe choisie dans le formulaire (un des trois pôles, ESS29 ou TAg29) ; le prestataire d'envoi des e-mails, pour l'acheminement |
 | Durée | le site ne garde pas le message ; il est conservé dans la messagerie du groupement 12 mois au plus |
 
 ## Lettres d'information des pôles {#newsletters}

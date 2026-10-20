@@ -28,9 +28,11 @@ final class FormController
         if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
         }
-        $pole = $values['pole'] === '' ? null : Db::run('SELECT * FROM poles WHERE slug = ?', [$values['pole']])->fetch();
-        if ($values['pole'] !== '' && !$pole) {
-            $errors['pole'] = 'Choisissez un pôle dans la liste.';
+        // Destinataire obligatoire : un organisme (pôle, ESS29 ou TAg29) dont l'adresse de réception est réglée.
+        $recipients = self::contactRecipients();
+        $recipient = $recipients[$values['pole']]['name'] ?? null;
+        if ($recipient === null) {
+            $errors['pole'] = 'Choisissez à qui envoyer votre message : un pôle, ESS29 ou TAg29.';
         }
         if (text_length($values['message']) < 10 || text_length($values['message']) > self::MESSAGE_MAX) {
             $errors['message'] = 'Écrivez votre message (entre 10 et ' . self::MESSAGE_MAX . ' caractères).';
@@ -47,17 +49,18 @@ final class FormController
             self::renderWithErrors('/', 'accueil', ['form' => 'La page est restée ouverte longtemps : votre message n\'est pas encore parti. Vérifiez-le puis cliquez de nouveau sur « Envoyer le message ».'], $values);
             return;
         }
-        // Le site ne garde aucune copie : le message n'existe que dans l'e-mail envoyé à l'adresse générique.
+        // Le site ne garde aucune copie : le message n'existe que dans l'e-mail envoyé au destinataire choisi.
+        $to = $recipients[$values['pole']]['to'];
         if (FormGuard::passes()) {
             $sent = Mailer::send(
-                setting('email_contact'),
-                'Message du site ess29.org' . ($pole ? ' (' . $pole['name'] . ')' : '') . ' : ' . $values['nom'],
-                "Nom : {$values['nom']}\nE-mail : {$values['email']}\nPôle : " . ($pole['name'] ?? 'Non précisé') . "\n\n{$values['message']}\n",
+                $to,
+                'Message du site ess29.org (' . $recipient . ') : ' . $values['nom'],
+                "Nom : {$values['nom']}\nE-mail : {$values['email']}\nDestinataire : $recipient\n\n{$values['message']}\n",
                 null,
                 $values['email']
             );
             if (!$sent) {
-                self::renderWithErrors('/', 'accueil', ['form' => 'L\'envoi a échoué de notre côté. Réessayez dans quelques minutes ou écrivez directement à ' . setting('email_contact') . '.'], $values);
+                self::renderWithErrors('/', 'accueil', ['form' => 'L\'envoi a échoué de notre côté. Réessayez dans quelques minutes ou écrivez directement à ' . $to . '.'], $values);
                 return;
             }
         }
@@ -67,17 +70,14 @@ final class FormController
     public static function subscribe(): void
     {
         $email = trim((string) ($_POST['email'] ?? ''));
-        $chosen = array_values(array_filter((array) ($_POST['poles'] ?? []), 'is_string'));
+        $chosen = array_values(array_filter((array) ($_POST['lettres'] ?? []), 'is_string'));
         $errors = [];
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Indiquez une adresse e-mail valide, par exemple nom@exemple.fr.';
         }
-        $poles = $chosen === [] ? [] : Db::run(
-            'SELECT * FROM poles WHERE slug IN (' . implode(',', array_fill(0, count($chosen), '?')) . ')',
-            $chosen
-        )->fetchAll();
-        if ($poles === []) {
-            $errors['poles'] = 'Choisissez au moins une lettre d\'information.';
+        $lists = array_values(array_filter(self::publicLists(), static fn (array $l): bool => in_array($l['org'], $chosen, true)));
+        if ($lists === []) {
+            $errors['lettres'] = 'Choisissez au moins une lettre d\'information.';
         }
         if ($errors === [] && FormGuard::rateLimited('newsletter', 5, 60)) {
             $errors['form'] = 'Trop de demandes depuis votre connexion. Réessayez dans une heure.';
@@ -85,34 +85,34 @@ final class FormController
         $back = (string) ($_POST['retour'] ?? '/');
         $back = isset(SiteController::PAGES[$back]) ? $back : '/';
         if ($errors !== []) {
-            self::renderWithErrors($back, SiteController::PAGES[$back], $errors, ['email' => $email, 'poles' => $chosen]);
+            self::renderWithErrors($back, SiteController::PAGES[$back], $errors, ['email' => $email, 'lettres' => $chosen]);
             return;
         }
         if (FormGuard::expired()) {
-            self::renderWithErrors($back, SiteController::PAGES[$back], ['form' => 'La page est restée ouverte longtemps : votre inscription n\'est pas encore enregistrée. Cliquez de nouveau sur le bouton d\'inscription.'], ['email' => $email, 'poles' => $chosen]);
+            self::renderWithErrors($back, SiteController::PAGES[$back], ['form' => 'La page est restée ouverte longtemps : votre inscription n\'est pas encore enregistrée. Cliquez de nouveau sur le bouton d\'inscription.'], ['email' => $email, 'lettres' => $chosen]);
             return;
         }
 
         if (FormGuard::passes()) {
             $confirm = bin2hex(random_bytes(24));
             $pending = [];
-            foreach ($poles as $p) {
-                $row = Db::run('SELECT status FROM newsletter_subscribers WHERE pole_id = ? AND email = ?', [$p['id'], $email])->fetch();
+            foreach ($lists as $l) {
+                $row = Db::run('SELECT status FROM newsletter_subscribers WHERE list_id = ? AND email = ?', [$l['id'], $email])->fetch();
                 if ($row && $row['status'] === 'active') {
                     continue;
                 }
                 if ($row) {
                     Db::run(
-                        "UPDATE newsletter_subscribers SET status = 'pending', confirm_token = ?, consent_at = CURRENT_TIMESTAMP, unsubscribed_at = NULL WHERE pole_id = ? AND email = ?",
-                        [$confirm, $p['id'], $email]
+                        "UPDATE newsletter_subscribers SET status = 'pending', confirm_token = ?, consent_at = CURRENT_TIMESTAMP, unsubscribed_at = NULL WHERE list_id = ? AND email = ?",
+                        [$confirm, $l['id'], $email]
                     );
                 } else {
                     Db::run(
-                        'INSERT INTO newsletter_subscribers (pole_id, email, token, confirm_token) VALUES (?, ?, ?, ?)',
-                        [$p['id'], $email, bin2hex(random_bytes(24)), $confirm]
+                        'INSERT INTO newsletter_subscribers (list_id, email, token, confirm_token) VALUES (?, ?, ?, ?)',
+                        [$l['id'], $email, bin2hex(random_bytes(24)), $confirm]
                     );
                 }
-                $pending[] = $p['name'];
+                $pending[] = 'la lettre ' . ($l['org'] === 'ess29' || $l['org'] === 'tag29' ? 'de ' : 'du ') . $l['org_name'];
             }
             if ($pending !== []) {
                 $link = rtrim(setting('site_url'), '/') . '/newsletter/confirmer?jeton=' . $confirm;
@@ -152,8 +152,11 @@ final class FormController
     {
         $token = (string) ($_GET['jeton'] ?? $_POST['jeton'] ?? '');
         $sub = preg_match('/^[a-f0-9]{48}$/', $token)
-            ? Db::run('SELECT s.*, p.name AS pole FROM newsletter_subscribers s JOIN poles p ON p.id = s.pole_id WHERE s.token = ?', [$token])->fetch()
+            ? Db::run('SELECT s.* FROM newsletter_subscribers s WHERE s.token = ?', [$token])->fetch()
             : false;
+        if ($sub) {
+            $sub['org_name'] = Orgs::findList((int) $sub['list_id'])['org_name'] ?? '';
+        }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if ($sub) {
                 Db::run("UPDATE newsletter_subscribers SET status = 'unsubscribed', unsubscribed_at = CURRENT_TIMESTAMP WHERE id = ?", [$sub['id']]);
@@ -184,13 +187,38 @@ final class FormController
             'page' => ['meta' => [
                 'title' => 'Lettres d\'information',
                 'description' => '',
-                'h1' => 'Lettres d\'information des pôles',
+                'h1' => 'Lettres d\'information',
             ], 'sections' => []],
             'breadcrumb' => [['/', 'Accueil']],
             'status' => $status,
             'message' => $messages[$status] ?? null,
             'subscriber' => $subscriber,
         ], 'site/layout');
+    }
+
+    /**
+     * Destinataires possibles du formulaire de contact : organismes dont l'adresse de réception est réglée.
+     * @return array<string, array{name: string, to: string}>
+     */
+    public static function contactRecipients(): array
+    {
+        $out = [];
+        foreach (Orgs::all() as $key => $org) {
+            $to = Orgs::address($key, 'contact');
+            if ($to !== '') {
+                $out[$key] = ['name' => $org['name'], 'to' => $to];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Lettres proposées au public : listes « inscrits via le site » ouvertes, une par organisme.
+     * @return list<array<string, mixed>>
+     */
+    public static function publicLists(): array
+    {
+        return array_values(array_filter(Orgs::lists(), static fn (array $l): bool => $l['audience'] === 'inscrits'));
     }
 
     /**

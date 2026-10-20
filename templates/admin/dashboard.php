@@ -3,20 +3,26 @@ use App\Admin\Ui;
 
 $labels = ['draft' => 'Brouillon', 'queued' => 'Envoi en cours', 'sending' => 'Envoi en cours', 'sent' => 'Envoyée'];
 ?>
-<?php $tag29 ??= false; ?>
+<?php
+$intro = [
+    'tag29' => 'Gérez la page Tag29 et l\'équipe TAg29 du site.',
+    'ess29' => 'Gérez les pages du groupement, l\'équipe ESS29, les offres d\'emploi et les documents communs.',
+][$scope] ?? 'Gérez l\'équipe, les adhérents, les offres d\'emploi, les documents et les newsletters du site.';
+?>
 <header class="page-head">
   <div class="page-head__text">
     <h1>Bonjour <?= e(explode(' ', $user['name'] ?: $user['username'])[0]) ?></h1>
-    <p class="page-head__sub"><?= $tag29 ? 'Gérez la page Tag29 et l\'équipe TAg29 du site.' : 'Gérez l\'équipe, les adhérents, les offres d\'emploi, les documents et les newsletters du site.' ?></p>
+    <p class="page-head__sub"><?= e($intro) ?></p>
   </div>
   <div class="page-head__actions">
-    <?php if ($tag29): ?>
+    <?php if ($scope === 'tag29'): ?>
     <a class="btn btn--primary" href="/admin/pages/tag29"><?= Ui::icon('edit') ?>Modifier la page Tag29</a>
     <a class="btn" href="/admin/equipe"><?= Ui::icon('users') ?>Équipe TAg29</a>
     <?php else: ?>
     <a class="btn btn--primary" href="/admin/offres/nouveau" data-modal><?= Ui::icon('plus') ?>Publier une offre</a>
-    <a class="btn" href="/admin/newsletters/campagnes/nouvelle"><?= Ui::icon('send') ?>Écrire une newsletter</a>
+    <?php if ($scope === 'ess29'): ?><a class="btn" href="/admin/pages"><?= Ui::icon('page') ?>Modifier les pages</a><?php endif ?>
     <?php endif ?>
+    <?php if ($hasNewsletters): ?><a class="btn" href="/admin/newsletters/campagnes/nouvelle"><?= Ui::icon('send') ?>Écrire une newsletter</a><?php endif ?>
   </div>
 </header>
 
@@ -30,8 +36,8 @@ $labels = ['draft' => 'Brouillon', 'queued' => 'Envoi en cours', 'sending' => 'E
   <?php endforeach ?>
 </ul>
 
-<?php if (!$tag29): ?>
 <div class="grid">
+  <?php if ($scope !== 'tag29'): ?>
   <section class="card card--flush" aria-labelledby="offres-titre">
     <div class="group-card__head"><h2 class="group-card__title" id="offres-titre">Offres d'emploi en ligne</h2><a class="btn btn--ghost" href="/admin/offres">Toutes les offres<?= Ui::icon('arrow') ?></a></div>
     <?php if ($offers === []): ?>
@@ -44,7 +50,9 @@ $labels = ['draft' => 'Brouillon', 'queued' => 'Envoi en cours', 'sending' => 'E
     </ul>
     <?php endif ?>
   </section>
+  <?php endif ?>
 
+  <?php if ($hasNewsletters): ?>
   <section class="card card--flush" aria-labelledby="lettres-titre">
     <div class="group-card__head"><h2 class="group-card__title" id="lettres-titre">Dernières newsletters</h2><a class="btn btn--ghost" href="/admin/newsletters">Toutes les lettres<?= Ui::icon('arrow') ?></a></div>
     <?php if ($letters === []): ?>
@@ -55,7 +63,7 @@ $labels = ['draft' => 'Brouillon', 'queued' => 'Envoi en cours', 'sending' => 'E
       <li class="rows__item">
         <a class="rows__main" href="/admin/newsletters/campagnes/<?= (int) $l['id'] ?>">
           <span class="rows__name"><?= e($l['subject']) ?></span>
-          <span class="rows__detail"><?= Ui::poleBadge($l['pole']) ?> <?= e($labels[$l['status']]) ?><?= $l['status'] === 'sent' && $l['sent_at'] ? ' le ' . e(Ui::date($l['sent_at'])) : '' ?></span>
+          <span class="rows__detail"><?= Ui::poleBadge($l['org']) ?> <?= e($l['audience']) ?> · <?= e($labels[$l['status']]) ?><?= $l['status'] === 'sent' && $l['sent_at'] ? ' le ' . e(Ui::date($l['sent_at'])) : '' ?></span>
         </a>
         <?php if ($sending && $l['total'] > 0): ?>
         <progress class="progress" max="<?= (int) $l['total'] ?>" value="<?= (int) $l['sent'] ?>" aria-label="Envoi de « <?= e($l['subject']) ?> »"><?= (int) $l['sent'] ?> / <?= (int) $l['total'] ?></progress>
@@ -65,5 +73,5 @@ $labels = ['draft' => 'Brouillon', 'queued' => 'Envoi en cours', 'sending' => 'E
     </ul>
     <?php endif ?>
   </section>
+  <?php endif ?>
 </div>
-<?php endif ?>

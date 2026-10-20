@@ -32,6 +32,9 @@ final class ContentController
         'plan-du-site' => 'Plan du site',
     ];
 
+    /** Pages du groupement, modifiables par un éditeur ESS29 (pas les pôles, ni TAg29, ni les pages légales). */
+    public const ESS29_PAGES = ['accueil', 'les-poles', 'equipe', 'decouvrir-l-ess', 'agir', 'se-former'];
+
     /** @return array<string, string> clé de page → libellé */
     public static function pages(): array
     {
@@ -285,8 +288,12 @@ final class ContentController
         if ($user['role'] === 'admin') {
             return $pages;
         }
-        $slug = Auth::scope($user) === 'tag29' ? 'tag29' : (string) Db::run('SELECT slug FROM poles WHERE id = ?', [$user['pole_id']])->fetchColumn();
-        return array_intersect_key($pages, [$slug => true]);
+        $keys = match (Auth::scope($user)) {
+            'ess29' => self::ESS29_PAGES,
+            'tag29' => ['tag29'],
+            default => [(string) Db::run('SELECT slug FROM poles WHERE id = ?', [$user['pole_id']])->fetchColumn()],
+        };
+        return array_intersect_key($pages, array_flip($keys));
     }
 
     /** @param array<string, mixed> $user */

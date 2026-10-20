@@ -5,6 +5,7 @@ namespace App\Newsletter;
 
 use App\Core\Db;
 use App\Core\Mailer;
+use App\Site\Orgs;
 
 /**
  * Envoi par lots : une campagne mise en file crée une ligne de livraison par abonné actif,
@@ -28,14 +29,14 @@ final class Sender
         return (int) Db::run("SELECT COUNT(*) FROM newsletter_deliveries WHERE status = 'sent' AND sent_at >= datetime('now', '-1 day')")->fetchColumn();
     }
 
-    /** Met la campagne en file : une livraison par abonné actif du pôle. Retourne le nombre de destinataires. */
+    /** Met la campagne en file : une livraison par abonné actif de sa liste. Retourne le nombre de destinataires. */
     public static function queue(int $campaignId): int
     {
         $pdo = Db::pdo();
         $pdo->beginTransaction();
         Db::run(
             "INSERT OR IGNORE INTO newsletter_deliveries (campaign_id, subscriber_id)
-             SELECT c.id, s.id FROM newsletter_campaigns c JOIN newsletter_subscribers s ON s.pole_id = c.pole_id AND s.status = 'active'
+             SELECT c.id, s.id FROM newsletter_campaigns c JOIN newsletter_subscribers s ON s.list_id = c.list_id AND s.status = 'active'
              WHERE c.id = ? AND c.status = 'draft'",
             [$campaignId]
         );
@@ -71,17 +72,22 @@ final class Sender
                     continue;
                 }
                 $cache[$r['campaign_id']] ??= self::context((int) $r['campaign_id']);
-                [$campaign, $template, $pole] = $cache[$r['campaign_id']];
+                [$campaign, $template, $list] = $cache[$r['campaign_id']];
                 Db::run("UPDATE newsletter_campaigns SET status = 'sending' WHERE id = ? AND status = 'queued'", [$campaign['id']]);
                 $unsubscribe = $site . '/newsletter/desinscription?jeton=' . $r['token'];
-                $mail = Renderer::render($campaign, $template, $pole, $unsubscribe);
-                $ok = Mailer::send($r['email'], (string) $campaign['subject'], $mail['text'], $mail['html'], (string) $pole['email'], self::sender($pole), [
-                    'List-Unsubscribe' => "<$unsubscribe>, <mailto:" . self::sender($pole) . '?subject=desinscription>',
+                $mail = Renderer::render($campaign, $template, $list, $unsubscribe);
+                $ok = Mailer::send($r['email'], (string) $campaign['subject'], $mail['text'], $mail['html'], $list['reply'] ?: null, $list['sender_email'], [
+                    'List-Unsubscribe' => "<$unsubscribe>, <mailto:" . $list['sender_email'] . '?subject=desinscription>',
                     'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click',
-                ], (string) $pole['name']);
+                ], (string) $list['org_name']);
+                // Refus passager (limite d'envoi de Hostinger) : la lettre reste à envoyer, le lot s'arrête là.
+                if (!$ok && Mailer::temporary()) {
+                    $failed++;
+                    break;
+                }
                 Db::run(
                     'UPDATE newsletter_deliveries SET status = ?, error = ?, sent_at = CURRENT_TIMESTAMP WHERE id = ?',
-                    [$ok ? 'sent' : 'failed', $ok ? null : 'échec SMTP', $r['id']]
+                    [$ok ? 'sent' : 'failed', $ok ? null : (string) Mailer::$lastError, $r['id']]
                 );
                 $ok ? $sent++ : $failed++;
             }
@@ -95,29 +101,40 @@ final class Sender
         return [$sent, $failed, $left];
     }
 
+    /**
+     * Lettre d'une liste Sympa : un seul e-mail, à l'adresse de la liste, qui le distribue à ses abonnés.
+     * L'expéditeur doit être autorisé à écrire sur la liste (sinon Sympa la met en modération).
+     */
+    public static function sendToSympa(int $campaignId): bool
+    {
+        [$campaign, $template, $list] = self::context($campaignId);
+        $mail = Renderer::render($campaign, $template, $list, null);
+        $ok = Mailer::send((string) $list['sympa_address'], (string) $campaign['subject'], $mail['text'], $mail['html'], $list['reply'] ?: null, $list['sender_email'], [], (string) $list['org_name']);
+        if ($ok) {
+            Db::run("UPDATE newsletter_campaigns SET status = 'sent', sent_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'draft'", [$campaignId]);
+        }
+        return $ok;
+    }
+
     /** Envoi de test à une adresse, sans lien de désinscription réel. */
     public static function sendTest(int $campaignId, string $to): bool
     {
-        [$campaign, $template, $pole] = self::context($campaignId);
-        $mail = Renderer::render($campaign, $template, $pole, null);
-        return Mailer::send($to, '[Test] ' . $campaign['subject'], $mail['text'], $mail['html'], (string) $pole['email'], self::sender($pole), [], (string) $pole['name']);
+        [$campaign, $template, $list] = self::context($campaignId);
+        $mail = Renderer::render($campaign, $template, $list, null);
+        return Mailer::send($to, '[Test] ' . $campaign['subject'], $mail['text'], $mail['html'], $list['reply'] ?: null, $list['sender_email'], [], (string) $list['org_name']);
     }
 
     /**
-     * Expéditeur des newsletters du pôle ; les réponses vont à l'e-mail de contact du pôle (Reply-To).
-     * @param array<string, mixed> $pole
+     * Lettre, modèle et liste ; la liste porte l'organisme (« org_data ») et son adresse de réponse (« reply »).
+     * @return array{0: array<string, mixed>, 1: array<string, mixed>|null, 2: array<string, mixed>}
      */
-    public static function sender(array $pole): string
-    {
-        return (string) ($pole['newsletter_email'] ?: $pole['email']);
-    }
-
-    /** @return array{0: array<string, mixed>, 1: array<string, mixed>|null, 2: array<string, mixed>} */
     public static function context(int $campaignId): array
     {
         $campaign = Db::run('SELECT * FROM newsletter_campaigns WHERE id = ?', [$campaignId])->fetch();
         $template = $campaign['template_id'] ? (Db::run('SELECT * FROM newsletter_templates WHERE id = ?', [$campaign['template_id']])->fetch() ?: null) : null;
-        $pole = Db::run('SELECT * FROM poles WHERE id = ?', [$campaign['pole_id']])->fetch();
-        return [$campaign, $template, $pole];
+        $list = (array) Orgs::findList((int) $campaign['list_id']);
+        $list['org_data'] = Orgs::get((string) $list['org']);
+        $list['reply'] = Orgs::address((string) $list['org'], 'reponse');
+        return [$campaign, $template, $list];
     }
 }

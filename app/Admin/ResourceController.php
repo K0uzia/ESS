@@ -42,8 +42,9 @@ final class ResourceController
         $poleFilter = self::editorPole($res, $user) ?? ((int) ($_GET['pole'] ?? 0) ?: null);
         $where = $poleFilter !== null && isset($res['fields']['pole_id']) ? 'WHERE pole_id = ?' : '';
         $params = $where ? [$poleFilter] : [];
-        if (isset($res['tag29_fixed'])) {
-            $where = "WHERE team = 'tag29'";
+        if (isset($res['fixed'])) {
+            $where = 'WHERE ' . implode(' AND ', array_map(static fn (string $col): string => "$col IS ?", array_keys($res['fixed'])));
+            $params = array_values($res['fixed']);
         }
         $rows = Db::run("SELECT * FROM {$res['table']} $where ORDER BY {$res['order']}", $params)->fetchAll();
         View::render(isset($res['tabs']) ? 'admin/resource/tabs' : 'admin/resource/index', [
@@ -51,7 +52,7 @@ final class ResourceController
             'key' => $key,
             'res' => $res,
             'rows' => $rows,
-            'poles' => isset($res['tag29_fixed']) ? [] : self::poles(),
+            'poles' => isset($res['fixed']) ? [] : self::poles(),
             'poleFilter' => $poleFilter,
             'canFilter' => isset($res['fields']['pole_id']) && self::editorPole($res, $user) === null,
         ], 'admin/layout');
@@ -301,7 +302,7 @@ final class ResourceController
             }
             $values[$name] = $value;
         }
-        $values = ($res['tag29_fixed'] ?? []) + $values;
+        $values = ($res['fixed'] ?? []) + $values;
         if (isset($res['no_pole'])) {
             [$field, $none] = $res['no_pole'];
             if (in_array($values[$field], $none, true)) {
@@ -345,14 +346,15 @@ final class ResourceController
     {
         $user = Auth::require();
         $res = Resources::get($key) ?? self::notFound();
-        if (Auth::scope($user) === 'tag29' && empty($res['shared'])) {
-            if (!isset($res['tag29_rows'])) {
+        $scope = Auth::scope($user);
+        if (in_array($scope, ['ess29', 'tag29'], true) && empty($res['shared'])) {
+            if (!isset($res['org_rows'][$scope])) {
                 http_response_code(403);
-                exit('Accès réservé aux pôles et aux administrateurs.');
+                exit('Accès réservé aux administrateurs et aux comptes concernés.');
             }
             // Groupe et pôle imposés : les champs disparaissent du formulaire et sont fixés à l'enregistrement.
-            $res['tag29_fixed'] = $res['tag29_rows'];
-            $res['fields'] = array_diff_key($res['fields'], $res['tag29_rows']);
+            $res['fixed'] = $res['org_rows'][$scope];
+            $res['fields'] = array_diff_key($res['fields'], $res['fixed']);
         }
         return [$res, $user];
     }
@@ -379,7 +381,7 @@ final class ResourceController
         if (!$row || ($pole !== null && (int) $row['pole_id'] !== $pole)) {
             self::notFound();
         }
-        foreach ($res['tag29_fixed'] ?? [] as $col => $wanted) {
+        foreach ($res['fixed'] ?? [] as $col => $wanted) {
             if ($row[$col] !== $wanted) {
                 self::notFound();
             }

@@ -16,7 +16,7 @@ final class AccountController
     {
         Auth::require('admin');
         $accounts = Db::run(
-            'SELECT u.id, u.name, u.username, u.email, u.role, u.last_login_at, p.name AS pole
+            'SELECT u.id, u.name, u.username, u.email, u.role, u.org, u.last_login_at, p.name AS pole
              FROM users u LEFT JOIN poles p ON p.id = u.pole_id ORDER BY u.name COLLATE NOCASE'
         )->fetchAll();
         View::render('admin/accounts/index', ['title' => 'Comptes', 'accounts' => $accounts], 'admin/layout');
@@ -40,15 +40,15 @@ final class AccountController
             return;
         }
         Db::run(
-            'INSERT INTO users (username, name, email, role, pole_id, password_hash) VALUES (?, ?, ?, ?, ?, ?)',
-            [$input['email'], $input['name'], $input['email'], $input['role'], $input['pole_id'], Auth::unusableHash()]
+            'INSERT INTO users (username, name, email, role, pole_id, org, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [$input['email'], $input['name'], $input['email'], $input['role'], $input['pole_id'], $input['org'], Auth::unusableHash()]
         );
         $account = self::find((string) Db::pdo()->lastInsertId());
         Auth::log('compte.creation', $input['email']);
         if (self::sendLink($account, 'invitation')) {
             Session::flash('Compte de ' . $input['name'] . ' créé. Une invitation a été envoyée à ' . $input['email'] . ' pour choisir le mot de passe.');
         } else {
-            Session::flash('Compte de ' . $input['name'] . ' créé, mais l\'invitation n\'a pas pu partir. Renvoyez-la depuis la fiche du compte ; si cela échoue encore, prévenez La Capsule.', 'error');
+            Session::flash('Compte de ' . $input['name'] . ' créé, mais l\'invitation n\'a pas pu partir : ' . Mailer::explain() . ' Renvoyez-la ensuite depuis la fiche du compte.', 'error');
         }
         redirect('/admin/comptes');
     }
@@ -75,8 +75,8 @@ final class AccountController
         }
         Db::run(
             // L'identifiant technique suit l'e-mail, sauf pour le compte provisoire « lacapsule ».
-            'UPDATE users SET name = ?, email = ?, role = ?, pole_id = ?, username = CASE WHEN username = email THEN ? ELSE username END, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-            [$input['name'], $input['email'], $input['role'], $input['pole_id'], $input['email'], $account['id']]
+            'UPDATE users SET name = ?, email = ?, role = ?, pole_id = ?, org = ?, username = CASE WHEN username = email THEN ? ELSE username END, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [$input['name'], $input['email'], $input['role'], $input['pole_id'], $input['org'], $input['email'], $account['id']]
         );
         Auth::log('compte.modification', $input['email']);
         Session::flash('Compte de ' . $input['name'] . ' mis à jour.');
@@ -121,7 +121,7 @@ final class AccountController
             Auth::log('compte.lien_mot_de_passe', $account['username']);
             Session::flash('Lien envoyé à ' . $account['email'] . '. Le mot de passe actuel reste valable tant que le nouveau n\'est pas choisi.');
         } else {
-            Session::flash('L\'e-mail n\'a pas pu partir. Réessayez ; si cela échoue encore, prévenez La Capsule.', 'error');
+            Session::flash(Mailer::explain(), 'error');
         }
         redirect('/admin/comptes');
     }
@@ -149,7 +149,7 @@ final class AccountController
                 . "Pour choisir un nouveau mot de passe, ouvrez ce lien (valable $validity) :\n$link\n\n"
                 . "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message : votre mot de passe actuel reste valable.\n\n";
         }
-        return Mailer::send((string) $account['email'], $subject, $text . setting('raison_sociale') . "\n");
+        return Mailer::send((string) $account['email'], $subject, $text . setting('raison_sociale') . "\n", from: setting('email_comptes') ?: null);
     }
 
     /** @param array<string, mixed> $account */
@@ -161,7 +161,7 @@ final class AccountController
     /** @return array<string, mixed> */
     private static function find(string $id): array
     {
-        $account = Db::run('SELECT id, name, username, email, role, pole_id, last_login_at FROM users WHERE id = ?', [(int) $id])->fetch();
+        $account = Db::run('SELECT id, name, username, email, role, pole_id, org, last_login_at FROM users WHERE id = ?', [(int) $id])->fetch();
         if (!$account) {
             http_response_code(404);
             exit('Compte introuvable.');
@@ -175,20 +175,22 @@ final class AccountController
     }
 
     /**
-     * Trois types de compte : administrateur, éditeur d'un pôle, éditeur TAg29 (rôle « editor » sans pôle).
-     * @return array{name: string, email: ?string, role: string, pole_id: ?int}
+     * Rôle « admin » (tout, sans organisme) ou « editor » ; un éditeur est rattaché à un organisme (champ « organisme » :
+     * « ess29 », « tag29 » ou « pole:<id> »), ignoré pour un administrateur.
+     * @return array{name: string, email: ?string, role: string, pole_id: ?int, org: ?string, organisme: string}
      */
     private static function input(): array
     {
         $email = trim((string) ($_POST['email'] ?? ''));
-        $kind = in_array($_POST['role'] ?? '', ['editor', 'tag29'], true) ? $_POST['role'] : 'admin';
-        $pole = (int) ($_POST['pole_id'] ?? 0);
+        $role = ($_POST['role'] ?? '') === 'editor' ? 'editor' : 'admin';
+        $organisme = $role === 'editor' ? (string) ($_POST['organisme'] ?? '') : '';
         return [
             'name' => trim((string) preg_replace('/\s+/u', ' ', (string) ($_POST['name'] ?? ''))),
             'email' => $email === '' ? null : $email,
-            'role' => $kind === 'admin' ? 'admin' : 'editor',
-            'pole_id' => $kind === 'editor' && $pole > 0 ? $pole : null,
-            'kind' => $kind,
+            'role' => $role,
+            'pole_id' => str_starts_with($organisme, 'pole:') ? (int) substr($organisme, 5) : null,
+            'org' => in_array($organisme, ['ess29', 'tag29'], true) ? $organisme : null,
+            'organisme' => $organisme,
         ];
     }
 
@@ -209,11 +211,8 @@ final class AccountController
         } elseif (Db::run('SELECT 1 FROM users WHERE (email = ? OR username = ?) AND id IS NOT ?', [$input['email'], $input['email'], $ignoreId])->fetchColumn()) {
             $errors['email'] = 'Cette adresse est déjà utilisée par un autre compte.';
         }
-        if ($input['kind'] === 'editor' && $input['pole_id'] === null) {
-            $errors['pole_id'] = 'Choisissez le pôle de cette personne.';
-        }
-        if ($input['pole_id'] !== null && !Db::run('SELECT 1 FROM poles WHERE id = ?', [$input['pole_id']])->fetchColumn()) {
-            $errors['pole_id'] = 'Pôle inconnu.';
+        if ($input['role'] === 'editor' && $input['org'] === null && ($input['pole_id'] === null || !Db::run('SELECT 1 FROM poles WHERE id = ?', [$input['pole_id']])->fetchColumn())) {
+            $errors['organisme'] = 'Choisissez l\'organisme de cet éditeur : ESS29, TAg29 ou un pôle.';
         }
         return $errors;
     }
@@ -232,7 +231,7 @@ final class AccountController
             'title' => $account === null ? 'Nouveau compte' : 'Modifier le compte',
             'account' => $account,
             'own' => $account !== null && self::isOwn($account),
-            'values' => $input ?? $account ?? ['name' => '', 'email' => '', 'role' => 'admin', 'pole_id' => null],
+            'values' => $input ?? $account ?? ['name' => '', 'email' => '', 'role' => 'admin', 'pole_id' => null, 'org' => null],
             'errors' => $errors,
             'poles' => Db::run('SELECT id, name FROM poles ORDER BY position')->fetchAll(),
         ], 'admin/layout');

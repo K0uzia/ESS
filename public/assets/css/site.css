@@ -213,15 +213,23 @@ main:focus { outline: none; }
 /* Sections */
 .section { position: relative; padding-block: var(--space-section); }
 .section--fond { background: var(--color-surface-alt); }
+/* Deux sections teintées qui se suivent forment un seul bloc : pas de double marge entre elles. */
+.section--fond + .section--fond { padding-top: 0; }
 .section--sombre { color: var(--color-on-dark); background: var(--gradient-glaz); }
 .section--sombre a { color: var(--color-on-dark); }
 .section--sombre :is(.card, .pole-card, .form) a { color: var(--color-link); }
 .section--sombre .card__link { color: var(--color-glaz-4); }
 .section__head { max-width: 46rem; margin-bottom: var(--space-8); }
-.section__head h2 { margin: 0; font-size: var(--text-2xl); }
+.section__head h2 { margin: 0; }
 .section__kicker { display: block; margin-bottom: var(--space-3); font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-glaz-3); }
 .section--sombre .section__kicker { color: var(--color-glaz-1); }
-.section__intro { max-width: 46rem; margin-bottom: var(--space-8); font-size: var(--text-lg); }
+.section__intro { max-width: 46rem; margin-bottom: var(--space-8); }
+/* Liste d'une introduction (équipements, avantages) : grille de cases courtes, lue comme une liste et non comme une phrase. */
+.prose > .section__intro:has(> ul:not([role="list"])) { max-width: none; }
+.prose > .section__intro:has(> ul:not([role="list"])) > p { max-width: var(--measure); }
+.prose .section__intro ul:not([role="list"]) { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: var(--space-2); max-width: none; margin: var(--space-4) 0 var(--space-6); padding: 0; list-style: none; }
+.prose .section__intro ul:not([role="list"]) li { display: flex; align-items: center; gap: var(--space-3); margin: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.prose .section__intro ul:not([role="list"]) li::before { flex: none; width: var(--space-2); height: var(--space-2); border-radius: 50%; content: ""; background: var(--color-glaz); }
 .prose > :where(p, ul:not([role="list"]), ol, dl, h3, h4, h5, h6, address, blockquote, .alert, .section__intro) { max-width: var(--measure); }
 .prose li + li { margin-top: var(--space-2); }
 .prose :where(h3, h4, h5) { margin-top: var(--space-10); }
@@ -377,6 +385,8 @@ main:focus { outline: none; }
 .prose .stats { max-width: none; }
 .prose .stats li + li { margin-top: 0; }
 .stat { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface-alt); }
+.section--fond .stat { background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.prose > .stats:last-child { margin-bottom: 0; }
 .stat__value { font: var(--weight-regular) var(--text-stat)/1 var(--font-accent); color: var(--color-glaz-3); }
 .stat__label { font-size: var(--text-sm); color: var(--color-text-soft); }
 
@@ -545,6 +555,16 @@ table { min-width: 100%; border-collapse: collapse; }
 th, td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: top; }
 tbody tr + tr td { border-top: var(--border-width) solid var(--color-line); }
 th { font-size: var(--text-sm); background: var(--color-surface-alt); }
+/* Tableau de tarifs dans une carte : compact, montants alignés à droite sans retour à la ligne. */
+.bloc .table-wrap { margin: var(--space-4) 0; }
+.bloc :is(th, td) { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); }
+.bloc :is(th, td) + :is(th, td) { text-align: right; }
+.bloc td + td { white-space: nowrap; }
+/* Cartes qui portent un tableau : deux par ligne au plus pour que les tableaux respirent ; une carte seule en fin de ligne prend la largeur. */
+@media (min-width: 40.01rem) {
+  .blocs:has(table) { --cards-cols: 2; }
+  .blocs:has(table) > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
 /* Tableau large sur mobile : une fiche par ligne, chaque valeur précédée de l'en-tête de sa colonne. */
 @media (max-width: 40rem) {
   .table-wrap:has(.table--stack) { border: 0; overflow: visible; }
@@ -713,7 +733,6 @@ th { font-size: var(--text-sm); background: var(--color-surface-alt); }
 
 /* Bandeau d'appel */
 .section--encart .section__head, .section--encart .prose { max-width: 46rem; margin-inline: auto; text-align: center; }
-.section--encart .section__head h2 { font-size: var(--text-xl); }
 .section--encart .prose > * { margin-inline: auto; }
 
 /* Bouton dans le texte (syntaxe « → [Texte](lien) ») */

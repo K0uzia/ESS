@@ -2,7 +2,7 @@
 if ($groups === []) {
     return;
 }
-$labels = ['groupement' => 'Équipe du groupement', 'salaries' => 'Équipe salariée', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29'];
+$labels = ['groupement' => 'Équipe ESS29', 'salaries' => 'Équipe salariée', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29'];
 $filterable = count($groups) > 1;
 // Carte de l'organigramme : portrait réel ou initiales, prénom puis NOM, filet or, rôle.
 $card = static function (array $m, string $slug): string {

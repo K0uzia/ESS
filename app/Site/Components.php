@@ -29,7 +29,8 @@ final class Components
             'offres' => ['offers' => self::offers()],
             'partenaires' => ['partners' => Db::run('SELECT * FROM partners WHERE is_published = 1 ORDER BY kind, position')->fetchAll()],
             'qualiopi' => ['certificate' => Db::run("SELECT * FROM documents WHERE category = 'certificat' AND is_published = 1 ORDER BY year DESC LIMIT 1")->fetch() ?: null],
-            'newsletter', 'contact' => ['poles' => self::poles()],
+            'contact' => ['recipients' => FormController::contactRecipients()],
+            'newsletter' => ($lists = FormController::publicLists()) === [] ? null : ['lists' => $lists],
             'tag29-logos' => ['logos' => array_filter(self::tag29Logos((string) $arg), static fn (array $l): bool => is_file(ROOT . '/public' . $l['path']))],
             'identite' => ['head' => Db::run('SELECT * FROM poles WHERE is_head_office = 1')->fetch() ?: null],
             'plan' => ['pages' => self::sitePlan()],
@@ -79,18 +80,19 @@ final class Components
     }
 
     /**
-     * Logos de la page TAg29 (content/tag29/logos.tsv : groupe, nom, fichier source dans Charte/tag29/), WebP générés par bin/build-images.php.
-     * @return list<array{name: string, source: string, path: string}>
+     * Logos de la page TAg29 (content/tag29/logos.tsv : groupe, nom, fichier source, lien vers le site ou la fiche tag.bzh),
+     * WebP générés par bin/build-images.php.
+     * @return list<array{name: string, source: string, path: string, url: string}>
      */
     public static function tag29Logos(string $group = ''): array
     {
         $rows = array_slice(file(ROOT . '/content/tag29/logos.tsv', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [], 1);
         $logos = [];
         foreach ($rows as $row) {
-            [$g, $name, $source] = array_pad(explode("\t", $row), 3, '');
+            [$g, $name, $source, $url] = array_pad(explode("\t", $row), 4, '');
             if ($group === '' || $g === $group) {
                 $slug = trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT', $name))), '-');
-                $logos[] = ['name' => $name, 'source' => $source, 'path' => "/assets/img/logos/tag29/$slug.webp"];
+                $logos[] = ['name' => $name, 'source' => $source, 'path' => "/assets/img/logos/tag29/$slug.webp", 'url' => trim($url)];
             }
         }
         return $logos;
@@ -165,7 +167,7 @@ final class Components
             $slug = $row['pole_slug'] ?? (($row['team'] ?? '') === 'groupement' ? 'groupement' : 'tag29');
             $groups[$slug] ??= [
                 'pole' => $poles[$slug] ?? null,
-                'label' => $poles[$slug]['name'] ?? ($slug === 'groupement' ? 'ESS Finistère' : 'TAg29'),
+                'label' => $poles[$slug]['name'] ?? ($slug === 'groupement' ? 'ESS29' : 'TAg29'),
                 'slug' => $slug,
                 'members' => [],
             ];

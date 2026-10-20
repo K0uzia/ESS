@@ -21,7 +21,7 @@ $desc = static fn (string $n, string $extra = ''): string => trim($extra . (isse
     <?php if (isset($errors['form'])): ?><p><?= e($errors['form']) ?></p><?php endif ?>
   </div>
   <?php endif ?>
-  <p class="field__hint">Tous les champs sont obligatoires, sauf le pôle.</p>
+  <p class="field__hint">Tous les champs sont obligatoires.</p>
   <div class="field">
     <label for="c-nom">Nom</label>
     <input id="c-nom" name="nom" autocomplete="name" required maxlength="120" value="<?= e($values['nom'] ?? '') ?>"<?= $f('nom') . $desc('nom') ?>>
@@ -33,11 +33,11 @@ $desc = static fn (string $n, string $extra = ''): string => trim($extra . (isse
     <?= $err('email') ?>
   </div>
   <div class="field">
-    <label for="c-pole">Pôle concerné (facultatif)</label>
-    <select id="c-pole" name="pole"<?= $f('pole') . $desc('pole') ?>>
-      <option value="">Je ne sais pas</option>
-      <?php foreach ($poles as $p): ?>
-      <option value="<?= e($p['slug']) ?>"<?= ($values['pole'] ?? '') === $p['slug'] ? ' selected' : '' ?>><?= e($p['name']) ?></option>
+    <label for="c-pole">Pôle concerné</label>
+    <select id="c-pole" name="pole" required<?= $f('pole') . $desc('pole') ?>>
+      <option value="">Choisissez</option>
+      <?php foreach ($recipients as $value => $r): ?>
+      <option value="<?= e($value) ?>"<?= ($values['pole'] ?? '') === $value ? ' selected' : '' ?>><?= e($r['name']) ?></option>
       <?php endforeach ?>
     </select>
     <?= $err('pole') ?>

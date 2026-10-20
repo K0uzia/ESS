@@ -154,6 +154,7 @@ main:focus { outline: none; }
 .badge--on { color: var(--color-on-dark); background: var(--color-glaz-3); }
 .badge--off { color: var(--color-text-soft); background: var(--color-surface); box-shadow: inset 0 0 0 var(--border-width) var(--admin-input-border); }
 .badge--warn { background: var(--admin-warning-soft); box-shadow: inset 0 0 0 var(--border-width) var(--color-or); }
+.badge .icon { width: 1.15em; height: 1.15em; margin-right: var(--space-1); }
 .badge--brest { color: var(--color-pole-brest); background: color-mix(in srgb, var(--color-pole-brest) 7%, var(--color-white)); }
 .badge--morlaix { color: var(--color-pole-morlaix); background: color-mix(in srgb, var(--color-pole-morlaix) 7%, var(--color-white)); }
 .badge--cornouaille { color: var(--color-pole-cornouaille); background: color-mix(in srgb, var(--color-pole-cornouaille) 7%, var(--color-white)); }
@@ -483,6 +484,7 @@ legend { padding: 0; }
 .tabset__search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
 .tabset__search .field { flex: 1 1 16rem; max-width: 24rem; margin: 0; }
 .group-card { margin-bottom: var(--space-4); }
+.org-logo { flex: none; width: auto; max-width: 6rem; height: 2.5rem; margin-right: var(--space-2); object-fit: contain; }
 .group-card__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5); border-bottom: var(--border-width) solid var(--color-line); background: var(--admin-bg); }
 .group-card__title { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--text-base); }
 .group-card__empty { margin: 0; padding: var(--space-4) var(--space-5); color: var(--color-text-soft); }
@@ -498,6 +500,23 @@ legend { padding: 0; }
 .rows__main { display: flex; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-3); min-width: 0; padding: var(--space-2) 0; color: inherit; text-decoration: none; }
 .rows__main:focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--admin-focus-offset); border-radius: var(--radius-sm); }
 .rows__name { font-weight: var(--weight-bold); color: var(--color-glaz-4); }
+/* Ligne sur plusieurs niveaux (adresse, usage, détail) ; « sub » : élément rattaché à la ligne précédente (alias d'une boîte). */
+.rows__main--stack { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+.rows__line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.rows__item--sub { padding-left: var(--space-10); background: var(--admin-bg); }
+/* Ligne « usage → adresse » : usage à gauche sur une largeur fixe, adresse et état à droite. */
+.rows__item--map { flex-wrap: wrap; gap: var(--space-1) var(--space-3); padding-block: var(--space-2); }
+.rows__key { flex: 0 0 22rem; max-width: 100%; font-size: var(--text-sm); font-weight: var(--weight-bold); color: var(--color-glaz-4); }
+.rows__arrow { color: var(--color-text-soft); }
+.rows__value { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; font-size: var(--text-sm); }
+@media (max-width: 40rem) {
+  /* Ligne détaillée sur mobile : le texte prend toute la largeur, les boutons passent dessous. */
+  .rows__item:has(.rows__main--stack) { flex-wrap: wrap; padding-bottom: var(--space-3); }
+  .rows__main--stack { flex-basis: 100%; }
+  .rows__item--sub { padding-left: var(--space-8); }
+  .rows__key { flex-basis: 100%; }
+  .rows__arrow { display: none; }
+}
 .rows__detail { font-size: var(--text-sm); color: var(--color-text-soft); }
 
 /* ---------- Aperçu de newsletter ---------- */

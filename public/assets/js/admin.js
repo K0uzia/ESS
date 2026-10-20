@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initModal();
   initPreview();
   initPasswordToggle();
+  initRoleToggle();
   enhance(document);
 });
 
@@ -144,6 +145,17 @@ function initPasswordToggle() {
   document.addEventListener('submit', (event) => {
     event.target.querySelectorAll?.('[data-password-toggle][aria-pressed="true"]').forEach((button) => button.click());
   }, true);
+}
+
+// Compte : l'organisme ne concerne qu'un éditeur ; grisé et vidé quand le rôle est Administrateur.
+function initRoleToggle() {
+  document.addEventListener('change', (event) => {
+    const role = event.target.closest('[data-role-select]');
+    const org = role && role.form && role.form.querySelector('[data-role-org]');
+    if (!org) return;
+    org.disabled = role.value !== 'editor';
+    if (org.disabled) org.value = '';
+  });
 }
 
 // Onglets de liste (un par pôle) ; l'onglet ouvert est gardé dans l'adresse (?onglet=) pour revenir au même endroit.
@@ -379,7 +391,8 @@ function initModal() {
     if (button) button.disabled = true;
     try {
       const response = await fetch(form.action, { method: 'POST', body: new FormData(form, button), credentials: 'same-origin' });
-      const doc = parse(await response.text());
+      const raw = await response.text();
+      const doc = parse(raw);
       const content = doc.querySelector('[data-modal-content]');
       const samePage = new URL(response.url).pathname === new URL(url).pathname;
       if (response.redirected && !(content && !samePage)) {
@@ -397,14 +410,23 @@ function initModal() {
       } else if (show(doc, response.url)) {
         dirty = true; // formulaire renvoyé avec erreurs : la saisie n'est toujours pas enregistrée
       } else {
-        throw new Error('form');
+        // Page vide : PHP s'est arrêté en cours de route (LiteSpeed répond alors 200 sans contenu).
+        throw new Error(raw.trim() === '' ? 'vide' : String(response.status));
       }
-    } catch {
+    } catch (failure) {
       if (live) live.textContent = '';
       const error = document.createElement('div');
       error.className = 'notice notice--error';
       error.setAttribute('role', 'alert');
-      error.textContent = 'L\'enregistrement a échoué : vérifiez la connexion puis réessayez.';
+      // Réponse inattendue (code HTTP affiché pour le diagnostic) ou coupure réseau, sans réponse du serveur.
+      const status = failure instanceof Error && /^\d+$/.test(failure.message) ? Number(failure.message) : 0;
+      error.textContent = failure instanceof Error && failure.message === 'vide'
+        ? 'Le serveur s\'est arrêté en cours de route (page vide) : vérifiez dans la liste ce qui a été enregistré avant de réessayer. Prévenez La Capsule (détail dans data/php-errors.log).'
+        : status >= 500
+        ? `Le serveur a rencontré une erreur (code ${status}) : vérifiez dans la liste si l'enregistrement a eu lieu avant de réessayer. Prévenez La Capsule (détail dans data/php-errors.log).`
+        : status > 0
+          ? `Le serveur a refusé la demande (code ${status}) : vérifiez dans la liste si l'enregistrement a eu lieu avant de réessayer. Prévenez La Capsule en indiquant ce code.`
+          : 'Pas de réponse du serveur : vérifiez dans la liste si l\'enregistrement a eu lieu, puis votre connexion, avant de réessayer.';
       body.prepend(error);
     } finally {
       busy = false;

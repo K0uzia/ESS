@@ -90,7 +90,7 @@ $brand = [
     ["$root/Charte/logoPoleESS/PoleEssBrest/PaysdeBrest/Logo-Simple/Logo-PoleESS-PaysdeBrest.png", 'logo-pole-pays-de-brest', 217],
     ["$root/Charte/logoPoleESS/PoleEssCornouaille/Logo-Simple/Logo-PoleESS-PaysdeCornouaille.png", 'logo-pole-pays-de-cornouaille', 217],
     ["$root/Charte/tag29/3. LOGOS TAG/29/bureautique/tag29-rvb-noir.png", 'logo-tag29-noir', 240],
-    ["$root/Charte/tag29/3. LOGOS TAG/TAg29_KIT_COMMUNICATION_salarie_stagiaire/TAg29_LOGOS/29/bureautique/tag29-rvb.png", 'logo-tag29-couleur', 160],
+    ["$root/Charte/tag29/3. LOGOS TAG/TAg29_KIT_COMMUNICATION_salarie_stagiaire/TAg29_LOGOS/29/bureautique/tag29-rvb.png", 'logo-tag29-couleur', 240],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Couleur.png", 'deux-points-or', 240],
     ["$ingredients/Deux-points/Web-RVB/PNG/ESS-Bretagne_Deux-points_Blanc.png", 'deux-points-blanc', 240],
     ["$ingredients/Guillemets/Web-RVB/PNG/ESS-Bretagne_Guillemets_Glaz.png", 'guillemets-glaz', 160],

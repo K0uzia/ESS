@@ -17,22 +17,22 @@ final class Resources
                 'table' => 'team_members',
                 'label' => 'Équipe',
                 'singular' => 'personne',
-                'intro' => 'Les personnes affichées sur la page L\'équipe, rangées par pôle puis par groupe ; le groupement et TAg29 à part.',
+                'intro' => 'Les personnes affichées sur la page L\'équipe, rangées par pôle puis par groupe ; ESS29 et TAg29 à part.',
                 'order' => 'COALESCE(pole_id, 99), CASE team WHEN \'groupement\' THEN 0 WHEN \'salaries\' THEN 1 WHEN \'ca\' THEN 2 ELSE 3 END, position, name',
                 // Ordre réglé par flèches à l'intérieur d'un même pôle et d'un même groupe.
                 'sortable' => ['pole_id', 'team'],
                 // Le groupement et l'équipe TAg29 n'ont pas de pôle ; les autres groupes en ont toujours un.
                 'no_pole' => ['team', ['groupement', 'tag29']],
-                // Un éditeur TAg29 ne voit et ne modifie que ces fiches (groupe et pôle imposés, champs masqués).
-                'tag29_rows' => ['team' => 'tag29', 'pole_id' => null],
+                // Un éditeur ESS29 ou TAg29 ne voit et ne modifie que ces fiches (groupe et pôle imposés, champs masqués).
+                'org_rows' => ['ess29' => ['team' => 'groupement', 'pole_id' => null], 'tag29' => ['team' => 'tag29', 'pole_id' => null]],
                 'columns' => ['name' => 'Nom', 'role' => 'Rôle', 'pole_id' => 'Pôle', 'team' => 'Groupe', 'is_published' => 'En ligne'],
-                // Liste rangée par onglet de pôle (groupement et TAg29 à part), puis par groupe : on ajoute directement au bon endroit.
-                'tabs' => ['extra' => 'Groupement et TAg29', 'group' => 'team', 'groups' => ['salaries', 'ca'], 'extra_groups' => ['groupement', 'tag29'], 'detail' => 'role'],
+                // Liste rangée par onglet de pôle (ESS29 et TAg29 en onglets à part), puis par groupe : on ajoute directement au bon endroit.
+                'tabs' => ['extra' => ['ess29' => ['label' => 'ESS29', 'groups' => ['groupement']], 'tag29' => ['label' => 'TAg29', 'groups' => ['tag29']]], 'group' => 'team', 'groups' => ['salaries', 'ca'], 'detail' => 'role'],
                 'fields' => [
                     'name' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
                     'role' => ['label' => 'Rôle', 'type' => 'text', 'required' => true],
-                    'team' => ['label' => 'Groupe', 'type' => 'select', 'options' => ['groupement' => 'Équipe du groupement', 'salaries' => 'Équipe salariée du pôle', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29']],
-                    'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'empty' => '—', 'hint' => 'Pas de pôle pour le groupement ni pour l\'équipe TAg29.'],
+                    'team' => ['label' => 'Groupe', 'type' => 'select', 'options' => ['groupement' => 'Équipe ESS29', 'salaries' => 'Équipe salariée du pôle', 'ca' => 'Conseil d\'administration', 'tag29' => 'Équipe TAg29']],
+                    'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'empty' => '—', 'hint' => 'Pas de pôle pour les équipes ESS29 et TAg29.'],
                     'structure' => ['label' => 'Structure représentée', 'type' => 'text', 'hint' => 'Pour les membres du conseil d\'administration.'],
                     'email' => ['label' => 'E-mail public', 'type' => 'email', 'hint' => 'Seulement s\'il peut être publié.'],
                     'phone' => ['label' => 'Téléphone public', 'type' => 'tel'],
@@ -68,6 +68,8 @@ final class Resources
                 'order' => 'category, year DESC, title',
                 'list_group' => ['category', ['document' => 'Documents des pôles', 'fiche_pratique' => 'Fiches pratiques', 'ressource' => 'Ressources', 'certificat' => 'Certificat Qualiopi']],
                 'columns' => ['title' => 'Titre', 'category' => 'Catégorie', 'pole_id' => 'Pôle', 'year' => 'Année', 'is_published' => 'En ligne'],
+                // Un éditeur ESS29 gère les documents communs (sans pôle).
+                'org_rows' => ['ess29' => ['pole_id' => null]],
                 'fields' => [
                     'title' => ['label' => 'Titre', 'type' => 'text', 'required' => true],
                     'category' => ['label' => 'Catégorie', 'type' => 'select', 'options' => ['document' => 'Document de pôle', 'fiche_pratique' => 'Fiche pratique', 'ressource' => 'Ressource', 'certificat' => 'Certificat Qualiopi']],
@@ -85,6 +87,8 @@ final class Resources
                 'intro' => 'Une offre disparaît du site le lendemain de sa date limite.',
                 'order' => 'created_at DESC',
                 'columns' => ['title' => 'Intitulé', 'pole_id' => 'Pôle', 'closes_on' => 'Date limite', 'is_published' => 'En ligne'],
+                // Un éditeur ESS29 gère les offres du groupement (sans pôle).
+                'org_rows' => ['ess29' => ['pole_id' => null]],
                 'fields' => [
                     'title' => ['label' => 'Intitulé du poste', 'type' => 'text', 'required' => true],
                     'pole_id' => ['label' => 'Pôle', 'type' => 'pole', 'empty' => 'Groupement'],
@@ -102,7 +106,7 @@ final class Resources
                 'label' => 'Partenaires',
                 'singular' => 'partenaire',
                 'intro' => 'Partenaires et réseaux affichés en logos sur l\'accueil, communs à tous les pôles. Utilisez le logo officiel fourni par le partenaire.',
-                // Commun à tous les comptes (pôles et TAg29 compris) : pas de pôle, pas de restriction.
+                // Commun à tous les comptes (pôles, ESS29 et TAg29) : pas de pôle, pas de restriction.
                 'shared' => true,
                 'order' => 'kind, position, name',
                 'sortable' => ['kind'],

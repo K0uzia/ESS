@@ -6,8 +6,9 @@ $aria = static function (string $name, string $hint = '') use ($errors): string 
     $ids = trim($hint . (isset($errors[$name]) ? " $name-error" : ''));
     return ($ids !== '' ? ' aria-describedby="' . $ids . '"' : '') . (isset($errors[$name]) ? ' aria-invalid="true"' : '');
 };
-// Type d'accès : rôle « editor » sans pôle = éditeur TAg29.
-$kind = $values['kind'] ?? (($values['role'] ?? 'admin') === 'admin' ? 'admin' : (empty($values['pole_id']) ? 'tag29' : 'editor'));
+// Rôle, puis organisme d'un éditeur (ESS29, TAg29 ou un pôle) ; vide par défaut, grisé pour un administrateur.
+$role = ($values['role'] ?? 'admin') === 'editor' ? 'editor' : 'admin';
+$organisme = $values['organisme'] ?? ($role === 'editor' ? (!empty($values['pole_id']) ? 'pole:' . (int) $values['pole_id'] : (string) ($values['org'] ?? '')) : '');
 $error = static fn (string $name): string => isset($errors[$name]) ? '<p class="field__error" id="' . $name . '-error">Erreur : ' . e($errors[$name]) . '</p>' : '';
 ?>
 <header class="page-head">
@@ -36,24 +37,26 @@ $error = static fn (string $name): string => isset($errors[$name]) ? '<p class="
       <?= $error('email') ?>
     </div>
     <div class="field">
-      <label for="role">Accès</label>
-      <select id="role" name="role"<?= $aria('role') ?>>
-        <option value="admin"<?= $kind === 'admin' ? ' selected' : '' ?>>Administrateur : tout le site et les comptes</option>
-        <option value="editor"<?= $kind === 'editor' ? ' selected' : '' ?>>Pôle : les fiches et newsletters de son pôle</option>
-        <option value="tag29"<?= $kind === 'tag29' ? ' selected' : '' ?>>TAg29 : la page Tag29 et l'équipe TAg29</option>
+      <label for="role">Rôle</label>
+      <select id="role" name="role" data-role-select<?= $aria('role', 'role-hint') ?>>
+        <option value="admin"<?= $role === 'admin' ? ' selected' : '' ?>>Administrateur</option>
+        <option value="editor"<?= $role === 'editor' ? ' selected' : '' ?>>Éditeur</option>
       </select>
+      <p class="field__hint" id="role-hint">Administrateur : tout le site, les comptes et les e-mails. Éditeur : le contenu de son organisme, plus les partenaires, la médiathèque et les modèles de newsletters.</p>
       <?= $error('role') ?>
     </div>
     <div class="field">
-      <label for="pole_id">Pôle</label>
-      <select id="pole_id" name="pole_id"<?= $aria('pole_id', 'pole-hint') ?>>
-        <option value="">—</option>
+      <label for="organisme">Organisme de l'éditeur</label>
+      <select id="organisme" name="organisme" data-role-org<?= $role === 'admin' ? ' disabled' : '' ?><?= $aria('organisme', 'organisme-hint') ?>>
+        <option value="">Choisissez</option>
+        <option value="ess29"<?= $organisme === 'ess29' ? ' selected' : '' ?>>ESS29</option>
+        <option value="tag29"<?= $organisme === 'tag29' ? ' selected' : '' ?>>TAg29</option>
         <?php foreach ($poles as $p): ?>
-        <option value="<?= (int) $p['id'] ?>"<?= (int) ($values['pole_id'] ?? 0) === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name']) ?></option>
+        <option value="pole:<?= (int) $p['id'] ?>"<?= $organisme === 'pole:' . (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name']) ?></option>
         <?php endforeach ?>
       </select>
-      <p class="field__hint" id="pole-hint">Seulement pour un accès « Pôle ».</p>
-      <?= $error('pole_id') ?>
+      <p class="field__hint" id="organisme-hint">Seulement pour un éditeur. ESS29 : pages du groupement, équipe ESS29, offres et documents communs. TAg29 : page et équipe TAg29. Pôle : fiches, page et newsletters du pôle.</p>
+      <?= $error('organisme') ?>
     </div>
   </div>
 

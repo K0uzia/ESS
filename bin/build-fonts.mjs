@@ -12,6 +12,7 @@ const fonts = [
   [`${charte}/Poppins/Poppins-Regular.ttf`, 'poppins-400.woff2'],
   [`${charte}/Poppins/Poppins-SemiBold.ttf`, 'poppins-600.woff2'],
   [`${charte}/Viga/Viga-Regular.ttf`, 'viga-400.woff2'],
+  ['Charte/tag29/Outils graphiques/POLICES/Quicksand_Book.otf', 'quicksand-400.woff2'],
   ['Charte/tag29/Outils graphiques/POLICES/Quicksand_Bold.otf', 'quicksand-700.woff2'],
 ];
 

@@ -56,7 +56,7 @@ final class Auth
         if (self::$user === false) {
             $id = $_SESSION['user_id'] ?? null;
             self::$user = $id === null ? null
-                : (Db::run('SELECT id, name, username, email, role, pole_id FROM users WHERE id = ?', [$id])->fetch() ?: null);
+                : (Db::run('SELECT id, name, username, email, role, pole_id, org FROM users WHERE id = ?', [$id])->fetch() ?: null);
         }
         return self::$user;
     }
@@ -76,22 +76,29 @@ final class Auth
     }
 
     /**
-     * Périmètre d'un compte : « all » (administrateur), « pole » (éditeur d'un pôle) ou « tag29 »
-     * (éditeur sans pôle : page Tag29, équipe TAg29 et médiathèque seulement).
+     * Périmètre d'un compte : « all » (administrateur), « pole » (éditeur d'un pôle), « ess29 » (éditeur du groupement)
+     * ou « tag29 » (éditeur TAg29).
      * @param array<string, mixed> $user
      */
     public static function scope(array $user): string
     {
-        return $user['role'] === 'admin' ? 'all' : ($user['pole_id'] === null ? 'tag29' : 'pole');
+        if ($user['role'] === 'admin') {
+            return 'all';
+        }
+        return $user['pole_id'] !== null ? 'pole' : (($user['org'] ?? '') === 'ess29' ? 'ess29' : 'tag29');
     }
 
-    /** Refuse l'accès d'un éditeur TAg29 à un module qui ne le concerne pas. */
-    public static function forbidTag29(array $user): void
+    /**
+     * Organisme d'un éditeur (clé de \App\Site\Orgs : slug du pôle, « ess29 » ou « tag29 ») ; null pour un administrateur.
+     * @param array<string, mixed> $user
+     */
+    public static function org(array $user): ?string
     {
-        if (self::scope($user) === 'tag29') {
-            http_response_code(403);
-            exit('Accès réservé aux pôles et aux administrateurs.');
-        }
+        return match (self::scope($user)) {
+            'all' => null,
+            'pole' => \App\Site\Orgs::ofPole((int) $user['pole_id']),
+            default => self::scope($user),
+        };
     }
 
     public static function hash(string $password): string

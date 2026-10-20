@@ -2,26 +2,26 @@
 use App\Core\FormGuard;
 
 $state = $GLOBALS['form_state'] ?? ['errors' => [], 'values' => []];
-$errors = isset($state['values']['poles']) || isset($state['errors']['poles']) ? $state['errors'] : [];
+$errors = isset($state['values']['lettres']) || isset($state['errors']['lettres']) ? $state['errors'] : [];
 $values = $state['values'];
 $current = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 ?>
-<p class="section__intro">Recevez la lettre d'information du ou des pôles de votre choix.</p>
+<p class="section__intro">Recevez la lettre d'information de votre choix.</p>
 <form class="form" method="post" action="/newsletter/" id="formulaire-newsletter" novalidate>
   <?= FormGuard::fields('newsletter') ?>
   <input type="hidden" name="retour" value="<?= e($current) ?>">
   <?php if (isset($errors['form'])): ?><p class="alert alert--error" role="alert">Erreur : <?= e($errors['form']) ?></p><?php endif ?>
-  <fieldset class="field"<?= isset($errors['poles']) ? ' aria-describedby="nl-poles-error"' : '' ?>>
+  <fieldset class="field"<?= isset($errors['lettres']) ? ' aria-describedby="nl-lettres-error"' : '' ?>>
     <legend>Lettres à recevoir</legend>
     <div class="checks">
-    <?php foreach ($poles as $p): ?>
+    <?php foreach ($lists as $l): ?>
     <div class="check">
-      <input type="checkbox" id="nl-<?= e($p['slug']) ?>" name="poles[]" value="<?= e($p['slug']) ?>"<?= in_array($p['slug'], $values['poles'] ?? [], true) ? ' checked' : '' ?><?= isset($errors['poles']) ? ' aria-invalid="true"' : '' ?>>
-      <label for="nl-<?= e($p['slug']) ?>"><?= e($p['name']) ?></label>
+      <input type="checkbox" id="nl-<?= e($l['org']) ?>" name="lettres[]" value="<?= e($l['org']) ?>"<?= in_array($l['org'], $values['lettres'] ?? [], true) ? ' checked' : '' ?><?= isset($errors['lettres']) ? ' aria-invalid="true"' : '' ?>>
+      <label for="nl-<?= e($l['org']) ?>"><?= e($l['org_name']) ?></label>
     </div>
     <?php endforeach ?>
     </div>
-    <?php if (isset($errors['poles'])): ?><p class="field__error" id="nl-poles-error">Erreur : <?= e($errors['poles']) ?></p><?php endif ?>
+    <?php if (isset($errors['lettres'])): ?><p class="field__error" id="nl-lettres-error">Erreur : <?= e($errors['lettres']) ?></p><?php endif ?>
   </fieldset>
   <div class="field">
     <label for="nl-email">Adresse e-mail</label>

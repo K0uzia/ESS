@@ -59,7 +59,7 @@ foreach ($page['sections'] as $s) {
       </nav>
       <?php endif ?>
       <?php if ($pageKey === 'tag29'): ?><div class="page-head__brand">
-      <img class="page-head__logo" src="/assets/img/logo-tag29-noir.webp" width="240" height="348" alt="TAg29" fetchpriority="high">
+      <img class="page-head__logo" src="/assets/img/logo-tag29-couleur.webp" width="240" height="348" alt="TAg29" fetchpriority="high">
       <div><?php endif ?>
       <h1><?= e($meta['h1'] ?? '') ?></h1>
       <?php if (!empty($meta['intro'])): ?>
@@ -80,7 +80,7 @@ foreach ($page['sections'] as $s) {
     </figure>
     <?php endif ?>
   </div>
-  <img class="deux-points" src="/assets/img/deux-points-or.webp" width="240" height="97" alt="">
+  <?php if ($pageKey !== 'tag29'): ?><img class="deux-points" src="/assets/img/deux-points-or.webp" width="240" height="97" alt=""><?php endif ?>
 </div>
 <?php endif ?>
 <?php $jumps = $isHome ? [] : array_values(array_filter($rendered, fn ($r) => $r[0]['title'] !== '')); ?>

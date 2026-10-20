@@ -14,6 +14,14 @@
   --color-pole-brest: #9f1251;
   --color-pole-cornouaille: #b22760;
 
+  /* Charte TAg29 (Charte/tag29/3. LOGOS TAG/TAg29_KIT_COMMUNICATION_salarie_stagiaire/TAg29_CHARTE-GRAPHIQUE.pdf),
+     réservée à la page /tag29/ : jaune et orange foncé du logo, noir des textes, bleu nuit du réseau TAgBZH (nuancier).
+     Noir sur jaune 11,1:1 ; blanc sur bleu nuit 14,6:1 ; jaune sur bleu nuit 7,7:1 ; orange sur blanc 3,5:1 (décor seulement). */
+  --color-tag29-jaune: #f8ae3c;
+  --color-tag29-orange: #ea5b25;
+  --color-tag29-noir: #000000;
+  --color-tagbzh-nuit: #212937;
+
   /* Rôles (contrastes sur blanc : glaz-4 12,7:1, glaz-3 9,1:1 ; glaz 4,1:1 grand texte et composants seulement ; or jamais en texte sur blanc) */
   --color-text: var(--color-glaz-4);
   --color-text-soft: color-mix(in srgb, var(--color-glaz-4) 82%, var(--color-white));
@@ -37,10 +45,12 @@
   /* Typographie */
   --font-ui: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-accent: "Viga", var(--font-ui);
-  --font-tag29: "Quicksand", var(--font-ui);
+  --font-tag29: "Quicksand", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --weight-regular: 400;
   --weight-bold: 600;
+  /* Échelle unique du site : titre de page 2xl, titres de section xl, titres de carte lg, chapeau de page lg,
+     texte courant (introductions de section comprises) base, mentions sm et xs. */
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;

@@ -26,7 +26,7 @@ $temp = Auth::defaultAccountActive();
         <tr>
           <th scope="row"><a href="/admin/comptes/<?= (int) $a['id'] ?>" data-modal><?= e($a['name'] ?: $a['username']) ?></a><?= $self ? ' <span class="badge">Vous</span>' : '' ?></th>
           <td data-label="E-mail"><?= $a['email'] ? e($a['email']) : '<span class="muted">—</span>' ?></td>
-          <td data-label="Accès"><?= $a['role'] === 'admin' ? 'Administrateur' : ($a['pole'] ? 'Pôle · ' . e(Ui::poleShort($a['pole'])) : 'TAg29') ?></td>
+          <td data-label="Accès"><?= $a['role'] === 'admin' ? 'Administrateur' : 'Éditeur · ' . ($a['pole'] ? e(Ui::poleShort($a['pole'])) : ($a['org'] === 'ess29' ? 'ESS29' : 'TAg29')) ?></td>
           <td data-label="Connexion" class="num"><?= $a['last_login_at'] ? e(Ui::date($a['last_login_at'], true)) : '<span class="badge badge--warn">Invitation en attente</span>' ?></td>
           <td class="actions-col">
             <div class="button-row">

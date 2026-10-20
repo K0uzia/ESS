@@ -71,12 +71,14 @@ $jsonLd = [
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/poppins-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/poppins-600.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/tokens.css">
-<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/site.css')) ?>">
 <?php if ($isTag29): ?>
-<link rel="stylesheet" href="/assets/css/tag29.css">
+<link rel="preload" href="/assets/fonts/quicksand-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/quicksand-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="<?= e(asset('/assets/css/tag29.css')) ?>">
 <?php endif ?>
-<script src="/assets/js/site.js"></script>
+<script src="<?= e(asset('/assets/js/site.js')) ?>"></script>
 <?php if ($pageKey === 'accueil'): ?>
 <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 <?php endif ?>

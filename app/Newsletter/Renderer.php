@@ -11,16 +11,21 @@ final class Renderer
     /**
      * @param array<string, mixed> $campaign subject, body
      * @param array<string, mixed>|null $template header, footer
-     * @param array<string, mixed> $pole
+     * @param array<string, mixed> $list liste avec son organisme (« org_data ») et son adresse de réponse (« reply »), voir Sender::context()
      * @return array{html: string, text: string}
      */
-    public static function render(array $campaign, ?array $template, array $pole, ?string $unsubscribeUrl): array
+    public static function render(array $campaign, ?array $template, array $list, ?string $unsubscribeUrl): array
     {
         $c = require ROOT . '/config/email.php';
         $site = rtrim(setting('site_url'), '/');
-        $logoFile = "/assets/img/email/logo-pole-{$pole['slug']}.png";
+        $org = $list['org_data'];
+        $org['email'] = $list['reply'] ?: $org['email'];
+        $logoFile = $org['pole_id'] !== null ? "/assets/img/email/logo-pole-{$org['key']}.png" : "/assets/img/email/logo-{$org['key']}.png";
         $logo = is_file(ROOT . '/public' . $logoFile) ? $site . $logoFile : $site . '/assets/img/email/logo-ess-finistere.png';
         $unsubscribeUrl ??= $site . '/newsletter/';
+        // Liste Sympa : Sympa gère les abonnés et ajoute son propre lien de désinscription.
+        $sympa = (string) ($list['sympa_address'] ?? '') !== '';
+        $why = $sympa ? 'Vous recevez cette lettre par la liste de diffusion des adhérents ' . ($org['pole_id'] !== null ? 'du ' : 'de ') . $org['name'] . '.' : 'Vous recevez cette lettre car vous y êtes inscrit.';
 
         $blocks = array_filter([
             $template['header'] ?? '',
@@ -32,25 +37,25 @@ final class Renderer
             $blocks
         ));
 
-        $address = e(str_replace("\n", ', ', (string) $pole['address_lines']) . ', ' . $pole['postal_code'] . ' ' . $pole['city']);
+        $address = e(str_replace("\n", ', ', (string) $org['address_lines']) . ', ' . $org['postal_code'] . ' ' . $org['city']);
         $html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' . e((string) $campaign['subject']) . '</title></head>'
             . '<body style="margin:0;padding:0;background:' . $c['surface'] . ';">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:' . $c['surface'] . ';"><tr><td align="center" style="padding:24px 12px;">'
             . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:' . $c['white'] . ';border-radius:16px;overflow:hidden;">'
-            . '<tr><td style="padding:28px 32px;background:' . $c['white'] . ';"><img src="' . e($logo) . '" alt="' . e((string) $pole['name']) . '" height="64" style="display:block;height:64px;width:auto;border:0;"></td></tr>'
+            . '<tr><td style="padding:28px 32px;background:' . $c['white'] . ';"><img src="' . e($logo) . '" alt="' . e((string) $org['name']) . '" height="64" style="display:block;height:64px;width:auto;border:0;"></td></tr>'
             . '<tr><td style="padding:28px 32px;background:' . $c['glaz_4'] . ';color:' . $c['white'] . ';font-family:' . $c['font'] . ';">'
             . '<p style="margin:0 0 6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:' . $c['glaz_1'] . ';">Lettre d\'information</p>'
             . '<h1 style="margin:0;font-size:24px;line-height:1.25;color:' . $c['white'] . ';">' . e((string) $campaign['subject']) . '</h1></td></tr>'
             . '<tr><td style="padding:32px;font-family:' . $c['font'] . ';font-size:16px;line-height:1.6;color:' . $c['glaz_4'] . ';">' . $body . '</td></tr>'
             . '<tr><td style="padding:24px 32px;background:' . $c['surface'] . ';font-family:' . $c['font'] . ';font-size:13px;line-height:1.5;color:' . $c['glaz_3'] . ';">'
-            . '<strong>' . e((string) $pole['name']) . '</strong><br>' . $address . '<br>'
-            . '<a href="mailto:' . e((string) $pole['email']) . '" style="color:' . $c['glaz_3'] . ';">' . e((string) $pole['email']) . '</a> · <a href="' . e($site) . '/" style="color:' . $c['glaz_3'] . ';">ess29.org</a>'
-            . '<p style="margin:16px 0 0;">Vous recevez cette lettre car vous y êtes inscrit. <a href="' . e($unsubscribeUrl) . '" style="color:' . $c['glaz_3'] . ';">Se désinscrire</a></p>'
+            . '<strong>' . e((string) $org['name']) . '</strong><br>' . $address . '<br>'
+            . '<a href="mailto:' . e((string) $org['email']) . '" style="color:' . $c['glaz_3'] . ';">' . e((string) $org['email']) . '</a> · <a href="' . e($site) . '/" style="color:' . $c['glaz_3'] . ';">ess29.org</a>'
+            . '<p style="margin:16px 0 0;">' . e($why) . ($sympa ? '' : ' <a href="' . e($unsubscribeUrl) . '" style="color:' . $c['glaz_3'] . ';">Se désinscrire</a>') . '</p>'
             . '</td></tr></table></td></tr></table></body></html>';
 
         $text = $campaign['subject'] . "\n\n" . implode("\n\n---\n\n", array_map(fn ($b) => self::toText((string) $b), $blocks))
-            . "\n\n--\n" . $pole['name'] . "\n" . str_replace("\n", ', ', (string) $pole['address_lines']) . ', ' . $pole['postal_code'] . ' ' . $pole['city']
-            . "\n" . $pole['email'] . "\n\nSe désinscrire : $unsubscribeUrl\n";
+            . "\n\n--\n" . $org['name'] . "\n" . str_replace("\n", ', ', (string) $org['address_lines']) . ', ' . $org['postal_code'] . ' ' . $org['city']
+            . "\n" . $org['email'] . "\n\n" . $why . ($sympa ? '' : "\nSe désinscrire : $unsubscribeUrl") . "\n";
 
         return ['html' => $html, 'text' => $text];
     }

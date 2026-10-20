@@ -6,11 +6,12 @@ $draft = $c['status'] === 'draft';
 $steps = ['rediger' => 'Rédiger', 'verifier' => 'Vérifier', 'envoyer' => 'Envoyer'];
 $step = $id && isset($steps[$_GET['etape'] ?? '']) ? (string) $_GET['etape'] : 'rediger';
 $base = $id ? '/admin/newsletters/campagnes/' . (int) $id : '';
-$poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
+$list = array_column($lists, null, 'id')[$c['list_id']] ?? null;
+$listName = $list['label'] ?? '';
 ?>
 <header class="page-head">
   <div class="page-head__text">
-    <a class="back" href="/admin/newsletters<?= $c['pole_id'] ? '?onglet=' . e((string) (array_column($poles, 'slug', 'id')[$c['pole_id']] ?? '')) : '' ?>"><?= Ui::icon('back') ?>Lettres<?= $poleName ? ' · ' . e(Ui::poleShort($poleName)) : '' ?></a>
+    <a class="back" href="/admin/newsletters<?= $list ? '?onglet=' . e($list['org']) : '' ?>"><?= Ui::icon('back') ?>Lettres<?= $list ? ' · ' . e(Ui::poleShort($list['org_name'])) : '' ?></a>
     <h1><?= e($id ? $c['subject'] : 'Nouvelle lettre') ?></h1>
   </div>
   <?php if ($id): ?>
@@ -22,7 +23,7 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
 <section class="card" aria-labelledby="suivi-titre">
   <h2 class="card__title" id="suivi-titre">Lettre <?= $c['status'] === 'sent' ? 'envoyée' : 'en cours d\'envoi' ?></h2>
   <dl class="meta-list">
-    <dt>Pôle</dt><dd><?= e($poleName ?: '—') ?></dd>
+    <dt>Liste</dt><dd><?= e($listName ?: '—') ?></dd>
     <dt>Envoyés</dt><dd><?= (int) ($progress['sent'] ?? 0) ?></dd>
     <dt>En attente</dt><dd><?= (int) ($progress['pending'] ?? 0) ?></dd>
     <dt>Échecs ou désinscrits</dt><dd><?= (int) ($progress['failed'] ?? 0) ?></dd>
@@ -46,14 +47,12 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
   <?= Csrf::field() ?>
   <div class="form-grid">
     <div class="field field--wide"><label for="c-subject">Objet de l'e-mail <span class="req">(obligatoire)</span></label><input id="c-subject" name="subject" required maxlength="140" value="<?= e($c['subject']) ?>"></div>
-    <?php if (count($poles) > 1): ?>
-    <div class="field"><label for="c-pole">Envoyée aux abonnés du pôle</label><select id="c-pole" name="pole"><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"<?= (int) $c['pole_id'] === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name']) ?></option><?php endforeach ?></select></div>
-    <?php endif ?>
+    <div class="field"><label for="c-liste">Envoyée à la liste</label><select id="c-liste" name="liste"><?php foreach ($lists as $l): ?><option value="<?= (int) $l['id'] ?>"<?= (int) $c['list_id'] === (int) $l['id'] ? ' selected' : '' ?>><?= e($l['label']) ?></option><?php endforeach ?></select></div>
     <div class="field"><label for="c-template">Modèle (facultatif)</label><select id="c-template" name="template_id"><option value="">Aucun</option><?php foreach ($templates as $t): ?><option value="<?= (int) $t['id'] ?>"<?= (int) $c['template_id'] === (int) $t['id'] ? ' selected' : '' ?>><?= e($t['name']) ?></option><?php endforeach ?></select></div>
     <div class="field field--wide">
       <label for="c-body" id="c-body-label">Texte de la lettre <span class="req">(obligatoire)</span></label>
       <textarea id="c-body" name="body" rows="16" required aria-describedby="c-body-hint" data-rte="full" data-rte-html="<?= e(App\Admin\TextFields::editorHtml((string) $c['body'])) ?>"><?= e($c['body']) ?></textarea>
-      <p class="field__hint" id="c-body-hint">Le logo, les coordonnées du pôle et le lien de désinscription sont ajoutés automatiquement.</p>
+      <p class="field__hint" id="c-body-hint">Le logo, les coordonnées de l'organisme et le lien de désinscription sont ajoutés automatiquement.</p>
     </div>
   </div>
   <div class="form-foot">
@@ -85,9 +84,16 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
 <form class="card" method="post" action="<?= $base ?>/envoi" novalidate aria-labelledby="envoi-titre">
   <?= Csrf::field() ?>
   <h2 class="card__title" id="envoi-titre">Envoyer la lettre</h2>
-  <p><strong><?= (int) $recipients ?></strong> abonné<?= $recipients > 1 ? 's' : '' ?> actif<?= $recipients > 1 ? 's' : '' ?> <?= $poleName ? 'du ' . e($poleName) : '' ?> <?= $recipients > 1 ? 'recevront' : 'recevra' ?> cette lettre. Les e-mails partent petit à petit dans les heures qui suivent ; l'envoi ne peut plus être annulé.</p>
-  <?php if ($recipients === 0): ?>
-  <div class="notice notice--warning"><?= Ui::icon('alert') ?><p>Aucun abonné actif pour ce pôle : l'envoi est impossible.</p></div>
+  <?php $sympa = $list && $list['sympa_address'] !== ''; $blocked = $sympa ? false : $recipients === 0; ?>
+  <?php if ($sympa): ?>
+  <p>La lettre part une seule fois, à la liste de diffusion Sympa <strong><?= e($list['sympa_address']) ?></strong>, qui la distribue à ses abonnés (gérés dans Sympa). L'envoi ne peut plus être annulé.</p>
+  <?php else: ?>
+  <p><strong><?= (int) $recipients ?></strong> abonné<?= $recipients > 1 ? 's' : '' ?> actif<?= $recipients > 1 ? 's' : '' ?> <?= $listName ? 'de la liste ' . e($listName) : '' ?> <?= $recipients > 1 ? 'recevront' : 'recevra' ?> cette lettre. Les e-mails partent petit à petit dans les heures qui suivent ; l'envoi ne peut plus être annulé.</p>
+  <?php endif ?>
+  <?php if ($list && $list['sender_email'] === ''): ?>
+  <div class="notice notice--warning"><?= Ui::icon('alert') ?><p>Cette liste n'a pas encore d'adresse d'expédition : un administrateur doit la régler dans E-mails avant l'envoi.</p></div>
+  <?php elseif ($blocked): ?>
+  <div class="notice notice--warning"><?= Ui::icon('alert') ?><p>Aucun abonné actif dans cette liste : l'envoi est impossible.</p></div>
   <?php else: ?>
   <div class="field">
     <label class="switch" for="c-confirm">
@@ -99,7 +105,7 @@ $poleName = array_column($poles, 'name', 'id')[$c['pole_id']] ?? '';
   <?php endif ?>
   <div class="form-foot">
     <a class="btn" href="<?= $base ?>?etape=verifier"><?= Ui::icon('back') ?>Retour</a>
-    <button class="btn btn--primary" type="submit"<?= $recipients === 0 ? ' disabled' : '' ?>><?= Ui::icon('send') ?>Envoyer maintenant</button>
+    <button class="btn btn--primary" type="submit"<?= $blocked ? ' disabled' : '' ?>><?= Ui::icon('send') ?>Envoyer maintenant</button>
   </div>
 </form>
 <?php endif ?>

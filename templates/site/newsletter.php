@@ -12,7 +12,7 @@ use App\Site\Components;
     <p class="alert<?= $status === 'lien-invalide' ? ' alert--error' : '' ?>" role="status"><?= e($message) ?></p>
     <?php endif ?>
     <?php if ($status === 'desinscription' && $subscriber): ?>
-    <p>Vous allez vous désinscrire de la lettre du <?= e($subscriber['pole']) ?> pour l'adresse <strong><?= e($subscriber['email']) ?></strong>.</p>
+    <p>Vous allez vous désinscrire de la lettre <?= e($subscriber['org_name']) ?> pour l'adresse <strong><?= e($subscriber['email']) ?></strong>.</p>
     <form method="post" action="/newsletter/desinscription">
       <input type="hidden" name="jeton" value="<?= e($subscriber['token']) ?>">
       <button class="button" type="submit">Confirmer la désinscription</button>

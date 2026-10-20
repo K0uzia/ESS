@@ -3,7 +3,7 @@ use App\Admin\Ui;
 use App\Core\Csrf;
 
 $labels = ['active' => 'Actif', 'pending' => 'En attente', 'unsubscribed' => 'Désinscrit'];
-$slug = static fn (string $pole): string => strtolower((string) iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', Ui::poleShort($pole)));
+$listKeys = array_combine(array_map(static fn (array $l): string => 'l' . $l['id'], $lists), array_column($lists, 'label'));
 $n = count($rows);
 ?>
 <header class="page-head">
@@ -22,19 +22,19 @@ $n = count($rows);
   <?php else: ?>
   <?php
     $filters = ['etat' => ['Statut', ['active' => 'Actif', 'pending' => 'En attente', 'unsubscribed' => 'Désinscrit']]];
-    if (count($poles) > 1) { $filters = ['pole' => ['Pôle', array_combine(array_map(static fn ($p) => $slug($p['name']), $poles), array_map(static fn ($p) => Ui::poleShort($p['name']), $poles))]] + $filters; }
+    if (count($lists) > 1) { $filters = ['liste' => ['Liste', $listKeys]] + $filters; }
     $searchLabel = 'Rechercher une adresse'; $countWords = ['abonné', 'abonnés']; $total = $n;
     require ROOT . '/templates/admin/partials/filters.php';
   ?>
   <div class="table-wrap">
     <table class="table table--stack">
       <caption class="visually-hidden">Abonnés</caption>
-      <thead><tr><th scope="col">Adresse</th><th scope="col">Pôle</th><th scope="col">Statut</th><th scope="col">Accord donné</th><th scope="col" class="num">Depuis le</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <thead><tr><th scope="col">Adresse</th><th scope="col">Liste</th><th scope="col">Statut</th><th scope="col">Accord donné</th><th scope="col" class="num">Depuis le</th><th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th></tr></thead>
       <tbody>
         <?php foreach ($rows as $r): ?>
-        <tr data-f-pole="<?= e($slug($r['pole'])) ?>" data-f-etat="<?= e($r['status']) ?>">
+        <tr data-f-liste="l<?= (int) $r['list_id'] ?>" data-f-etat="<?= e($r['status']) ?>">
           <th scope="row"><?= e($r['email']) ?></th>
-          <td data-label="Pôle"><?= Ui::poleBadge($r['pole']) ?></td>
+          <td data-label="Liste"><?= e($r['list']) ?></td>
           <td data-label="Statut"><span class="badge<?= $r['status'] === 'active' ? ' badge--on' : ($r['status'] === 'unsubscribed' ? ' badge--off' : ' badge--warn') ?>"><?= $labels[$r['status']] ?></span></td>
           <td data-label="Accord donné" class="excerpt"><?= e($r['source']) ?></td>
           <td data-label="Depuis le" class="num"><?= e(Ui::date($r['consent_at'])) ?></td>
@@ -59,9 +59,7 @@ $n = count($rows);
       <?= Csrf::field() ?>
       <p class="muted">Seulement pour une personne qui a donné son accord (bulletin papier, salon…).</p>
       <div class="field"><label for="a-email">Adresse e-mail <span class="req">(obligatoire)</span></label><input id="a-email" name="email" type="email" required autocomplete="off"></div>
-      <?php if (count($poles) > 1): ?>
-      <div class="field"><label for="a-pole">Lettre du pôle</label><select id="a-pole" name="pole"><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach ?></select></div>
-      <?php endif ?>
+      <div class="field"><label for="a-liste">Liste</label><select id="a-liste" name="liste"><?php foreach ($lists as $l): ?><option value="<?= (int) $l['id'] ?>"><?= e($l['label']) ?></option><?php endforeach ?></select></div>
       <div class="field"><label for="a-source">Comment a-t-elle donné son accord ? <span class="req">(obligatoire)</span></label><input id="a-source" name="source" required aria-describedby="a-source-hint"><p class="field__hint" id="a-source-hint">Par exemple : bulletin d'adhésion 2026, salon de mai. Gardé comme preuve de l'accord.</p></div>
       <button class="btn btn--primary" type="submit">Ajouter l'abonné</button>
     </form>
@@ -71,11 +69,9 @@ $n = count($rows);
     <summary class="card__title"><?= Ui::icon('upload') ?>Importer une liste d'adresses</summary>
     <form method="post" action="/admin/newsletters/abonnes/import" enctype="multipart/form-data" novalidate>
       <?= Csrf::field() ?>
-      <p class="muted">Un fichier tableur enregistré au format CSV, avec une colonne « email ». Une colonne « pole » (Brest, Morlaix ou Cornouaille) et une colonne « date » sont reconnues si elles existent. Une adresse déjà inscrite n'est jamais modifiée.</p>
+      <p class="muted">Un fichier tableur enregistré au format CSV, avec une colonne « email ». Une colonne « date » est reconnue si elle existe ; une colonne « pole » (Brest, Morlaix, Cornouaille, ESS29, TAg29) range chaque ligne dans la liste du même public de cet organisme. Une adresse déjà inscrite n'est jamais modifiée.</p>
       <div class="field"><label for="i-csv">Fichier (.csv) <span class="req">(obligatoire)</span></label><input id="i-csv" name="csv" type="file" accept=".csv,text/csv" required></div>
-      <?php if (count($poles) > 1): ?>
-      <div class="field"><label for="i-pole">Lettre du pôle</label><select id="i-pole" name="pole"><option value="">Selon la colonne « pole » du fichier</option><?php foreach ($poles as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach ?></select></div>
-      <?php endif ?>
+      <div class="field"><label for="i-liste">Liste</label><select id="i-liste" name="liste"><?php foreach ($lists as $l): ?><option value="<?= (int) $l['id'] ?>"><?= e($l['label']) ?></option><?php endforeach ?></select></div>
       <div class="field"><label for="i-source">D'où viennent ces adresses ? <span class="req">(obligatoire)</span></label><input id="i-source" name="source" required aria-describedby="i-source-hint"><p class="field__hint" id="i-source-hint">Par exemple : inscrits de l'ancien site. Gardé comme preuve de l'accord.</p></div>
       <div class="field">
         <label class="switch" for="i-consent">

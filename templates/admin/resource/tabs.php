@@ -1,29 +1,33 @@
 <?php
 /**
- * Liste rangée par pôle (un onglet par pôle, plus un onglet hors pôle si prévu), puis par groupe.
+ * Liste rangée par pôle (un onglet par pôle, plus les onglets hors pôle prévus, chacun limité à ses groupes), puis par groupe.
  * Chaque groupe a son bouton « Ajouter », qui ouvre la fiche avec le pôle et le groupe déjà remplis.
  */
 use App\Admin\Ui;
 
 $cfg = $res['tabs'];
 $groupField = $cfg['group'] ?? null;
-// Libellés des groupes pris dans la définition complète : pour un éditeur TAg29, le champ « Groupe » est retiré du formulaire.
+// Libellés des groupes pris dans la définition complète : pour un éditeur ESS29 ou TAg29, le champ « Groupe » est retiré du formulaire.
 $groupLabels = $groupField !== null ? (App\Admin\Resources::get($key)['fields'][$groupField]['options'] ?? []) : [];
 $singular = $res['singular'];
 $article = in_array($singular, ['personne', 'offre'], true) ? 'une' : 'un';
 
-// Onglets : pôles visibles par l'utilisateur (un éditeur ne voit que le sien), puis l'onglet hors pôle.
+// Onglets : pôles visibles par l'utilisateur (un éditeur ne voit que le sien), puis les onglets hors pôle.
 $tabs = [];
 foreach ($poles as $p) {
     if ($poleFilter === null || (int) $p['id'] === (int) $poleFilter) {
         $tabs[$p['slug']] = ['label' => Ui::poleShort($p['name']), 'pole' => (int) $p['id'], 'groups' => $cfg['groups'] ?? [''], 'slug' => $p['slug']];
     }
 }
-if (isset($cfg['extra']) && $poleFilter === null) {
-    $tabs['hors-pole'] = ['label' => $cfg['extra'], 'pole' => null, 'groups' => $cfg['extra_groups'] ?? [''], 'slug' => ''];
+foreach ($poleFilter === null ? $cfg['extra'] ?? [] : [] as $slug => $extra) {
+    // Un éditeur ESS29 ou TAg29 ne voit que l'onglet de son groupe.
+    if (!isset($res['fixed']) || in_array($res['fixed'][$groupField] ?? null, $extra['groups'], true)) {
+        $tabs[$slug] = ['label' => $extra['label'], 'pole' => null, 'groups' => $extra['groups'], 'slug' => '', 'only' => $extra['groups']];
+    }
 }
 foreach ($tabs as $slug => &$tab) {
-    $tab['rows'] = array_values(array_filter($rows, static fn (array $r): bool => ($r['pole_id'] === null ? null : (int) $r['pole_id']) === $tab['pole']));
+    $tab['rows'] = array_values(array_filter($rows, static fn (array $r): bool => ($r['pole_id'] === null ? null : (int) $r['pole_id']) === $tab['pole']
+        && (!isset($tab['only']) || in_array((string) $r[$groupField], $tab['only'], true))));
     // Groupe présent dans les données mais non prévu pour cet onglet : affiché quand même.
     foreach ($tab['rows'] as $r) {
         $g = $groupField !== null ? (string) $r[$groupField] : '';
