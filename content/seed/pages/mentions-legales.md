@@ -24,5 +24,6 @@ Le traitement de vos données est décrit dans la [politique de confidentialité
 
 ## Crédits {#credits}
 
+- Conception et réalisation : [Kouzia](https://kouzia.com/), Alexandre Kouziaeff EI (SIRET 108 580 028 00018), au sein de La Capsule.
 - Polices Poppins, Viga et Quicksand : licence SIL Open Font License 1.1.
 - Charte graphique : ESS Bretagne, déclinaison Finistère.

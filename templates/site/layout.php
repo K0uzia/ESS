@@ -25,6 +25,22 @@ $jsonLd = [
         'email' => setting('email_contact'),
         'taxID' => str_replace(' ', '', setting('siret')),
         'subOrganization' => array_map(fn ($p) => ['@id' => $siteUrl . '/les-poles/#' . $p['slug']], $poles),
+    ], [
+        '@type' => 'WebSite',
+        '@id' => $siteUrl . '/#site',
+        'url' => $siteUrl . '/',
+        'name' => $shortName,
+        'inLanguage' => 'fr-FR',
+        'publisher' => ['@id' => $siteUrl . '/#organisation'],
+        'creator' => ['@id' => 'https://kouzia.com/#entreprise'],
+    ], [
+        // Crédit du pied de page ; les @id reprennent ceux publiés par kouzia.com.
+        '@type' => 'ProfessionalService',
+        '@id' => 'https://kouzia.com/#entreprise',
+        'name' => 'Kouzia',
+        'legalName' => 'Alexandre Kouziaeff',
+        'url' => 'https://kouzia.com/',
+        'founder' => ['@type' => 'Person', '@id' => 'https://kouzia.com/#fondateur', 'name' => 'Alexandre Kouziaeff'],
     ]], array_map(fn ($p) => [
         '@type' => 'Organization',
         '@id' => $siteUrl . '/les-poles/#' . $p['slug'],
@@ -138,7 +154,7 @@ $jsonLd = [
     </div>
     <div class="site-footer__bottom">
       <p>© <?= date('Y') ?> <?= e(setting('raison_sociale')) ?></p>
-      <p class="site-footer__credit">Site réalisé par <a href="https://kouzia.com" rel="noopener">Kouzia</a>, au sein de <a href="https://lacapsule.org" rel="noopener">La Capsule</a></p>
+      <p class="site-footer__credit">Conception et réalisation : <a href="https://kouzia.com/">Kouzia</a>, Alexandre Kouziaeff EI, au sein de <a href="https://lacapsule.org/">La Capsule</a></p>
       <ul aria-label="Informations légales">
         <li><a href="/plan-du-site/">Plan du site</a></li>
         <li><a href="/mentions-legales/">Mentions légales</a></li>

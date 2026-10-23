@@ -108,7 +108,7 @@ $isLogin = $user === null;
   <div class="notice <?= $err ? 'notice--error' : 'notice--success' ?>" role="<?= $err ? 'alert' : 'status' ?>"><?= Ui::icon($err ? 'alert' : 'check') ?><p><?= $err ? '<strong>Erreur :</strong> ' : '' ?><?= e($flash['message']) ?></p></div>
   <?php endforeach ?>
   <?= $content ?>
-  <footer class="app__credit"><p>Réalisé par <a href="https://kouzia.com" rel="noopener" target="_blank">Kouzia<span class="visually-hidden"> (nouvel onglet)</span></a>, au sein de <a href="https://lacapsule.org" rel="noopener" target="_blank">La Capsule<span class="visually-hidden"> (nouvel onglet)</span></a></p></footer>
+  <footer class="app__credit"><p>Conception et réalisation : <a href="https://kouzia.com/" rel="noopener" target="_blank">Kouzia<span class="visually-hidden"> (nouvel onglet)</span></a>, Alexandre Kouziaeff EI, au sein de <a href="https://lacapsule.org" rel="noopener" target="_blank">La Capsule<span class="visually-hidden"> (nouvel onglet)</span></a></p></footer>
 </main>
 <p class="visually-hidden" id="admin-live" role="status" aria-live="polite"></p>
 <dialog class="modal" id="modal" aria-labelledby="modal-title">

@@ -1,0 +1,2 @@
+-- Mentions légales : crédit de conception et réalisation (décision du 23 octobre 2026).
+UPDATE page_contents SET value = '- Conception et réalisation : [Kouzia](https://kouzia.com/), Alexandre Kouziaeff EI (SIRET 108 580 028 00018), au sein de La Capsule.' || char(10) || value, updated_at = CURRENT_TIMESTAMP WHERE page_key = 'mentions-legales' AND section_key = 'credits' AND field_key = 'body' AND value NOT LIKE '%kouzia.com%';
